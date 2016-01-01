@@ -6,7 +6,7 @@ matplotlib.rcParams['ps.fonttype'] = 42
 #matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
-matplotlib.rcParams.update({'font.size': 16})
+matplotlib.rcParams.update({'font.size': 20})
 
 
 from FluxFuncs_IRLE import *
@@ -15,14 +15,16 @@ from FluxFuncs_IRLE import *
 
 
 
-
 ###OPTIONS###OPTIONS
-FISO = False
+FISO = True
 FDOP = True
 
 ShTor_OptThin = True
 ShTor_OptThick = False
 Thick_Tor = False
+
+thetTst = 1.*ma.pi/3.
+Inc = 0.0#ma.pi/2.  #ma.acos(0.07/betst)#0.*np.pi/4.
 
 
 
@@ -56,7 +58,7 @@ nu0 = numicron
 Rde = RdPG
 Rrout = 1.0*Rde
 pp = 2.0
-thetTst = 1.*ma.pi/4.
+
 JJt = ma.pi/2.
 aeff = (c/nu0)/(2.*ma.pi) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
@@ -67,7 +69,6 @@ n0 = nfac*n10 ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 Lav = L0
 betst = 0.068#0.06776  ## gives 0.14 mag amplitdue at I=0 
-Inc = 0.0#ma.pi/2#ma.acos(0.07/betst)#0.*np.pi/4.
 Ombn = 2.*ma.pi/(Rde/c)  ##(2pi/P)
 alph = 0.0
 Dst = 1.4*10**9*pc2cm
@@ -104,7 +105,7 @@ tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
 ## INTEGRATION LIMTS FOR ALL nu
 Nnumn = 0.0
-Nnumx = 6.0
+Nnumx = 3.0
 numn = Nnumn*numicron
 numx = Nnumx*numicron
 
@@ -127,7 +128,7 @@ if (FISO):
 		###########---------------------------###########
 
 		print "Vary J"
-		thetTst = ma.pi/3.
+		#thetTst = ma.pi/3.
 		JJ1 = 0.0
 		#JJ2 = (thetTst - ma.pi/2)/2.
 		#JJ3 = (thetTst - ma.pi/2)
@@ -167,28 +168,32 @@ if (FISO):
 		plt.figure()
 		#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 		NRd = Rde/3.08e18
-		plt.title(r"Shell Torus, $\theta_T = \pi/3$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
+		if (thetTst == ma.pi/3.):
+			plt.title(r"Isotropic, Torus, $\theta_T = \pi/3$")
+		if (thetTst == ma.pi/4.):
+			plt.title(r"Isotropic, Torus, $\theta_T = \pi/4$")
 
-		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-		#IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		#IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#7570b3', linewidth=3)
 
 
 		plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/2$'), loc='lower right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/2$'), loc='lower right', fontsize=18)
 
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 		#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+		plt.tight_layout()
 
 		Savename = "plots/Iso_and_Dop/ShTor_Thin/FISO_ShTor_Thin_nrm%g_"%nrm+"_Rin%g_Inc%g_thetaT%g_VaryJ_numin%g_numx%g.png" %(Rde, Inc, thetTst, Nnumn, Nnumx)
 		Savename = Savename.replace('.', 'p')
@@ -245,26 +250,27 @@ if (FISO):
 		plt.figure()
 		#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 		NRd = Rde/3.08e18
-		plt.title(r"Shell Torus B"+"\n"+r"$F^{\rm{src}}_{\rm{iso}}$, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
+		plt.title(r"Torus B"+"\n"+r"$F^{\rm{src}}_{\rm{iso}}$, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
 
-		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#e7298a', linewidth=3)
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 		#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+		plt.tight_layout()
 
 		Savename = "plots/Iso_and_Dop/ShTor_Thick/FISO_ShTor_Thick_nrm%g_"%nrm+"_Rin%g_Inc%g_thetaT%g_VaryJ_numin%g_numx%g.png" %(Rde, Inc, thetTst, Nnumn, Nnumx)
 		Savename = Savename.replace('.', 'p')
@@ -323,24 +329,25 @@ if (FISO):
 		plt.title(r"Finite Torus"+r", $\theta_T = \pi/4$")
 		#plt.title(r"Finite Torus"+"\n"+r"$F^{\rm{src}}_{\rm{iso}}$, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
 
-		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#e7298a', linewidth=3)
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$n_0$',   r'$10n_0$',   r'$10^2 n_0$',  r'$10^3 n_0$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$n_0$',   r'$10n_0$',   r'$10^2 n_0$',  r'$10^3 n_0$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 		#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+		plt.tight_layout()
 
 		Savename = "plots/Iso_and_Dop/Thick/FISO_TorThick_OptThin_nrm%g_"%nrm+"_Rin%g_Inc%g_J%g_thetaT%g_Varyn0_numin%g_numx%g.png" %(Rde, Inc, JJt, thetTst, Nnumn, Nnumx)
 		Savename = Savename.replace('.', 'p')
@@ -367,8 +374,8 @@ if (FDOP):
 		# JJ3 = (thetTst - ma.pi/2)
 		# JJ4 = ma.pi/2
 
-		Inc = ma.pi/2.
-		thetTst = ma.pi/4.
+		#Inc = 0.0#ma.pi/2.
+		#thetTst = ma.pi/4.
 		JJ1 = 0.0
 		#JJ2 = (thetTst - ma.pi/2)/2.
 		#JJ3 = (thetTst - ma.pi/2)
@@ -408,27 +415,43 @@ if (FDOP):
 		plt.figure()
 		#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 		#NRd = Rde/3.08e18
-		plt.title(r"Shell Torus, $\theta_T = \pi/4$, $I=\pi/2$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
+		if (Inc == 0.0):
+			if (thetTst == ma.pi/3.):
+				plt.title(r"Doppler, Torus, $\theta_T = \pi/3$, $I=0$")
+			if (thetTst == ma.pi/4.):	
+				plt.title(r"Doppler, Torus, $\theta_T = \pi/4$, $I=0$")
 
-		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+		if (Inc == ma.pi/2.):
+			if (thetTst == ma.pi/3.):
+				plt.title(r"Doppler, Torus, $\theta_T = \pi/3$, $I=\pi/2$")
+			if (thetTst == ma.pi/4.):	
+				plt.title(r"Doppler, Torus, $\theta_T = \pi/4$, $I=\pi/2$")
 
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
 
-		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
+
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#e7298a', linewidth=3)
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/3$',  r'$J=\pi/2$'), loc='lower right')
-		#plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',  r'$J=\pi/4$',  r'$J=\pi/2$'), loc='lower right')
+
+		if (Inc == ma.pi/2.):
+			print "Dop I pi/2 plot"
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/3$',  r'$J=\pi/2$'), loc='lower right', fontsize=18)
+		else:
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',  r'$J=\pi/4$',  r'$J=\pi/2$'), loc='lower right')
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 		#plt.ylim(plt.ylim(11.8, 12.4)[::-1])
+		plt.tight_layout()
+
 
 		Savename = "plots/Iso_and_Dop/ShTor_Thin/FDop_ShTor_Thin_nrm%g_"%nrm+"_Rin%g_Inc%g_thetaT%g_VaryJ_numin%g_numx%g.png" %(Rde, Inc, thetTst, Nnumn, Nnumx)
 		Savename = Savename.replace('.', 'p')
@@ -483,26 +506,27 @@ if (FDOP):
 		plt.figure()
 		#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 		NRd = Rde/3.08e18
-		plt.title(r"Shell Torus B"+"\n"+r"$F^{\rm{src}}_{\rm{Dop}}$, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
+		plt.title(r"Torus B"+"\n"+r"$F^{\rm{src}}_{\rm{Dop}}$, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
 
-		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#e7298a', linewidth=3)
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 		#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+		plt.tight_layout()
 
 		Savename = "plots/Iso_and_Dop/ShTor_Thick/FDop_ShTor_Thick_nrm%g_"%nrm+"_Rin%g_Inc%g_thetaT%g_VaryJ_numin%g_numx%g.png" %(Rde, Inc, thetTst, Nnumn, Nnumx)
 		Savename = Savename.replace('.', 'p')
@@ -554,24 +578,25 @@ if (FDOP):
 		NRd = Rde/3.08e18
 		plt.title(r"Finite Torus"+r", $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
 
-		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#e7298a', linewidth=3)
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$n_0$',   r'$10n_0$',   r'$10^2 n_0$',  r'$10^3 n_0$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$n_0$',   r'$10n_0$',   r'$10^2 n_0$',  r'$10^3 n_0$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 		#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+		plt.tight_layout()
 
 		Savename = "plots/Iso_and_Dop/Thick/FDOP_TorThick_OptThin_nrm%g_"%nrm+"_Rin%g_Inc%g_J%g_thetaT%g_Varyn0_numin%g_numx%g.png" %(Rde, Inc, JJt, thetTst, Nnumn, Nnumx)
 		Savename = Savename.replace('.', 'p')
@@ -612,8 +637,8 @@ if (FDOP):
 # plt.title(r"Finite Torus"+r", $\theta_T = \pi/4$")
 # #plt.title(r"Finite Torus"+"\n"+r"$F^{\rm{src}}_{\rm{iso}}$, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
 
-# s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='green', linewidth=2)
-# s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+# s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='green', linewidth=3)
+# s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
 
 

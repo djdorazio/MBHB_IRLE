@@ -85,17 +85,19 @@ def ln_Sinprior(p, Flat, SinFit, No_Prd):
 			if Amp < 0.:
 				return -np.inf
 
-			if phs < -0.5*Prd or phs > 0.5*Prd:
+			# if phs < -0.5*Prd or phs > 0.5*Prd:
+			# 	return -np.inf
+			if phs < 0.0 or phs > 2*ma.pi:
 				return -np.inf
 		else:
 			Amp, Prd, phs, mag0 = p	
 			if Amp < 0.:
 				return -np.inf
 						
-			if Prd < 0.:
+			if Prd < 0. or Prd > 2500.:
 				return -np.inf
 
-			if phs < 0.0 or phs > Prd:
+			if phs < 0.0 or phs > 2*ma.pi:
 				return -np.inf
 					
 				
@@ -220,7 +222,9 @@ def sinPoint(params, t,  Flat, SinFit, No_Prd):
 			Amp, Prd, phs, mag0 = params
 		#Amp, phs, mag0 = params
 		#Prd=1884.
-	return Amp*np.sin( 2.*ma.pi/Prd*(t - phs) - np.pi/2) + mag0 
+	#return Amp*np.sin( 2.*ma.pi/Prd*(t - phs) - np.pi/2) + mag0
+	#return Amp*np.sin( 2.*ma.pi/Prd*(t - phs)) + mag0 
+	return Amp*np.sin( 2.*ma.pi/Prd*(t) - phs) + mag0 
 
 def SinErr2(p, t, y, dy, Flat, SinFit, No_Prd):
 	print "EVAL", p

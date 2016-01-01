@@ -6,7 +6,7 @@ matplotlib.rcParams['ps.fonttype'] = 42
 #matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
-matplotlib.rcParams.update({'font.size': 16})
+matplotlib.rcParams.update({'font.size': 20})
 
 
 from FluxFuncs_IRLE import *
@@ -18,15 +18,15 @@ from FluxFuncs_IRLE import *
 
 ###OPTIONS###OPTIONS
 #which model
-FISO = True
+FISO = False
 FDOP = True
 Sphere = True
 Ring = False
 
 #Which variable
-Plot_R   = True
+Plot_R   = False
 Plot_J   = False
-Plot_I   = False
+Plot_I   = True
 
 
 
@@ -204,22 +204,24 @@ if (FISO):
 			#plt.title(r"Sphere, $\Omega = 2\pi c / R_0$")
 			plt.title(r"Isotropic, Sphere, $P =  R_0/c$")
 
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
 
 			plt.grid(b=True, which='both')
-			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$R_d = R_0$',   r'$R_d = 0.8R_0$',   r'$R_d = 1.\bar{33}R_0$'), loc='upper right', fontsize=14)
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$R_d = R_0$',   r'$R_d = 0.8R_0$',   r'$R_d = 1.\bar{33}R_0$'), loc='upper right', fontsize=18)
 
 			plt.xlabel(r"$N_{\rm{orb}}$")
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			#plt.ylim(plt.ylim(11.7, 12.5)[::-1])
+
+			plt.tight_layout()
 
 			Savename = "plots/Iso_and_Dop/Sphere/FISO_Sphere_nrm%g_"%nrm+"Om%g_VaryRin_numin%g_numx%g.png" %(Omfac, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
@@ -266,13 +268,13 @@ if (FISO):
 			#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 			plt.title(r"Ring, $F^{\rm{src}}_{\rm{iso}}$, $J = %g$ rad" %(JJt))
 
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
 
 			plt.grid(b=True, which='both')
@@ -282,6 +284,8 @@ if (FISO):
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+
+			plt.tight_layout()
 
 			Savename = "plots/Iso_and_Dop/Ring/FISO_Ring_nrm%g_"%nrm+"_J%g_VaryRin_numin%g_numx%g.png" %(JJt, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
@@ -324,15 +328,15 @@ if (FISO):
 			NRd = Rde/3.08e18
 			plt.title(r"Ring, $F^{\rm{src}}_{\rm{iso}}$, $R_d = %g$ pc" %(NRd))
 
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
-			IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+			IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#e7298a', linewidth=3)
 
 
 			plt.grid(b=True, which='both')
@@ -342,6 +346,8 @@ if (FISO):
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+
+			plt.tight_layout()
 
 			Savename = "plots/Iso_and_Dop/Ring/FISO_Ring_nrm%g_"%nrm+"_Rin%g_VaryJ_numin%g_numx%g.png" %(Rde, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
@@ -409,13 +415,13 @@ if (FDOP):
 			#plt.title(r"Sphere, $\Omega = 2\pi c / R_0$, $I = %g$" %Inc)
 			plt.title(r"Doppler, Sphere, $P =  R_0/c$, $I = %g$" %Inc)
 
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
 
 			plt.grid(b=True, which='both')
@@ -425,6 +431,8 @@ if (FDOP):
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			#plt.ylim(plt.ylim(11.7, 12.5)[::-1])
+
+			plt.tight_layout()
 
 			Savename = "plots/Iso_and_Dop/Sphere/FDop_R0_Sphere_nrm%g_"%nrm+"_J%g_Inc%g_VaryRin_numin%g_numx%g.png" %(JJt, Inc, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
@@ -479,17 +487,17 @@ if (FDOP):
 			###PLOT###
 			plt.figure()
 			#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
-			plt.title(r"Sphere, $\Omega = 2\pi c / R_0$")
+			plt.title(r"Doppler, Sphere, $P = R_0/c$")
 
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='red', linewidth=2)
-			s2 = plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='orange', linewidth=2)
-			s3 = plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='brown', linewidth=2)
+			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='#1b9e77', linewidth=3)
+			s2 = plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='#d95f02', linewidth=3)
+			s3 = plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='#7570b3', linewidth=3)
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
 
 			plt.grid(b=True, which='both')
@@ -499,6 +507,8 @@ if (FDOP):
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			#plt.ylim(plt.ylim(11.7, 12.5)[::-1])
+
+			plt.tight_layout()
 
 			Savename = "plots/Iso_and_Dop/Sphere/FDop_Sphere_nrm%g_"%nrm+"Rde%g_VaryInc_numin%g_numx%g.png" %(Rde, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
@@ -546,13 +556,13 @@ if (FDOP):
 			#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 			plt.title(r"Ring, $F^{\rm{src}}_{\rm{Dop}}$, $J = %g$ rad" r" $I = %g$ rad" %(JJt, Inc))
 
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
 
 			plt.grid(b=True, which='both')
@@ -562,6 +572,8 @@ if (FDOP):
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+
+			plt.tight_layout()
 
 			Savename = "plots/Iso_and_Dop/Ring/FDop_Ring_nrm%g_"%nrm+"_J%g_Inc%g_VaryRin_numin%g_numx%g.png" %(JJt, Inc, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
@@ -604,15 +616,15 @@ if (FDOP):
 			NRd = Rde/3.08e18
 			plt.title(r"Ring, $F^{\rm{src}}_{\rm{Dop}}$, $R_d = %g$ pc " r" $I = %g$ rad" %(NRd, Inc))
 
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=3)
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='#1b9e77', linewidth=3)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='#d95f02', linewidth=3)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 
-			IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+			IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='#e7298a', linewidth=3)
 
 
 			plt.grid(b=True, which='both')
@@ -622,6 +634,8 @@ if (FDOP):
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+
+			plt.tight_layout()
 
 			Savename = "plots/Iso_and_Dop/Ring/FDop_Ring_nrm%g_"%nrm+"_Rin%g_Inc%g_VaryJ_numin%g_numx%g.png" %(Rde, Inc, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')

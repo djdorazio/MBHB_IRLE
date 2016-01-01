@@ -8,6 +8,8 @@ matplotlib.rcParams['font.family'] = 'sans-serif'
 matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
+matplotlib.rcParams.update({'font.size': 18})
+
 #import IR_LightEchoes_NewMeth as IRLE
 from FluxFuncs_IRLE import *
 from ErrFuncs_IRLE import *
@@ -188,15 +190,15 @@ def Plot_Shell_Thin_ISO(p, Fit_mag0, TwoRs, Nt, Shell_File,    W1args, W2args, R
 def Plot_Sin(p_Fsrc_sin, p_W1, p_W2, Nt, Shell_File,     Flat, SinFit, No_Prd,   tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig ,W1_avsg, W2_avsg):
 
 
-	ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,    Nt)
+	ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-2]+100,    Nt)
 
 	
 	
 
-	ttopt = (ttopt*(1.+zPG1302) - 50000)
-	t_avg = (t_avg*(1.+zPG1302) - 50000)
-	tsrt  = (tsrt*(1.+zPG1302) - 50000)
-	t_MJD = (t_MJD*(1.+zPG1302) - 50000)
+	ttopt = (ttopt*(1.+zPG1302) - 49100)
+	t_avg = (t_avg*(1.+zPG1302) - 49100)
+	tsrt  = (tsrt *(1.+zPG1302) - 49100)
+	t_MJD = (t_MJD*(1.+zPG1302) - 49100)
 
 
 
@@ -204,23 +206,33 @@ def Plot_Sin(p_Fsrc_sin, p_W1, p_W2, Nt, Shell_File,     Flat, SinFit, No_Prd,  
 
 
 	plt.figure()
-	plt.title("Sin Fits")
+	#plt.title("Sin Fits")
+	plt.scatter(tsrt, Lumsrt-3.0, color = "blue", alpha=0.5, s=8) #alpha=0.1
+	plt.scatter(t_MJD, W1_mag, color='orange', alpha=0.5, s=8)
+	plt.scatter(t_MJD, W2_mag+0.5, color='red', alpha=0.5, s=8)
+	plt.scatter(t_avg, W1_avg, color='black', alpha=1., s=8)
+	plt.scatter(t_avg, W2_avg+0.5, color='black', alpha=1., s=8)
+
+
+
 	plt.errorbar(tsrt, Lumsrt-3.0, yerr=sigL, linestyle="none", color = "blue", alpha=0.5) #alpha=0.1
-
-
-	W1dat   = plt.errorbar(t_MJD, W1_mag, yerr=W1_sig, linestyle="none", color='orange', alpha=1., elinewidth=1.5)
-	W2dat   = plt.errorbar(t_MJD, W2_mag+0.5, yerr=W2_sig, linestyle="none", color='red', alpha=1., elinewidth=1.5)
-
-	W1av   = plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
-	W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
+	plt.errorbar(t_MJD, W1_mag, yerr=W1_sig, linestyle="none", color='orange', alpha=0.5, elinewidth=1.5)
+	plt.errorbar(t_MJD, W2_mag+0.5, yerr=W2_sig, linestyle="none", color='red', alpha=0.5, elinewidth=1.5)
+	plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
+	plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
 
 
 
 	print "PLOT Sins"
-	Fsrc = plt.plot(ttopt, sinPoint(p_Fsrc_sin, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd)-3., linestyle = '--', color='blue', linewidth=2)
+	# Fsrc = plt.plot(ttopt, sinPoint(p_Fsrc_sin, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd)-3., linestyle = '--', color='blue', linewidth=2)
 
-	W1sin = plt.plot(ttopt, sinPoint(p_W1, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd), linestyle = '--', color='orange', linewidth=2)
-	W2sin = plt.plot(ttopt, sinPoint(p_W2, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd)+0.5, linestyle = '--', color='red', linewidth=2)
+	# W1sin = plt.plot(ttopt, sinPoint(p_W1, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd), linestyle = '--', color='orange', linewidth=2)
+	# W2sin = plt.plot(ttopt, sinPoint(p_W2, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd)+0.5, linestyle = '--', color='red', linewidth=2)
+
+	Fsrc = plt.plot(ttopt, sinPoint(p_Fsrc_sin, (ttopt+49100)/(1.+zPG1302),  Flat, SinFit, No_Prd)-3., linestyle = '--', color='blue', linewidth=3)
+
+	W1sin = plt.plot(ttopt, sinPoint(p_W1, (ttopt+49100)/(1.+zPG1302),  Flat, SinFit, No_Prd), linestyle = '--', color='orange', linewidth=3)
+	W2sin = plt.plot(ttopt, sinPoint(p_W2, (ttopt+49100)/(1.+zPG1302),  Flat, SinFit, No_Prd)+0.5, linestyle = '--', color='red', linewidth=3)
 
 
 
@@ -228,12 +240,16 @@ def Plot_Sin(p_Fsrc_sin, p_W1, p_W2, Nt, Shell_File,     Flat, SinFit, No_Prd,  
 	plt.grid(b=True, which='both')
 			
 
-	plt.xlabel(r"$t$ [MJD]")
+	plt.xlabel(r"$t$ [MJD - 49100]")
 	plt.ylabel("mag")
 	#plt.xlim(52000, 57500)
-	plt.xlim(3000, max(ttopt))
+	plt.xlim(3500, max(ttopt))
 	#plt.ylim(10.5, 11.5)
+	
+	#plt.xlim(0, 7000)
 	plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+
+	plt.tight_layout()
 
 	#plt.show()
 	plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")

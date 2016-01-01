@@ -6,7 +6,7 @@ matplotlib.rcParams['ps.fonttype'] = 42
 #matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
-matplotlib.rcParams.update({'font.size': 16})
+matplotlib.rcParams.update({'font.size': 20})
 
 import IR_LightEchoes_NewMeth as IRLE
 from IR_LightEchoes_NewMeth import *
@@ -174,7 +174,7 @@ if (Thin):
 
 		
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$i=0$','',   r'$i=\pi/4$','',   r'$i=\pi/2$', ''), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$i=0$','',   r'$i=\pi/4$','',   r'$i=\pi/2$', ''), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -221,7 +221,7 @@ if (Thin):
 		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=2(R_{\rm{orb}}/c)$', r'$R_d=3(R_{\rm{orb}}/c)$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=2(R_{\rm{orb}}/c)$', r'$R_d=3(R_{\rm{orb}}/c)$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -282,7 +282,7 @@ if (Thin):
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$\Omega=0.5\Omega_{0}$',  r'$\Omega=\Omega_{0}$', r'$\Omega=1.5\Omega_{0}$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$\Omega=0.5\Omega_{0}$',  r'$\Omega=\Omega_{0}$', r'$\Omega=1.5\Omega_{0}$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -340,7 +340,7 @@ if (Thin):
 		s3 = plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='green', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$\beta=0.1$','',   r'$\beta=0.2$','',   r'$\beta=0.3$', ''), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$\beta=0.1$','',   r'$\beta=0.2$','',   r'$\beta=0.3$', ''), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -395,7 +395,7 @@ if (Thin):
 
 		plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$',  r'$J=\pi/3$', r'$J=\pi/2$'), loc='upper right')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$', r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$', r'$J=\pi/2$'), loc='upper right', fontsize=18)
 
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
@@ -449,7 +449,7 @@ if (Thin):
 		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$\theta_T=0$',  r'$\theta_T=\pi/4$', r'$\theta_T=\pi/3$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$\theta_T=0$',  r'$\theta_T=\pi/4$', r'$\theta_T=\pi/3$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -499,7 +499,7 @@ if (Thin):
 		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -563,7 +563,7 @@ if (Thick):
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$I=0$','',   r'$I=\pi/4$','',   r'$I=\pi/2$', ''), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$I=0$','',   r'$I=\pi/4$','',   r'$I=\pi/2$', ''), loc='upper right', fontsize=18)
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
@@ -620,7 +620,7 @@ if (Thick):
 		IR3=plt.plot(tt1/(2*np.pi/Om1), FI3+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=2(R_{\rm{orb}}/c)$', r'$R_d=3(R_{\rm{orb}}/c)$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=2(R_{\rm{orb}}/c)$', r'$R_d=3(R_{\rm{orb}}/c)$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -674,7 +674,7 @@ if (Thick):
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$\Omega=0.5\Omega_{0}$',  r'$\Omega=\Omega_{0}$', r'$\Omega=1.5\Omega_{0}$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$\Omega=0.5\Omega_{0}$',  r'$\Omega=\Omega_{0}$', r'$\Omega=1.5\Omega_{0}$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -727,7 +727,7 @@ if (Thick):
 
 		plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$', r'$J=-(\pi/2 - \theta_T)$'), loc='upper right')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$'), loc='upper right', fontsize=18)
 
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
@@ -778,7 +778,7 @@ if (Thick):
 		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$\theta_T=0$',  r'$\theta_T=\pi/4$', r'$\theta_T=\pi/3$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$\theta_T=0$',  r'$\theta_T=\pi/4$', r'$\theta_T=\pi/3$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -829,7 +829,7 @@ if (Thick):
 		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$p=2$',  r'$p=3$', r'$p=4$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$p=2$',  r'$p=3$', r'$p=4$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -880,7 +880,7 @@ if (Thick):
 		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right', fontsize=18)
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -975,7 +975,7 @@ if (Plot_v_R):
 		plt.axvline(W2mx, linestyle="--", color="blue")
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ IR1[0], IR2[0], IR3[0], IR4[0] ], ( r'$R_{\rm{out}}=5 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=50 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+		plt.legend( [ IR1[0], IR2[0], IR3[0], IR4[0] ], ( r'$R_{\rm{out}}=5 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=50 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right', fontsize=18)
 	#	plt.legend( [ IR1[0], IR4[0] ], (r'$R_{\rm{out}}=10 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
 
 

@@ -7,13 +7,13 @@ from scipy import *
 import emcee
 
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
 matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
-matplotlib.rcParams.update({'font.size': 16})
+matplotlib.rcParams.update({'font.size': 20})
 import matplotlib.pyplot as plt
 
 from scipy import optimize
@@ -28,13 +28,15 @@ from emcee_Funcs import *
 ### OPTIONS
 ################################
 ################################
+TrimB = True
 Flat = False
 
 SinFit = True
 No_Prd = True
+FitAll = False
 
 ##multiprocessing
-NThread = 4
+NThread = 16
 
 
 
@@ -80,7 +82,6 @@ W2_mag = np.genfromtxt("../dat/all.pg1302.txt",usecols=10, comments="|")
 W2_sig = np.genfromtxt("../dat/all.pg1302.txt",usecols=11, comments="|")
 
 
-W2_sig = np.genfromtxt("../dat/all.pg1302.txt",usecols=11, comments="|")
 
 ##error flags
 qual_frame  = np.genfromtxt("../dat/all.pg1302.txt",usecols=19, comments="|")
@@ -89,28 +90,42 @@ moon_masked = np.genfromtxt("../dat/all.pg1302.txt",usecols=22, comments="|")
 
 idelq = np.where(qual_frame == 0)[0]
 idels = np.where(saa_sep < 0.)[0]
-idelm = np.where(moon_masked == 1)[0]
+# idelma = np.where(moon_masked == 1)[0]
+# idelmb = np.where(moon_masked == 11)[0]
+# idelmc = np.where(moon_masked == 111)[0]
+# idelmd = np.where(moon_masked == 1111)[0]
+idelm = np.where(moon_masked != 0000)[0]
+
+idel1  = np.append(idelq, idels)
+# idel2 = np.append(idelma, idel1)
+# idel3 = np.append(idelmb, idel2)
+# idel4 = np.append(idelmc, idel3)
+idelall = np.append(idelm, idel1)
 
 ##remove flagged values
-W2_mag=np.delete(W2_mag,idelq)
-W2_sig=np.delete(W2_sig,idelq)
-t_MJD = np.delete(t_MJD,idelq)
-W1_mag=np.delete(W1_mag,idelq)
-W1_sig=np.delete(W1_sig,idelq)
+W2_mag=np.delete(W2_mag,idelall)
+W2_sig=np.delete(W2_sig,idelall)
+t_MJD = np.delete(t_MJD,idelall)
+W1_mag=np.delete(W1_mag,idelall)
+W1_sig=np.delete(W1_sig,idelall)
 
-W2_mag=np.delete(W2_mag,idels)
-W2_sig=np.delete(W2_sig,idels)
-t_MJD = np.delete(t_MJD,idels)
-W1_mag=np.delete(W1_mag,idels)
-W1_sig=np.delete(W1_sig,idels)
+# W2_mag=np.delete(W2_mag,idels)
+# W2_sig=np.delete(W2_sig,idels)
+# t_MJD = np.delete(t_MJD,idels)
+# W1_mag=np.delete(W1_mag,idels)
+# W1_sig=np.delete(W1_sig,idels)
 
-W2_mag=np.delete(W2_mag,idelm)
-W2_sig=np.delete(W2_sig,idelm)
-t_MJD = np.delete(t_MJD,idelm)
-W1_mag=np.delete(W1_mag,idelm)
-W1_sig=np.delete(W1_sig,idelm)
+# W2_mag=np.delete(W2_mag,idelm)
+# W2_sig=np.delete(W2_sig,idelm)
+# t_MJD = np.delete(t_MJD,idelm)
+# W1_mag=np.delete(W1_mag,idelm)
+# W1_sig=np.delete(W1_sig,idelm)
 
-
+if (TrimB):
+	idelB = np.where(tsrt*(1.+zPG1302) <= 3500+49100.)[0]
+	tsrt    =  np.delete(tsrt,idelB)
+	Lumsrt  =  np.delete(Lumsrt,idelB)
+	sigLsrt =  np.delete(sigLsrt,idelB)
 
 ###### get average value for each cluster of data points in time
 iseg = []
@@ -128,15 +143,15 @@ W2_avsg = []
 
 
 for i in range(0 , len(iseg)-1):
-	t_avg.append(np.mean(t_MJD[iseg[i]+1:iseg[i+1]]))
+	t_avg.append(np.mean(t_MJD[iseg[i]+1:iseg[i+1]+1]))
 
-	W1_avg.append(np.mean(W1_mag[iseg[i]+1:iseg[i+1]]))
-	W2_avg.append(np.mean(W2_mag[iseg[i]+1:iseg[i+1]]))
+	W1_avg.append(np.mean(W1_mag[iseg[i]+1:iseg[i+1]+1]))
+	W2_avg.append(np.mean(W2_mag[iseg[i]+1:iseg[i+1]+1]))
 
 	#W1_avsg.append((max(W1_mag[iseg[i]+1:iseg[i+1]]) - min(W1_mag[iseg[i]+1:iseg[i+1]]))/6.)
 	#W2_avsg.append((max(W2_mag[iseg[i]+1:iseg[i+1]]) - min(W2_mag[iseg[i]+1:iseg[i+1]]))/6.)
-	Nseg1 = len(W1_sig[iseg[i]+1:iseg[i+1]])
-	Nseg2 = len(W2_sig[iseg[i]+1:iseg[i+1]])
+	Nseg1 = len(W1_sig[iseg[i]+1:iseg[i+1]]) + 1
+	Nseg2 = len(W2_sig[iseg[i]+1:iseg[i+1]]) + 1
 
 	#W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
 	#W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
@@ -148,14 +163,19 @@ for i in range(0 , len(iseg)-1):
 #MJD 51537.0 (ISO), 55022.5 (Akari)
 #t_avg.append(51537.0-50000.0)
 t_avg.append(55022.5/(1.+zPG1302))
+t_MJD = np.append(t_MJD, 55022.5/(1.+zPG1302))
 #W1 NaN, 11.3008
 W1_avg.append(11.3008)
+W1_mag = np.append(W1_mag,11.3008)
 #W1_error NaN, 0.0603544
 W1_avsg.append(0.0603544)
+W1_sig = np.append(W1_sig, 0.0603544)
 #W2 10.3370, 10.2411
 W2_avg.append(10.2411)
+W2_mag = np.append(W2_mag,10.2411)
 #W2_error 0.217200, 0.0691765
 W2_avsg.append(0.0691765)
+W2_sig = np.append(W2_sig,0.0691765)
 
 t_avg = np.array(t_avg)
 W1_avg = np.array(W1_avg)
@@ -194,24 +214,31 @@ elif (SinFit):
 	if (No_Prd):
 		ndim = 3
 		Shell_File = "SinFit_NOPrd"
-		param_names = ['Amp','phase','mag0']
-		Sinp0_src = [0.1269, 1403.4292, 14.8330]
+		param_names = [r'$A$',r'$t_0$',r'$\rm{mag}_0$']
+		Sinp0_src = [0.14, 2.1, 14.8330]
 		Sinp0_W1 = [0.0887, 0.01, 11.3]
 		Sinp0_W2 = [0.1, 0.01, 10.3]	
 	else:
 		ndim = 4
 		Shell_File = "SinFit_wPrd"
-		param_names = ['Amp','Prd','phase','mag0']	
-		Sinp0_src = [0.1269, SinPrd, 1403.4292, 14.8330]
-		Sinp0_W1 = [0.0887, SinPrd, 0.01, 11.3]
-		Sinp0_W2 = [0.1, SinPrd, 0.01, 10.3]
+		param_names = [r'$A$',r'$P$', r'$t_0$',r'$\rm{mag}_0$']	
+		Sinp0_src = [0.14, SinPrd, 2.7, 14.8330]
+		Sinp0_W1 = [0.0887, SinPrd, 3.0, 11.3]
+		Sinp0_W2 = [0.1, SinPrd, 3.0, 10.3]
+
+
 	
 nwalkers = ndim*16
 
-src_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(tsrt, Lumsrt, sigLsrt, Flat, SinFit, No_Prd))
-
-W1_sin_sampler  = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W1_avg, W1_avsg, Flat, SinFit, No_Prd))
-W2_sin_sampler  = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W2_avg, W2_avsg, Flat, SinFit, No_Prd))
+if (FitAll):
+	src_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(tsrt, Lumsrt, sigLsrt, Flat, SinFit, No_Prd))
+	W1_sin_sampler  = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_MJD, W1_mag, W1_sig, Flat, SinFit, No_Prd))
+	W2_sin_sampler  = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_MJD, W2_mag, W2_sig, Flat, SinFit, No_Prd))
+	Shell_File = Shell_File + "_FitALLIR_"
+else:
+	src_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(tsrt, Lumsrt, sigLsrt, Flat, SinFit, No_Prd))
+	W1_sin_sampler  = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W1_avg, W1_avsg, Flat, SinFit, No_Prd))
+	W2_sin_sampler  = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W2_avg, W2_avsg, Flat, SinFit, No_Prd))
 
 
 #p0 = np.array(p0)
@@ -471,15 +498,17 @@ target.close()
 # print "PLOTTING BEST FIT LIGHT CURVES"
 from Gen_Plot import *
 # if (Shell_OptThin):
-# 	#Plot_Shell_Thin_ISO(p_opt, 40, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
-# 	Plot_SinFlat(W1_sin_p_opt, W1_sin_p_opt, 40, Shell_File,   tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
+# 	#Plot_Shell_Thin_ISO(p_opt, 40, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigLsrt, W1_sig, W2_sig, W1_avsg, W2_avsg)
+# 	Plot_SinFlat(W1_sin_p_opt, W1_sin_p_opt, 40, Shell_File,   tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigLsrt, W1_sig, W2_sig, W1_avsg, W2_avsg)
 
 print "Plotting Best Fit Sins"
 #p_Fsrc_sin = [0.1269, 1403.4292, 14.8330]
 Nt = 40
 
-#Plot_Sin(p_Fsrc_sin, W1_sin_p_opt, W2_sin_p_opt, Nt, Shell_File,    Flat, SinFit, No_Prd,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig ,W1_avsg, W2_avsg)
-Plot_Sin(src_sin_p_opt, W1_sin_p_opt, W2_sin_p_opt, Nt, Shell_File,    Flat, SinFit, No_Prd,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig ,W1_avsg, W2_avsg)
+if (TrimB):
+	Shell_File = Shell_File+"_TrimB_"
+#Plot_Sin(p_Fsrc_sin, W1_sin_p_opt, W2_sin_p_opt, Nt, Shell_File,    Flat, SinFit, No_Prd,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigLsrt, W1_sig, W2_sig ,W1_avsg, W2_avsg)
+Plot_Sin(src_sin_p_opt, W1_sin_p_opt, W2_sin_p_opt, Nt, Shell_File,    Flat, SinFit, No_Prd,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigLsrt, W1_sig, W2_sig ,W1_avsg, W2_avsg)
 
 
 
