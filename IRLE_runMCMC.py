@@ -107,13 +107,13 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 print "Importing Data to fit..."
 #Import Data to fit
 
-t_MJD = np.genfromtxt("all.pg1302.txt",usecols=23, comments="|")
+t_MJD = np.genfromtxt("dat/all.pg1302.txt",usecols=23, comments="|")
 
-W1_mag = np.genfromtxt("all.pg1302.txt",usecols=7, comments="|")
-W1_sig = np.genfromtxt("all.pg1302.txt",usecols=8, comments="|")
+W1_mag = np.genfromtxt("dat/all.pg1302.txt",usecols=7, comments="|")
+W1_sig = np.genfromtxt("dat/all.pg1302.txt",usecols=8, comments="|")
 
-W2_mag = np.genfromtxt("all.pg1302.txt",usecols=10, comments="|")
-W2_sig = np.genfromtxt("all.pg1302.txt",usecols=11, comments="|")
+W2_mag = np.genfromtxt("dat/all.pg1302.txt",usecols=10, comments="|")
+W2_sig = np.genfromtxt("dat/all.pg1302.txt",usecols=11, comments="|")
 
 
 
@@ -346,20 +346,20 @@ if (SinFit):
 	W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
 
 	print "SAVING THE PICKLE mmmmm"
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_W1_sin.pickle", "w") as f1:
+	with open("../emcee_data/Pickles/PG1302_W1_sin.pickle", "w") as f1:
 		pickle.dump((W1_sin_sampler.chain, W1_sin_sampler.lnprobability), f1)
 
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_W2_sin.pickle", "w") as f1:
+	with open("../emcee_data/Pickles/PG1302_W2_sin.pickle", "w") as f1:
 		pickle.dump((W2_sin_sampler.chain, W2_sin_sampler.lnprobability), f1)
 
 			
 
 
 	### OPEN OUTPUT DATA
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_W1_sin.pickle") as f1:
+	with open("../emcee_data/Pickles/PG1302_W1_sin.pickle") as f1:
 		W1_sin_chain,W1_sin_lnprobs = pickle.load(f1)
 
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_W2_sin.pickle") as f1:
+	with open("../emcee_data/Pickles/PG1302_W2_sin.pickle") as f1:
 		W2_sin_chain,W2_sin_lnprobs = pickle.load(f1)
 
 
@@ -397,12 +397,12 @@ if (ShellFit):
 
 
 	print "SAVING THE PICKLE mmmmm"
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle", "w") as f1:
+	with open("../emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle", "w") as f1:
 		pickle.dump((ShW1_sampler.chain, ShW1_sampler.lnprobability), f1)
 
 
 	### OPEN OUTPUT DATA
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle") as f1:
+	with open("../emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle") as f1:
 		ShW1_chain,ShW1_lnprobs = pickle.load(f1)
 
 
@@ -426,9 +426,9 @@ if (SinFit):
 	param_names = ['Amp','Prd','phase','mag0']			
 
 
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_W1_sin.pickle") as f1:
+	with open("../emcee_data/Pickles/PG1302_W1_sin.pickle") as f1:
 		W1_sin_chain,W1_sin_lnprobs = pickle.load(f1)
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_W2_sin.pickle") as f1:
+	with open("../emcee_data/Pickles/PG1302_W2_sin.pickle") as f1:
 		W2_sin_chain,W2_sin_lnprobs = pickle.load(f1)
 
 
@@ -440,7 +440,7 @@ if (SinFit):
 			plt.plot(W1_sin_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 			plt.ylabel(param_names[k])
 			plt.xlabel('steps')
-		plt.savefig('/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/W1_sin_PG1302_%s_walkers.png' %param_names[k])
+		plt.savefig('../emcee_data/W1_sin_PG1302_%s_walkers.png' %param_names[k])
 
 
 	for k in range(W2_sin_chain.shape[2]):
@@ -450,7 +450,7 @@ if (SinFit):
 			plt.plot(W2_sin_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 			plt.ylabel(param_names[k])
 			plt.xlabel('steps')
-		plt.savefig('/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/W2_sin_PG1302_%s_walkers.png' %param_names[k])
+		plt.savefig('../emcee_data/W2_sin_PG1302_%s_walkers.png' %param_names[k])
 
 
 
@@ -467,10 +467,10 @@ if (SinFit):
 	#import triangle
 	import corner as triangle
 	W1_sin_fig = triangle.corner(W1_sin_flatchain, labels=param_names)			
-	W1_sin_fig.savefig('/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/W1_sin_PG1302_Corner_Plot.png')
+	W1_sin_fig.savefig('../emcee_data/W1_sin_PG1302_Corner_Plot.png')
 
 	W2_sin_fig = triangle.corner(W2_sin_flatchain, labels=param_names)			
-	W2_sin_fig.savefig('/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/W2_sin_PG1302_Corner_Plot.png')
+	W2_sin_fig.savefig('../emcee_data/W2_sin_PG1302_Corner_Plot.png')
 
 
 
@@ -537,7 +537,7 @@ if (ShellFit):
 	param_names = ['cosJ','Rin', 'n0']			
 
 
-	with open("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle") as f1:
+	with open("../emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle") as f1:
 		ShW1_chain,ShW1_lnprobs = pickle.load(f1)
 	
 
@@ -550,7 +550,7 @@ if (ShellFit):
 			plt.plot(ShW1_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 			plt.ylabel(param_names[k])
 			plt.xlabel('steps')
-		plt.savefig('/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/ShW2_PG1302_%s_walkers.png' %param_names[k])
+		plt.savefig('../emcee_data/ShW2_PG1302_%s_walkers.png' %param_names[k])
 
 
 	
@@ -565,7 +565,7 @@ if (ShellFit):
 	#import triangle
 	import corner as triangle
 	ShW1_fig = triangle.corner(ShW1_flatchain, labels=param_names)			
-	ShW1_fig.savefig('/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/ShW2_PG1302_Corner_Plot.png')
+	ShW1_fig.savefig('../emcee_data/ShW2_PG1302_Corner_Plot.png')
 
 
 	## Do some stats on the walkers
@@ -603,9 +603,9 @@ if (ShellFit):
 
 #####------PLOT SOLUTION------####
 ### PLOT POINTS
-Tt   =  loadtxt("/Users/dorazio/Desktop/Recovered/Projects/Zoltan/PG_1302_102/python/RV_DopFit/data/Lums_PG1302.dat", usecols=[0])
-Lum  =  loadtxt("/Users/dorazio/Desktop/Recovered/Projects/Zoltan/PG_1302_102/python/RV_DopFit/data/Lums_PG1302.dat", usecols=[1])
-sigL =  loadtxt("/Users/dorazio/Desktop/Recovered/Projects/Zoltan/PG_1302_102/python/RV_DopFit/data/Lums_PG1302.dat", usecols=[2])
+Tt   =  loadtxt("dat/Lums_PG1302.dat", usecols=[0])
+Lum  =  loadtxt("dat/Lums_PG1302.dat", usecols=[1])
+sigL =  loadtxt("dat/Lums_PG1302.dat", usecols=[2])
 
 Lum_Mean = mean(Lum)
 Lum      = (Lum - Lum_Mean)  ## for def of mag - mag0
@@ -661,7 +661,7 @@ plt.xlim(52000, 57500)
 plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
-plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/emcee_data/W2_BestFit.png")
+plt.savefig("../emcee_data/W2_BestFit.png")
 
 
 			
