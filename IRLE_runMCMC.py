@@ -107,13 +107,13 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 print "Importing Data to fit..."
 #Import Data to fit
 
-t_MJD = np.genfromtxt("emcee_data/all.pg1302.txt",usecols=23, comments="|")
+t_MJD = np.genfromtxt("all.pg1302.txt",usecols=23, comments="|")
 
-W1_mag = np.genfromtxt("emcee_data/all.pg1302.txt",usecols=7, comments="|")
-W1_sig = np.genfromtxt("emcee_data/all.pg1302.txt",usecols=8, comments="|")
+W1_mag = np.genfromtxt("all.pg1302.txt",usecols=7, comments="|")
+W1_sig = np.genfromtxt("../emcee_data/all.pg1302.txt",usecols=8, comments="|")
 
-W2_mag = np.genfromtxt("emcee_data/all.pg1302.txt",usecols=10, comments="|")
-W2_sig = np.genfromtxt("emcee_data/all.pg1302.txt",usecols=11, comments="|")
+W2_mag = np.genfromtxt("all.pg1302.txt",usecols=10, comments="|")
+W2_sig = np.genfromtxt("all.pg1302.txt",usecols=11, comments="|")
 
 
 

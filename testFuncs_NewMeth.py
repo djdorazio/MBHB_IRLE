@@ -70,11 +70,27 @@ nnu = np.linspace(0.01, 2.,       Nt)*numicron
 
 ##TABULATE T's and RHSs
 print "Creating look up tables"
-NT = 10000
+NT = 1000
 RHS_table = np.zeros(NT)
 T_table = np.linspace(10., 3000., NT)
 for i in range(NT):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
+
+print "compute tau_los tables"
+nx=101
+nz=101
+xx = np.linspace(-Rrout, Rrout, nx)
+zz = np.linspace(-Rrout, Rrout, nz)
+#ph = np.linspace(0, 2.*ma.pi, 10)
+#rrg,thg,phg = np.meshgrid(rr, th, ph)
+
+
+tauGrid = [[],[],[]]
+for i in range(0, nx):
+	for j in range(0, nz):
+			tauGrid[0].append(tauObs(xx[i], zz[j], Rrout, aeff, n0, Rde, pp, thetTst, JJt))
+			tauGrid[1].append(xx[i])
+			tauGrid[2].append(zz[j])
 
 
 
@@ -178,7 +194,7 @@ print t8-t7
 
 
 t9=time.clock()
-chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, 0.*2*ma.pi/Ombn, Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
+chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, 0.*2*ma.pi/Ombn, Dst, Rrout, Targs, RHS_table, T_table, tauGrid)/FW1Rel)
 t10=time.clock()
 print t10-t9
 
