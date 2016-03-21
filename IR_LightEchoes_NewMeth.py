@@ -387,16 +387,16 @@ def Fnu_Shell(nu, t, Dist, Rout, Aargs, RHStable, Ttable):
 
 # int over freqeuncy
 def Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
-	#if (type(t) is float):
-	#	return intg.quad(Fnu_Shell, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
-	#else:
-	res=[]
-	#i=0
-	#while (i<len(t)):
-	for i in range(len(t)):
-		res.append(intg.quad(Fnu_Shell, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
-		#i += 1
-	return np.array(res)
+	if (type(t) is float):
+		return intg.quad(Fnu_Shell, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+	else:
+		res=[]
+		#i=0
+		#while (i<len(t)):
+		for i in range(len(t)):
+			res.append(intg.quad(Fnu_Shell, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
+			#i += 1
+		return np.array(res)
 
 
 
@@ -435,13 +435,15 @@ def Fnu_Thick(nu, t, Dist, Rout, Aargs, RHStable, Ttable):
 
 # int over freqeuncy
 def Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
-	#return intg.quad(Fnu_Thick, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
-	res=[]
-	i=0
-	while (i<len(t)):
-		res.append(intg.quad(Fnu_Thick, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
-		i += 1
-	return np.array(res)
+	if (type(t) is float):
+		return intg.quad(Fnu_Thick, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+	else:
+		res=[]
+		i=0
+		while (i<len(t)):
+			res.append(intg.quad(Fnu_Thick, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
+			i += 1
+		return np.array(res)
 
 
 
