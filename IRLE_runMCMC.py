@@ -107,13 +107,13 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 print "Importing Data to fit..."
 #Import Data to fit
 
-t_MJD = np.genfromtxt("dat/all.pg1302.txt",usecols=23, comments="|")
+t_MJD = np.genfromtxt("../dat/all.pg1302.txt",usecols=23, comments="|")
 
-W1_mag = np.genfromtxt("dat/all.pg1302.txt",usecols=7, comments="|")
-W1_sig = np.genfromtxt("dat/all.pg1302.txt",usecols=8, comments="|")
+W1_mag = np.genfromtxt("../dat/all.pg1302.txt",usecols=7, comments="|")
+W1_sig = np.genfromtxt("../dat/all.pg1302.txt",usecols=8, comments="|")
 
-W2_mag = np.genfromtxt("dat/all.pg1302.txt",usecols=10, comments="|")
-W2_sig = np.genfromtxt("dat/all.pg1302.txt",usecols=11, comments="|")
+W2_mag = np.genfromtxt("../dat/all.pg1302.txt",usecols=10, comments="|")
+W2_sig = np.genfromtxt("../dat/all.pg1302.txt",usecols=11, comments="|")
 
 
 
@@ -603,9 +603,9 @@ if (ShellFit):
 
 #####------PLOT SOLUTION------####
 ### PLOT POINTS
-Tt   =  loadtxt("dat/Lums_PG1302.dat", usecols=[0])
-Lum  =  loadtxt("dat/Lums_PG1302.dat", usecols=[1])
-sigL =  loadtxt("dat/Lums_PG1302.dat", usecols=[2])
+Tt   =  loadtxt("../dat/Lums_PG1302.dat", usecols=[0])
+Lum  =  loadtxt("../dat/Lums_PG1302.dat", usecols=[1])
+sigL =  loadtxt("../dat/Lums_PG1302.dat", usecols=[2])
 
 Lum_Mean = mean(Lum)
 Lum      = (Lum - Lum_Mean)  ## for def of mag - mag0
