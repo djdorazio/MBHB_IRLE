@@ -391,7 +391,9 @@ if (ShellFit):
 		if not pool.is_master():
     		pool.wait()
     		sys.exit(0)
+		
 		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, pool=pool, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
+		pool.close()
 	else:
 		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, threads=NThread, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
 	#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
