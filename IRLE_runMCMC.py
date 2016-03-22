@@ -434,8 +434,8 @@ if (SinFit):
 
 	##PLOT dem WALKERS
 	for k in range(W1_sin_chain.shape[2]):
-		#plt.figure(Bparam_names[k])
-		plt.figure()
+		plt.figure(param_names[k])
+		#plt.figure()
 		for i in range(W1_sin_chain.shape[0]):
 			plt.plot(W1_sin_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 			plt.ylabel(param_names[k])
@@ -444,8 +444,8 @@ if (SinFit):
 
 
 	for k in range(W2_sin_chain.shape[2]):
-		#plt.figure(Bparam_names[k])
-		plt.figure()
+		plt.figure(param_names[k])
+		#plt.figure()
 		for i in range(W2_sin_chain.shape[0]):
 			plt.plot(W2_sin_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 			plt.ylabel(param_names[k])
@@ -544,8 +544,8 @@ if (ShellFit):
 
 	##PLOT dem WALKERS
 	for k in range(ShW1_chain.shape[2]):
-		#plt.figure(Bparam_names[k])
-		plt.figure()
+		plt.figure(param_names[k])
+		#plt.figure()
 		for i in range(ShW1_chain.shape[0]):
 			plt.plot(ShW1_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 			plt.ylabel(param_names[k])
