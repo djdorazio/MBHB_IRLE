@@ -8,6 +8,8 @@ from scipy import *
 import emcee
 
 import matplotlib
+matplotli.use('Agg')
+
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
@@ -23,7 +25,7 @@ ShellFit = True
 ThickFit = False
 ## multiprocessing
 NThread = 4
-
+mpi_it = False
 
 
 
@@ -381,7 +383,17 @@ if (ShellFit):
 
 	ndim = 3
 	nwalkers = ndim*2
-	ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, threads=NThread,args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
+	if (mpi_it):
+		import sys
+		from emcee.utils import MPIPool
+
+		pool = MPIPool()
+		if not pool.is_master():
+    		pool.wait()
+    		sys.exit(0)
+		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, pool=pool, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
+	else:
+		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, threads=NThread, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
 	#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 	
 	ShW1_p0 = np.array(ShW1_p0)
