@@ -20,8 +20,8 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
-Thin  = False
+Thick = False
+Thin  = True
 
 Plot_I   = False
 I_name = "Incs"
@@ -56,7 +56,7 @@ nu0 = numicron*0.2
 Rde = Rorb
 Rrout = 60.0*Rde
 pp = 2.0
-thetTst = 1.*np.pi/4
+thetTst = 0.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 md = 10**(-14)
@@ -101,7 +101,7 @@ for i in range(NT):
 
 
 ### PLOT POINTS
-Nt=20
+Nt=10
 tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 
 
@@ -335,24 +335,19 @@ if (Thin):
 		J1 = 0.
 		J2 = ma.pi/2. - thetTst
 		J3 = ma.pi/3.
-		J4 = ma.pi/2. + thetTst
+		J4 = ma.pi/2. 
 		argJ1 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J1, aeff, nu0, nne]
 		argJ2 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J2, aeff, nu0, nne]
 		argJ3 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J3, aeff, nu0, nne]
 		argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
-		FsrcI1 = np.empty(Nt)
-		FsrcI2 = np.empty(Nt)
-		FsrcI3 = np.empty(Nt)
-		FI1 = np.empty(Nt)
-		FI2 = np.empty(Nt)
-		FI3 = np.empty(Nt)
+	
 
 		#for i in range (0, Nt):
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
 		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
 		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
-		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
+		#FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
 		FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
 		nrm = np.mean(FsrcI1) - np.mean(FI1)
@@ -363,11 +358,13 @@ if (Thin):
 
 		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
 
-		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		#IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
 		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$',  r'$J=\pi/3$', r'$J=\pi/2$'), loc='upper right')
+		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$',  r'$J=\pi/3$', r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$',  r'$J=\pi/3$', r'$J=\pi/2$'), loc='upper right')
+
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")

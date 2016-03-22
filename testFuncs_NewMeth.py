@@ -94,6 +94,7 @@ for i in range(0, nx):
 
 
 
+
 TD_angles = np.empty([Nth,Nph])
 TD_rth = np.empty([Nth,Nr])
 FsrcPlt = np.empty(Nt)
@@ -171,6 +172,28 @@ print "Plotting stuff"
 import time
 print "start timing"
 
+xt = 4*Rde
+zt = 0.0
+thet = ma.pi/2
+ph = 0.0
+r = ma.sqrt(xt*xt + zt*zt)
+t1=time.clock()
+
+xe     = Rrout*( 1. - (r/Rrout)*(r/Rrout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,xt, xe , args=(0., zt, n0, Rde, pp, thetTst, JJt) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+# ixl = np.where( xt < tauGrid[1])[0].max()
+# ixall = np.where(tauGrid[1][ixl] ==  tauGrid[1])[0]
+
+# TG = np.transpose(tauGrid)
+# TGz = np.transpose(TG[ixall])  ## this is all of the z values for given x value
+# it =np.where(zt < TGz[2])[0].max()
+
+# tauObs = tauGrid[0][it]	
+t2=time.clock()
+print t2-t1
+
+
 t1=time.clock()
 chk0=Fnuint_Shell(0.0, ma.pi/2., W1mn, 0., Dst, Rrout, Targs, RHS_table, T_table)
 t2=time.clock()
@@ -194,7 +217,7 @@ print t8-t7
 
 
 t9=time.clock()
-chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, 0.*2*ma.pi/Ombn, Dst, Rrout, Targs, RHS_table, T_table, tauGrid)/FW1Rel)
+chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, 0.*2*ma.pi/Ombn, Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
 t10=time.clock()
 print t10-t9
 

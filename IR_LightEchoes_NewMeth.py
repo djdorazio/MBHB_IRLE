@@ -14,8 +14,8 @@ import scipy.integrate as intg
 #Result Function 2: gives flux integrated over r and nu - given bounds
 
 #### INTEGRATION ERROR TOLS
-myrel = 0.001
-myabs = 0.001
+myrel = 0.1
+myabs = 0.1
 reclim = 1
 limlst = 3
 maxp1 = 1
@@ -308,8 +308,29 @@ def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 ## retarded time - time light emitted form dust
 	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
 
+
+
+###----------------------------###
+### compute los tau (tauObs) (effective for shell model)   ###
+###----------------------------###
+	## doing the integral is faster than looking it up this way
+	#xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
-	fint = Qv(nu, nu0, nn)  * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
+	#don't integrate if no dust along path
+	#if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
+	#	tauObs = 0.0
+	#elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
+	#	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#else:
+	
+
+	#tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+
+	tauObs = 0.0
+
+	
+	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
 	fint = fint* Rd*Rd* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)*Rd/(p-1.)
 
 
@@ -335,7 +356,7 @@ def tauObs(x, z, Rout, aeff, n0, Rd, p, thetT, JJ):
 	#	return np.array(res)
 
 
-def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable, tauGrid):
+def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tauGrid):
 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 	# Lavg = args[0]
 	# bets = args[1]
@@ -364,18 +385,25 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable, tauGrid
 ###----------------------------###
 ### compute los tau (tauObs)   ###
 ###----------------------------###
+	## doing the integral is faster than lloking it up this way
 	xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
-	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	
+	#don't integrate if no dust along path
+	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
+		tauObs = 0.0
+	elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
+		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	else:
+		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+
 	# #epsi = 2.*Rrout/nn
 	# ixl = np.where( x < tauGrid[1])[0].max()
 	# ixall = np.where(tauGrid[1][ixl] ==  tauGrid[1])[0]
 
-	# TG = np.transpose(tauGrid)
-	# TGz = np.transpose(TG[ixall])  ## this is all of the z values for given x value
+	# TGz = np.transpose(np.transpose(tauGrid)[ixall])
+	# #TGz = np.transpose(TG[ixall])  ## this is all of the z values for given x value
 	# it =np.where(z < TGz[2])[0].max()
-
 	# tauObs = tauGrid[0][it]	
 
 	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)
@@ -413,16 +441,16 @@ def Fnu_Shell(nu, t, Dist, Rout, Aargs, RHStable, Ttable):
 
 # int over freqeuncy
 def Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
-	if (type(t) is float):
-		return intg.quad(Fnu_Shell, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
-	else:
-		res=[]
-		#i=0
-		#while (i<len(t)):
-		for i in range(len(t)):
-			res.append(intg.quad(Fnu_Shell, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
+	#if (type(t) is float):
+	#	return intg.quad(Fnu_Shell, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+	#else:
+	res=[]
+	#i=0
+	#while (i<len(t)):
+	for i in range(len(t)):
+		res.append(intg.quad(Fnu_Shell, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
 			#i += 1
-		return np.array(res)
+	return np.array(res)
 
 
 
@@ -452,28 +480,28 @@ def magPoint(params, t, THEargs, RHStable, Ttable):
 ##Now do the same for a thick shell, integrate over r as well...
 
 ## integrate over phi 
-def Fnudphi_Thick(thet, r, nu, t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid):
-	return  intg.quad(Fnuint_Thick, 0.,2.*np.pi, args=(thet, r, nu, t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+def Fnudphi_Thick(thet, r, nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
+	return  intg.quad(Fnuint_Thick, 0.,2.*np.pi, args=(thet, r, nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	
 # then int over theta
-def Fnudphidth_Thick(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid):
-	return intg.quad(Fnudphi_Thick, 0., np.pi, args=(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+def Fnudphidth_Thick(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
+	return intg.quad(Fnudphi_Thick, 0., np.pi, args=(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 
 # then int over theta
-def Fnu_Thick(nu, t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid):
+def Fnu_Thick(nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
 	Rd = Aargs[6]
-	return intg.quad(Fnudphidth_Thick, Rd, Rout, args=(nu, t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+	return intg.quad(Fnudphidth_Thick, Rd, Rout, args=(nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 
 
 # int over freqeuncy
-def Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid):
+def Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
 	if (type(t) is float):
-		return intg.quad(Fnu_Thick, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable,tauGrid), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+		return intg.quad(Fnu_Thick, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 	else:
 		res=[]
 		i=0
 		while (i<len(t)):
-			res.append(intg.quad(Fnu_Thick, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable,tauGrid), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
+			res.append(intg.quad(Fnu_Thick, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
 			i += 1
 		return np.array(res)
 

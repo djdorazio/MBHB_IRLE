@@ -21,8 +21,8 @@ from IR_LightEchoes_NewMeth import *
 SinFit = False
 ShellFit = True
 ThickFit = False
-
-
+## multiprocessing
+NThread = 4
 
 
 
@@ -39,7 +39,7 @@ MPGmx = 10**9.4*Msun
 Ryr = c*yr2sec
 RdPG = ma.sqrt(0.1)*2.8 *pc2cm
 OmPG = Omb*2.*np.pi/4.1
-alphnu = 1.1
+#alphnu = 0.0
 
 Rorb = c*2.*np.pi/Omb
 Ompc = 2.*np.pi*c/pc2cm/2.
@@ -47,10 +47,10 @@ Ompc = 2.*np.pi*c/pc2cm/2.
 
 ## TEST VALUES
 Lav = L0
-betst = 0.25
+betst = 0.2
 Inc = ma.acos(0.07/betst)#0.*np.pi/4.
 Ombn = OmPG
-alph = 1.1
+alph = 0.0
 
 Rde = RdPG
 pp = 2.0
@@ -90,8 +90,8 @@ Sinp0_W2 = [0.1, 365*5., 1.0, 10.3]
 #[beta, cosJ, Rde(units of RdPG), theta_T, ndust(units of nDust0)]
 #ShW1_p0  = [0.2,  1.,  1.4,  1.18427411,  1.7]
 #[cosJ, Rde(units of RdPG) ndust(units of nDust0)]
-ShW1_p0  = [0.99342534,  1.44529096,  0.63]#0.79448298]
-ShW2_p0  = [0.99935378,  1.44865551,  0.65]#0.81884671]
+ShW1_p0  = [0.99342534,  1.44529096,  0.62]#0.79448298]
+ShW2_p0  = [0.99935378,  1.44865551,  0.64]#0.81884671]
 #W2_p0    = [2.0]
 #ShW1_p0  = [0.1018888,  0.00336493,  1.0193042,   0.09795103,  1.27874228]
 
@@ -329,8 +329,8 @@ if (SinFit):
 	ndim = 4
 	nwalkers = ndim*2
 
-	W1_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, args=(t_MJD, W1_mag, W1_sig))
-	W2_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, args=(t_MJD, W2_mag, W2_sig))
+	W1_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=1,args=(t_MJD, W1_mag, W1_sig))
+	W2_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=1,args=(t_MJD, W2_mag, W2_sig))
 
 
 	#p0 = np.array(p0)
@@ -381,11 +381,11 @@ if (ShellFit):
 
 	ndim = 3
 	nwalkers = ndim*2
-	ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
+	ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, threads=NThread,args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
 	#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 	
 	ShW1_p0 = np.array(ShW1_p0)
-	ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-2, size=(nwalkers, ndim))
+	ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-3, size=(nwalkers, ndim))
 	
 	#ShW2_p0 = np.array(ShW1_p0)
 	#ShW2_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-2, size=(nwalkers, ndim))
@@ -628,7 +628,7 @@ ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 #ttopt = np.linspace(tsrt[len(tsrt)/2], t_MJD[len(t_MJD)-1]+100,       Nt)
 
 #tt = np.linspace(t_MJD[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
-opti = -2.5*np.log10(Fsrc(ttopt*3600.*24/(1.+zPG1302), Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)/FVbndRel)
+opti = -2.5*np.log10(Fsrc(ttopt*3600.*24/(1.+zPG1302), Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, 1.1)/FVbndRel)
 
 
 plt.figure()
@@ -661,7 +661,7 @@ plt.xlim(52000, 57500)
 plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
-plt.savefig("../emcee_data/W2_BestFit.png")
+plt.savefig("../emcee_data/thickthinW2_BestFit.png")
 
 
 			
