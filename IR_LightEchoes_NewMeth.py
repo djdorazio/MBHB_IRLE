@@ -345,7 +345,7 @@ def Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
 	for i in range(len(t)):
 		res.append(intg.quad(Fnu_Shell, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
 			#i += 1
-	return res
+	return np.array(res)
 
 
 
@@ -362,8 +362,8 @@ def magPoint(params, t, THEargs, RHStable, Ttable):
 	IncFit = np.arccos(0.07/beta)
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
-	return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
-
+	#return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
+	return -2.5*np.log10(Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
 
 
 
@@ -396,5 +396,5 @@ def Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
 	for i in range (len(t)):
 		res.append(intg.quad(Fnu_Thick, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
 		#i += 1
-	return res
+	return np.array(res)
 
