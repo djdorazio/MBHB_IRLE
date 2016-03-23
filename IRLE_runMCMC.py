@@ -152,8 +152,8 @@ for i in range(0 , len(iseg)-1):
 	W1_avg.append(np.mean(W1_mag[iseg[i]+1:iseg[i+1]]))
 	W2_avg.append(np.mean(W2_mag[iseg[i]+1:iseg[i+1]]))
 
-	W1_avsg.append((max(W1_mag[iseg[i]+1:iseg[i+1]]) - min(W1_mag[iseg[i]+1:iseg[i+1]]))/10.)
-	W2_avsg.append((max(W2_mag[iseg[i]+1:iseg[i+1]]) - min(W2_mag[iseg[i]+1:iseg[i+1]]))/10.)
+	W1_avsg.append((max(W1_mag[iseg[i]+1:iseg[i+1]]) - min(W1_mag[iseg[i]+1:iseg[i+1]]))/6.)
+	W2_avsg.append((max(W2_mag[iseg[i]+1:iseg[i+1]]) - min(W2_mag[iseg[i]+1:iseg[i+1]]))/6.)
 
 t_avg.append(np.mean(t_MJD[iseg[len(iseg)-1]:len(t_MJD)]))
 W1_avg.append(np.mean(W1_mag[iseg[len(iseg)-1]:len(t_MJD)]))
@@ -313,16 +313,29 @@ def ln_Sinprior(p):
 			return 0.
 
 ### MCMC - Set up posteriors
-def ln_likelihood(p, t, Wargs, RHStable, Ttable, y, dy):
-			return -(RegErr2(p, t, Wargs, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
+def ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy):
+			return -(Shell_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
+
+def ln_Thlikelihood(p, t, Wargs, RHStable, Ttable, y, dy):
+			return -(Thick_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
 
 
-def ln_posterior(p, t, Wargs, RHStable, Ttable, y, dy):
+
+def ln_Shposterior(p, t, Wargs, RHStable, Ttable, y, dy):
 			ln_p = ln_prior(p)
 			if not np.isfinite(ln_p):
 				return -np.inf
 			
-			ln_l = ln_likelihood(p, t, Wargs, RHStable, Ttable, y, dy)
+			ln_l = ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy)
+			return ln_l + ln_p
+
+
+def ln_Thposterior(p, t, Wargs, RHStable, Ttable, y, dy):
+			ln_p = ln_prior(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_Thlikelihood(p, t, Wargs, RHStable, Ttable, y, dy)
 			return ln_l + ln_p
 
 
@@ -341,7 +354,9 @@ def ln_Sinposterior(p, t, y, dy):
 
 
 if (fmin_Fit):
+	print "Fmin optimizing W1"
 	ShW1_fp_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+	print "Fmin optimizing W1"
 	ShW1_fp_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 
 
@@ -415,10 +430,10 @@ if (ShellFit):
 		if not pool.is_master():
 			pool.wait()
 			sys.exit(0)
-		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, pool=pool, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
+		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, pool=pool, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		pool.close()
 	else:
-		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, threads=NThread, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
+		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 	#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 	
 	ShW1_p0 = np.array(ShW1_p0)
