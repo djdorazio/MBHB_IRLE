@@ -8,7 +8,7 @@ from scipy import *
 import emcee
 
 import matplotlib
-matplotli.use('Agg')
+matplotlib.use('Agg')
 
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
@@ -389,8 +389,8 @@ if (ShellFit):
 
 		pool = MPIPool()
 		if not pool.is_master():
-    		pool.wait()
-    		sys.exit(0)
+				pool.wait()
+    			sys.exit(0)
 		
 		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, pool=pool, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
 		pool.close()
