@@ -72,11 +72,23 @@ def nDust(x,y,z, n0, Rd, p, thetT, JJ):
 	nprof = 0.0
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	rofx  = (x*x + y*y + z*z)**(0.5)
+	rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5)
 	throt = np.arctan2(np.sqrt(xrot*xrot + y*y), zrot)
 	if (rofx>=Rd and throt>thetT and throt<(np.pi - thetT)):
 		nprof = n0*(rofx/Rd)**(-p)
 
+	return nprof
+
+
+
+# Torical dust profile
+def nD_Schart(x,y,z, n0, Rd, p, thetT, JJ):
+	xrot = x*np.cos(JJ) + z*np.sin(JJ)
+	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+	
+	rrot = (xrot*xrot + y*y)**(0.5) # same as r of course
+	RzArg = ((rrot*rrot + zrot*zrot)/Rcore/Rcore)**(0.5)
+	nprof = n0 * np.e**(  G*Mstr/vt2/Rcore * ( MBH/Mstr/RzArg  + 1./(1.+RzArg)  -  Rcore*(MBH+MstRT)/(2.*Mstr*RT*(1.-p)) *np.pow(r/RT,2.*(p-1.)))  )
 	return nprof
 
 
