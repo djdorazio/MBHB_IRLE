@@ -600,7 +600,7 @@ if (ShellFit):
 		ShW1_diff_minus = ShW1_MAP_vals[i] - ShW1_perc[0,i]
 		ShW1_diff_plus = ShW1_perc[1,i] - ShW1_MAP_vals[i]
 		target.write("W1: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(ShW1_MAP_vals[i], ShW1_diff_plus, ShW1_diff_minus, name=name))
-
+		target.write("\n")
 	
 	ShW1_mxprbs = zeros(nwalkers)
 				
@@ -608,8 +608,9 @@ if (ShellFit):
 		ShW1_mxprbs[i] = max(ShW1_lnprobs[i])
 	
 
-				
+	target.write("\n")		
 	target.write("Shell W1 Max LnP =  %04g" %max(ShW1_mxprbs))
+
 		
 
 	target.close

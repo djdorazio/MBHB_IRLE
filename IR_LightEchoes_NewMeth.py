@@ -69,16 +69,17 @@ def QvBv(nu, T, nu0, nn):
 
 # Torical dust profile
 def nDust(x,y,z, n0, Rd, p, thetT, JJ):
-	rofx  = np.sqrt(x*x + y*y + z*z)
-	nprof = n0*(rofx/Rd)**(-p)
-	
+	nprof = 0.0
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
 	throt = np.arctan2(np.sqrt(xrot*xrot + y*y), zrot)
+	if (rofx>=Rd and throt>thetT and throt<(np.pi - thetT)):
+		rofx  = np.sqrt(x*x + y*y + z*z)
+		nprof = n0*(rofx/Rd)**(-p)
 	
-
-	if (rofx<Rd or throt<thetT or throt>(np.pi - thetT)):
-		nprof = 0.0
+	
+	#if (rofx<Rd or throt<thetT or throt>(np.pi - thetT)):
+	#	nprof = 0.0
 
 	return nprof
 
@@ -182,7 +183,7 @@ def TDust_simple(t,r,thet,phi,args):
 	Tprof = (0.25 * Fsrc/sigSB * np.exp(-tauDust) )**(0.25)
 
 	if (throt<thetT or throt>(np.pi - thetT)):
-			Tprof = 0.000000001
+			Tprof = 0.01
 
 	return Tprof
 
@@ -199,21 +200,9 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	if (throt<thetT or throt>(np.pi - thetT)):
-			Tprof = 0.000000001
-	else:
-		#Lavg = args[0]
-		#bets = args[1]
-		#incl = args[2]
-		#Ombin = args[3]
-		#alphnu = args[4]    
-		#n0 = args[5]
-		#Rd = args[6] 
-		#p = args[7]
+	Tprof = 0.01
+	if (rofx>Rd and throt>thetT and throt<(np.pi - thetT)):
 
-		#aeff = args[10] 
-		#nu0 = args[11]
-		#nn = args[12]
 	###-----------------###
 	### COMPUTE Fsrc    ###
 	###-----------------###
@@ -250,13 +239,10 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		#xrot = x*np.cos(JJ) + z*np.sin(JJ)
 		#zrot = z*np.cos(JJ) - x*np.sin(JJ)
 		#throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-		## GET RID OF THIS IF STATEMENT!
-		rofx  = (x*x + y*y + z*z)**(0.5)
-		if (rofx<Rd or throt<thetT or throt>(np.pi - thetT)):
-				tauDust = 0.0
-		else:
-			Qbar=1. ##for now
-			tauDust = np.pi*aeff*aeff*Qbar*n0/(1. - p)*(((rofx)/Rd)**(-p) - Rd/rofx)
+		## GET RID OF THIS IF STATEMENT! (did becuase first one catches it)
+		
+		Qbar=1. ##for now
+		tauDust = np.pi*aeff*aeff*Qbar*n0/(1. - p)*(((rofx)/Rd)**(-p) - Rd/rofx) * rofx
 
 		#epsi = 0.0
 		#istar=[]
@@ -314,20 +300,18 @@ def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 ### compute los tau (tauObs) (effective for shell model)   ###
 ###----------------------------###
 	## doing the integral is faster than looking it up this way
-	#xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+	xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
-	#don't integrate if no dust along path
-	#if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
-	#	tauObs = 0.0
-	#elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
-	#	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	#else:
-	
-
-	#tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	##don't integrate if no dust along path
+	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
+		tauObs = 0.0
+	elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
+		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	else:
+		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
-	tauObs = 0.0
+	#tauObs = 0.0
 
 	
 	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
@@ -504,23 +488,4 @@ def Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
 			res.append(intg.quad(Fnu_Thick, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
 			i += 1
 		return np.array(res)
-
-
-
-
-
-def fnc(x,t):
-	return x*t
-
-def IntTest(t):
-	if (type(t) is float):
-		return 	intg.quad(lambda x:x*t, 0.,2.*np.pi, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	else:
-		res=[]
-		i=0
-		while (i<len(t)):
-			res.append(intg.quad(lambda x:x*t[i], 0.,2.*np.pi, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
-			i += 1
-		return np.array(res)
-
 
