@@ -16,12 +16,15 @@ matplotlib.rcParams['font.family'] = 'sans-serif'
 matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
+from scipy import optimize
+from scipy.optimize import fmin
 
 from IR_LightEchoes_NewMeth import *
 
-###OPTIONS
-SinFit = False
-ShellFit = True
+###clen
+fmin_Fit = False
+SinFit = True
+ShellFit = False
 ThickFit = False
 ## multiprocessing
 NThread = 4
@@ -117,7 +120,12 @@ W1_sig = np.genfromtxt("../dat/all.pg1302.txt",usecols=8, comments="|")
 W2_mag = np.genfromtxt("../dat/all.pg1302.txt",usecols=10, comments="|")
 W2_sig = np.genfromtxt("../dat/all.pg1302.txt",usecols=11, comments="|")
 
-
+##remove outlier
+W2_mag=np.delete(W2_mag,30)
+W2_sig=np.delete(W2_sig,30)
+t_MJD = np.delete(t_MJD,30)
+W1_mag=np.delete(W1_mag,30)
+W1_sig=np.delete(W1_sig,30)
 
 ###### get average value for each cluser of data points in time
 iseg = []
@@ -165,7 +173,7 @@ W2_avsg = np.array(W2_avsg)
 #sys.exit(0)
 ### averaging data ^####
 
-if (ShellFit or ThickFit):
+if (ShellFit or ThickFit or fmin_Fit):
 	#Set up look up tables
 	##TABULATE T's and RHSs
 	print "Creating Temp look up tables..."
@@ -230,16 +238,26 @@ print "start timing"
 
 
 ### best fit fits both W1 and W2
-def RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
+def Shell_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
 	print "EVAL", p
 	t1=time.clock()
-	chi = (y - magPoint(p, t, THEargs, RHStable, Ttable)) / dy
+	chi = (y - magPoint_Shell(p, t, THEargs, RHStable, Ttable)) / dy
 	#nLnP = sum(chi*chi)
 	t2=time.clock()
 	#print(chi2)
 	print(t2-t1)
 	return sum(chi*chi)
 
+
+def Thick_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
+	print "EVAL", p
+	t1=time.clock()
+	chi = (y - magPoint_Thick(p, t, THEargs, RHStable, Ttable)) / dy
+	#nLnP = sum(chi*chi)
+	t2=time.clock()
+	#print(chi2)
+	print(t2-t1)
+	return sum(chi*chi)
 
 
 def sinPoint(params, t):
@@ -295,16 +313,16 @@ def ln_Sinprior(p):
 			return 0.
 
 ### MCMC - Set up posteriors
-def ln_likelihood(p, t, W1args, RHStable, Ttable, y, dy):
-			return -(RegErr2(p, t, W1args, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
+def ln_likelihood(p, t, Wargs, RHStable, Ttable, y, dy):
+			return -(RegErr2(p, t, Wargs, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
 
 
-def ln_posterior(p, t, W1args, RHStable, Ttable, y, dy):
+def ln_posterior(p, t, Wargs, RHStable, Ttable, y, dy):
 			ln_p = ln_prior(p)
 			if not np.isfinite(ln_p):
 				return -np.inf
 			
-			ln_l = ln_likelihood(p, t, W1args, RHStable, Ttable, y, dy)
+			ln_l = ln_likelihood(p, t, Wargs, RHStable, Ttable, y, dy)
 			return ln_l + ln_p
 
 
@@ -322,6 +340,12 @@ def ln_Sinposterior(p, t, y, dy):
 
 
 
+if (fmin_Fit):
+	ShW1_fp_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+	ShW1_fp_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+
+
+
 print "Running MCMC (!)..."
 ### Run MCMC
 
@@ -329,10 +353,10 @@ print "Running MCMC (!)..."
 #sampler = emcee.EnsembleSampler(walkers, ndim, ln_posterior, args=(tsrt, W1args, RHStable, Ttable, W1_mag, W1_sig))
 if (SinFit):
 	ndim = 4
-	nwalkers = ndim*2
+	nwalkers = ndim*8
 
-	W1_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=1,args=(t_MJD, W1_mag, W1_sig))
-	W2_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=1,args=(t_MJD, W2_mag, W2_sig))
+	W1_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=1,args=(t_avg, W1_avg, W1_avsg))
+	W2_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=1,args=(t_avg, W2_avg, W2_avsg))
 
 
 	#p0 = np.array(p0)
@@ -662,12 +686,16 @@ W1av   = plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='blac
 W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
 
 
-#if (SinFit):
-#	W1sinsoln = plt.plot(ttopt, sinPoint(W1_sin_p_opt, tt), linestyle = '--', color='orange', linewidth=2)
-#	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, tt)+0.5, linestyle = '--', color='red', linewidth=2)
-#if (ShellFit):
-W1shell = plt.plot(ttopt, magPoint(ShW1_p_opt, ttopt/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-W2shell = plt.plot(ttopt, magPoint(ShW2_p0, ttopt/(1.+zPG1302), W2args, RHS_table, T_table), linestyle = '--', color='red', linewidth=2)
+if (SinFit):
+	W1sinsoln = plt.plot(ttopt, sinPoint(W1_sin_p_opt, ttopt), linestyle = '--', color='orange', linewidth=2)
+	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, ttopt)+0.5, linestyle = '--', color='red', linewidth=2)
+if (ShellFit):
+	W1shell = plt.plot(ttopt, magPoint(ShW1_p_opt, ttopt/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint(ShW2_p0, ttopt/(1.+zPG1302), W2args, RHS_table, T_table), linestyle = '--', color='red', linewidth=2)
+if (fmin_Fit):
+	W1shell = plt.plot(ttopt, magPoint(ShW1_fp_opt, ttopt/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint(ShW2_fp_opt, ttopt/(1.+zPG1302), W2args, RHS_table, T_table), linestyle = '--', color='red', linewidth=2)
+
 
 		
 plt.grid(b=True, which='both')

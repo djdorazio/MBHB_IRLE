@@ -350,7 +350,23 @@ def Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
 
 
 ##FOR MCMC
-def magPoint(params, t, THEargs, RHStable, Ttable):
+def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
+	#beta, cosJJ, Rin, thetT, n0 = params
+	cosJJ, Rin, n0 = params
+	n0 = n0 * 1.4032428247438431e-09
+	Rin = Rin * 2.73213149e+18
+	t = t * 86400.
+	JJ = np.arccos(cosJJ) ## CAREFUL WITH DOMAIN OF COS
+	
+	FRel, numin, numax, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta, thetT = THEargs
+	IncFit = np.arccos(0.07/beta)
+
+	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+	#return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
+	return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
+
+
+def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
 	cosJJ, Rin, n0 = params
 	n0 = n0 * 1.4032428247438431e-09
