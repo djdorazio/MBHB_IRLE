@@ -389,9 +389,8 @@ if (ShellFit):
 
 		pool = MPIPool()
 		if not pool.is_master():
-				pool.wait()
-    			sys.exit(0)
-		
+			pool.wait()
+			sys.exit(0)
 		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, pool=pool, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
 		pool.close()
 	else:
@@ -610,7 +609,7 @@ if (ShellFit):
 	
 
 				
-	target.write("Shell W1 Max LnP = ", max(ShW1_mxprbs))
+	target.write("Shell W1 Max LnP =  %04g" %max(ShW1_mxprbs))
 		
 
 	target.close
