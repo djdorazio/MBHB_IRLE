@@ -591,11 +591,16 @@ if (ShellFit):
 	ShW1_perc = scoretpercentile(ShW1_flatchain, [15,85], axis=0)
 
 
+	filename = "SHW1_results.txt"
+	print "Printing Results"
+	target = open(filename, 'w')
+	target.truncate()
 
+	
 	for i,name in enumerate(param_names):
 		ShW1_diff_minus = ShW1_MAP_vals[i] - ShW1_perc[0,i]
 		ShW1_diff_plus = ShW1_perc[1,i] - ShW1_MAP_vals[i]
-		print("W1: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(ShW1_MAP_vals[i], ShW1_diff_plus, ShW1_diff_minus, name=name))
+		target.write("W1: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(ShW1_MAP_vals[i], ShW1_diff_plus, ShW1_diff_minus, name=name))
 
 	
 	ShW1_mxprbs = zeros(nwalkers)
@@ -605,10 +610,10 @@ if (ShellFit):
 	
 
 				
-	print "Shell W1 Max LnP = ", max(ShW1_mxprbs)
+	target.write("Shell W1 Max LnP = ", max(ShW1_mxprbs))
 		
 
-
+	target.close
 
 
 
