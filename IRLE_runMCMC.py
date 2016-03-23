@@ -97,9 +97,9 @@ Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
 #ShW1_p0  = [0.2,  1.,  1.4,  1.18427411,  1.7]
 #[cosJ, Rde(units of RdPG) ndust(units of nDust0)]
 #ShW1_p0  = [0.99342534,  1.44529096,  0.62]#0.79448298]
-ShW1_p0  = [ 0.99342538,  1.44529097,  0.62699883]
-#ShW2_p0  = [0.99935378,  1.44865551,  0.64]#0.81884671]
-ShW2_p0  = [ 0.98811473,  1.48104263,  0.639269  ]
+ShW1_p0  = [ 0.99455796,  1.44459455,  0.62607537]
+ShW2_p0  = [0.99935378,  2.0,  0.62607537]#0.81884671]
+#ShW2_p0  = [ 0.98811473,  1.48104263,  0.639269  ]
 #W2_p0    = [2.0]
 #ShW1_p0  = [0.1018888,  0.00336493,  1.0193042,   0.09795103,  1.27874228]
 
@@ -465,13 +465,13 @@ if (emcee_Fit):
 			if not pool.is_master():
 				pool.wait()
 				sys.exit(0)
-			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, pool=pool, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, pool=pool, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
 			pool.close()
 		else:
-			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
 		#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		
-		ShW1_p0 = np.array(ShW1_p0)
+		ShW1_p0 = np.array(ShW2_p0)
 		ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-3, size=(nwalkers, ndim))
 		
 		#ShW2_p0 = np.array(ShW1_p0)
@@ -479,7 +479,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 32
+		clen = 2
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
@@ -640,7 +640,7 @@ if (emcee_Fit):
 				plt.plot(ShW1_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 				plt.ylabel(param_names[k])
 				plt.xlabel('steps')
-			plt.savefig('../emcee_data/"+Shell_File+"_PG1302_%s_%iwalkers.png' %(param_names[k],clen))
+			plt.savefig("../emcee_data/"+Shell_File+"_PG1302_%s_%iwalkers.png" %(param_names[k],clen))
 
 
 		
@@ -655,7 +655,7 @@ if (emcee_Fit):
 		#import triangle
 		import corner as triangle
 		ShW1_fig = triangle.corner(ShW1_flatchain, labels=param_names)			
-		ShW1_fig.savefig('../emcee_data/"+Shell_File+"_PG1302_Corner_Plot_%iwalkers.png' %clen)
+		ShW1_fig.savefig("../emcee_data/"+Shell_File+"_PG1302_Corner_Plot_%iwalkers.png" %clen)
 
 
 		## Do some stats on the walkers
@@ -717,7 +717,7 @@ sigLsrt =  TtLumS[2]
 tsrt = tsrt #- 49100
 t_MJD = t_MJD #- 49100
 
-Nt=20
+Nt=40
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
@@ -747,16 +747,16 @@ W1av   = plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='blac
 W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
 
 
-if (SinFit):
-	W1sinsoln = plt.plot(ttopt, sinPoint(W1_sin_p_opt, (ttopt+50000)/(1.+zPG1302)), linestyle = '--', color='orange', linewidth=2)
-	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, (ttopt+50000)/(1.+zPG1302))+0.5, linestyle = '--', color='red', linewidth=2)
-if (ShellFit):
-	if (fmin_Fit):
-		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, ttopt, W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, ttopt, W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-	else:
-		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, ttopt, W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0, ttopt, W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+#if (SinFit):
+#	W1sinsoln = plt.plot(ttopt, sinPoint(W1_sin_p_opt, (ttopt+50000)/(1.+zPG1302)), linestyle = '--', color='orange', linewidth=2)
+#	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, (ttopt+50000)/(1.+zPG1302))+0.5, linestyle = '--', color='red', linewidth=2)
+#if (ShellFit):
+#	if (fmin_Fit):
+#		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+#		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+#	else:
+W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+W2shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 	
 
 		
@@ -772,4 +772,4 @@ plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
 plt.savefig("../emcee_data/BestFit_%iwalkers.png" %clen)
-
+plt.clf()
