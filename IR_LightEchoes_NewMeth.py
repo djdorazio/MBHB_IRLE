@@ -72,14 +72,13 @@ def nDust(x,y,z, n0, Rd, p, thetT, JJ):
 	nprof = 0.0
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+	rofx  = (x*x + y*y + z*z)**(0.5)
 	throt = np.arctan2(np.sqrt(xrot*xrot + y*y), zrot)
 	if (rofx>=Rd and throt>thetT and throt<(np.pi - thetT)):
 		rofx  = np.sqrt(x*x + y*y + z*z)
 		nprof = n0*(rofx/Rd)**(-p)
 	
 	
-	#if (rofx<Rd or throt<thetT or throt>(np.pi - thetT)):
-	#	nprof = 0.0
 
 	return nprof
 
@@ -118,74 +117,6 @@ def T_RHS(Td, nu0, nn):
 	return RHS
 
 
-def TDust_simple(t,r,thet,phi,args):
-	Lavg = args[0]
-	bets = args[1]
-	incl = args[2]
-	Ombin = args[3]
-	alphnu = args[4]    
-	n0 = args[5]
-	Rd = args[6] 
-	p = args[7]
-	thetT = args[8] 
-	JJ = args[9] 
-	aeff = args[10] 
-	nu0 = args[11]
-	nn = args[12]
-	x = r*np.sin(thet)*np.cos(phi)
-	y = r*np.sin(thet)*np.sin(phi)
-	z = r*np.cos(thet)
-###-----------------###
-### COMPUTE Fsrc    ###
-###-----------------###
-	#Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
-	#starting point of secindary at t=0
-	phis = -np.pi/2.
-	thetas = np.pi/2.
-
-	Vxorb = np.cos(incl) *np.sin(phis + Ombin*t) * np.sin(thetas)
-	Vyorb = -np.cos(phis + Ombin*t) * np.sin(thetas)
-	Vzorb = -np.sin(incl)* np.sin(phis + Ombin*t) * np.sin(thetas)
-
-#Unit Position of observer on dust shell in dust shell coords
-	xobs = np.sin(thet)*np.cos(phi)
-	yobs = np.sin(thet)*np.sin(phi)
-	zobs = np.cos(thet)
-
-#Line of sight velocity anywhere in dust shell (vorb.rhatobs)	
-	FracLOS = Vxorb*xobs + Vyorb*yobs + Vzorb*zobs
-
-#Doppler factor 
-	Gams = (1. - bets*bets)**(-0.5)
-	Dop = 1./(Gams*(1. - bets*FracLOS))
-
-# return flux at observer coordinates r, phi, theta (in dust or at earth)
-	Fsrc = Lavg/(4.*np.pi*r*r)*(Dop)**(3. - alphnu)
-
-
-
-###-----------------###
-### Compute taudust ###
-###-----------------###
-	Qbar=1. ##for now
-	rofx  = (x*x + y*y + z*z)**(0.5)
-	tauDust = np.pi*aeff*aeff*Qbar*n0/(1. - p)*(((rofx)/Rd)**(-p) - Rd/rofx)
-	
-	
-	xrot = x*np.cos(JJ) + z*np.sin(JJ)
-	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	## GET RID OF THIS IF STATEMENT!
-	if (rofx<Rd or throt<thetT or throt>(np.pi - thetT)):
-			tauDust = 0.0
-
-
-	Tprof = (0.25 * Fsrc/sigSB * np.exp(-tauDust) )**(0.25)
-
-	if (throt<thetT or throt>(np.pi - thetT)):
-			Tprof = 0.01
-
-	return Tprof
 
 	
 
@@ -197,11 +128,12 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 	x = r*np.sin(thet)*np.cos(phi)
 	y = r*np.sin(thet)*np.sin(phi)
 	z = r*np.cos(thet)
+	rofx  = (x*x + y*y + z*z)**(0.5) 
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
 	Tprof = 0.01
-	if (rofx>Rd and throt>thetT and throt<(np.pi - thetT)):
+	if (rofx=>Rd and throt>thetT and throt<(np.pi - thetT)):
 
 	###-----------------###
 	### COMPUTE Fsrc    ###
