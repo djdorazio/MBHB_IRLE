@@ -13,7 +13,7 @@ matplotlib.use('Agg')
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
-matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
+#matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
 from scipy import optimize
@@ -22,13 +22,13 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###clen
-emcee_Fit = False
-fmin_Fit = True
-SinFit = True
-ShellFit = False
+emcee_Fit = True
+fmin_Fit = False
+SinFit = False
+ShellFit = True
 ThickFit = False
 ## multiprocessing
-NThread = 4
+NThread = 8
 mpi_it = False
 
 
@@ -286,7 +286,7 @@ def sinPoint(params, t):
 	Amp, Prd, phs, mag0 = params
 	#Amp, phs, mag0 = params
 	#Prd=1884.
-	return Amp*np.sin( (2.*ma.pi)/Prd*t - phs*Prd ) + mag0 
+	return Amp*np.sin( (2.*ma.pi)/Prd*(t - Prd*phs) ) + mag0 
 
 
 def SinErr2(p, t, y, dy):
@@ -378,9 +378,9 @@ def ln_Sinposterior(p, t, y, dy):
 if (fmin_Fit):
 	if (SinFit):
 		print "Fmin optimizing W1"
-		W1_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W1, args=(t_avg, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		W1_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W1, args=(t_avg, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.0001)[0]
 		print "Fmin optimizing W2"
-		W2_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W2, args=(t_avg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		W2_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W2, args=(t_avg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.0001)[0]
 
 	if (ShellFit):
 		print "Fmin optimizing W1"
@@ -402,7 +402,7 @@ if (emcee_Fit):
 	#sampler = emcee.EnsembleSampler(walkers, ndim, ln_posterior, args=(tsrt, W1args, RHStable, Ttable, W1_mag, W1_sig))
 	if (SinFit):
 		ndim = 4
-		nwalkers = ndim*8
+		nwalkers = ndim*32
 
 		W1_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W1_avg, W1_avsg))
 		W2_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W2_avg, W2_avsg))
@@ -415,27 +415,27 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 1024
+		clen = 512#4096*2
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
 
 		print "SAVING THE PICKLE mmmmm"
-		with open("../emcee_data/Pickles/PG1302_W1_sin.pickle", "w") as f1:
+		with open("../emcee_data/Pickles/PG1302_W1_sin_%iwalkers.pickle" %clen, "w") as f1:
 			pickle.dump((W1_sin_sampler.chain, W1_sin_sampler.lnprobability), f1)
 
-		with open("../emcee_data/Pickles/PG1302_W2_sin.pickle", "w") as f1:
+		with open("../emcee_data/Pickles/PG1302_W2_sin_%iwalkers.pickle" %clen, "w") as f1:
 			pickle.dump((W2_sin_sampler.chain, W2_sin_sampler.lnprobability), f1)
 
 				
 
 
 		### OPEN OUTPUT DATA
-		with open("../emcee_data/Pickles/PG1302_W1_sin.pickle") as f1:
+		with open("../emcee_data/Pickles/PG1302_W1_sin_%iwalkers.pickle" %clen) as f1:
 			W1_sin_chain,W1_sin_lnprobs = pickle.load(f1)
 
-		with open("../emcee_data/Pickles/PG1302_W2_sin.pickle") as f1:
-			W2_sin_chain,W2_sin_lnprobs = pickle.load(f1)
+		with open("../emcee_data/Pickles/PG1302_W2_sin_%iwalkers.pickle" %clen) as f2:
+			W2_sin_chain,W2_sin_lnprobs = pickle.load(f2)
 
 
 		W1_sin_flatchain = np.vstack(W1_sin_chain[:,clen/2:])
@@ -454,6 +454,7 @@ if (emcee_Fit):
 
 	if (ShellFit):
 
+		Shell_File = "W1_Shell"
 		ndim = 3
 		nwalkers = ndim*2
 		if (mpi_it):
@@ -478,17 +479,17 @@ if (emcee_Fit):
 		
 
 					
-		clen = 2
+		clen = 32
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
 		print "SAVING THE PICKLE mmmmm"
-		with open("../emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle", "w") as f1:
+		with open("../emcee_data/Pickles/PG1302_Shell_IRLE_"+Shell_File+"_%iwalkers.pickle" %clen, "w") as f1:
 			pickle.dump((ShW1_sampler.chain, ShW1_sampler.lnprobability), f1)
 
 
 		### OPEN OUTPUT DATA
-		with open("../emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle") as f1:
+		with open("../emcee_data/Pickles/PG1302_Shell_IRLE_"+Shell_File+"_%iwalkers.pickle" %clen) as f1:
 			ShW1_chain,ShW1_lnprobs = pickle.load(f1)
 
 
@@ -509,35 +510,36 @@ if (emcee_Fit):
 	#param_names = ['beta','cosJ','Rin','n0']
 
 	if (SinFit):
-		param_names = ['Amp','Prd','phase','mag0']			
+		param_names = ['Amp','Prd','phase','mag0']	
+					
 
 
-		with open("../emcee_data/Pickles/PG1302_W1_sin.pickle") as f1:
+		with open("../emcee_data/Pickles/PG1302_W1_sin_%iwalkers.pickle" %clen) as f1:
 			W1_sin_chain,W1_sin_lnprobs = pickle.load(f1)
-		with open("../emcee_data/Pickles/PG1302_W2_sin.pickle") as f1:
-			W2_sin_chain,W2_sin_lnprobs = pickle.load(f1)
+		with open("../emcee_data/Pickles/PG1302_W2_sin_%iwalkers.pickle" %clen) as f2:
+			W2_sin_chain,W2_sin_lnprobs = pickle.load(f2)
 
 
 		##PLOT dem WALKERS
 		for k in range(W1_sin_chain.shape[2]):
-			plt.figure(param_names[k])
+			plt.figure()
 			#plt.figure()
 			for i in range(W1_sin_chain.shape[0]):
 				plt.plot(W1_sin_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 				plt.ylabel(param_names[k])
 				plt.xlabel('steps')
-			plt.savefig('../emcee_data/W1_sin_PG1302_%s_walkers.png' %param_names[k])
-
+			plt.savefig('../emcee_data/W1_sin_PG1302_%s_%iwalkers.png' %(param_names[k],clen))
+			plt.clf()
 
 		for k in range(W2_sin_chain.shape[2]):
-			plt.figure(param_names[k])
+			plt.figure()
 			#plt.figure()
 			for i in range(W2_sin_chain.shape[0]):
 				plt.plot(W2_sin_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 				plt.ylabel(param_names[k])
 				plt.xlabel('steps')
-			plt.savefig('../emcee_data/W2_sin_PG1302_%s_walkers.png' %param_names[k])
-
+			plt.savefig('../emcee_data/W2_sin_PG1302_%s_%iwalkers.png' %(param_names[k],clen))
+			plt.clf()
 
 
 
@@ -553,10 +555,11 @@ if (emcee_Fit):
 		#import triangle
 		import corner as triangle
 		W1_sin_fig = triangle.corner(W1_sin_flatchain, labels=param_names)			
-		W1_sin_fig.savefig('../emcee_data/W1_sin_PG1302_Corner_Plot.png')
+		W1_sin_fig.savefig('../emcee_data/W1_sin_PG1302_Corner_Plot_%iwalkers.png' %clen)
+
 
 		W2_sin_fig = triangle.corner(W2_sin_flatchain, labels=param_names)			
-		W2_sin_fig.savefig('../emcee_data/W2_sin_PG1302_Corner_Plot.png')
+		W2_sin_fig.savefig('../emcee_data/W2_sin_PG1302_Corner_Plot_%iwalkers.png' %clen)
 
 
 
@@ -620,10 +623,11 @@ if (emcee_Fit):
 
 	if (ShellFit):
 		#param_names = ['beta','cosJ','Rin','thetT', 'n0']			
-		param_names = ['cosJ','Rin', 'n0']			
+		param_names = ['cosJ','Rin', 'n0']	
+		
 
 
-		with open("../emcee_data/Pickles/PG1302_Shell_IRLE_W2.pickle") as f1:
+		with open("../emcee_data/Pickles/PG1302_Shell_IRLE_"+Shell_File+"_%iwalkers.pickle" %clen) as f1:
 			ShW1_chain,ShW1_lnprobs = pickle.load(f1)
 		
 
@@ -636,7 +640,7 @@ if (emcee_Fit):
 				plt.plot(ShW1_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 				plt.ylabel(param_names[k])
 				plt.xlabel('steps')
-			plt.savefig('../emcee_data/ShW2_PG1302_%s_walkers.png' %param_names[k])
+			plt.savefig('../emcee_data/"+Shell_File+"_PG1302_%s_%iwalkers.png' %(param_names[k]),clen)
 
 
 		
@@ -651,7 +655,7 @@ if (emcee_Fit):
 		#import triangle
 		import corner as triangle
 		ShW1_fig = triangle.corner(ShW1_flatchain, labels=param_names)			
-		ShW1_fig.savefig('../emcee_data/ShW2_PG1302_Corner_Plot.png')
+		ShW1_fig.savefig('../emcee_data/"+Shell_File+"_PG1302_Corner_Plot_%iwalkers.png' %clen)
 
 
 		## Do some stats on the walkers
@@ -663,7 +667,7 @@ if (emcee_Fit):
 		ShW1_perc = scoretpercentile(ShW1_flatchain, [15,85], axis=0)
 
 
-		filename = "SHW1_results.txt"
+		filename = "SHW1_results_%iwalkers.txt" %clen
 		print "Printing Results"
 		target = open(filename, 'w')
 		target.truncate()
@@ -713,7 +717,7 @@ sigLsrt =  TtLumS[2]
 tsrt = tsrt #- 49100
 t_MJD = t_MJD #- 49100
 
-Nt=30
+Nt=200
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
@@ -767,4 +771,5 @@ plt.xlim(3000, 8000)
 plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
-plt.savefig("../emcee_data/Shell_W1_W2_BestFit.png")
+plt.savefig("../emcee_data/BestFit_%iwalkers.png" %clen)
+
