@@ -75,10 +75,7 @@ def nDust(x,y,z, n0, Rd, p, thetT, JJ):
 	rofx  = (x*x + y*y + z*z)**(0.5)
 	throt = np.arctan2(np.sqrt(xrot*xrot + y*y), zrot)
 	if (rofx>=Rd and throt>thetT and throt<(np.pi - thetT)):
-		rofx  = np.sqrt(x*x + y*y + z*z)
 		nprof = n0*(rofx/Rd)**(-p)
-	
-	
 
 	return nprof
 
@@ -132,8 +129,8 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Tprof = 0.01
-	if (rofx=>Rd and throt>thetT and throt<(np.pi - thetT)):
+	Tprof = 0.01*t/t
+	if (rofx>=Rd and throt>thetT and throt<(np.pi - thetT)):
 
 	###-----------------###
 	### COMPUTE Fsrc    ###
@@ -189,7 +186,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 
 		#Tprof = (0.25 * Fsrc/sigSB * np.exp(-tauDust) )**(0.25)
 
-	return np.array(Tprof)
+	return Tprof
 
 
 
@@ -202,52 +199,34 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 
 def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
-	#Lavg = args[0]
-	#bets = args[1]
-	#incl = args[2]
-	#Ombin = args[3]
-	#alphnu = args[4]    
-	#n0 = args[5]
-	#Rd = args[6] 
-	#p = args[7]
-	#thetT = args[8] 
-	#JJ = args[9] 
-	#aeff = args[10] 
-	#nu0 = args[11]
-	#nn = args[12]
-
-
 ###----------------------------###
 ### SETUP COORDS TO INTEGRATE  ###
 ###----------------------------###
-	x = Rd*np.sin(thet)*np.cos(ph)
-	y = Rd*np.sin(thet)*np.sin(ph)
-	z = Rd*np.cos(thet)
 ## retarded time - time light emitted form dust
 	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
-
-
-
 ###----------------------------###
 ### compute los tau (tauObs) (effective for shell model)   ###
 ###----------------------------###
-	## doing the integral is faster than looking it up this way
-	xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+	# x = Rd*np.sin(thet)*np.cos(ph)
+	# y = Rd*np.sin(thet)*np.sin(ph)
+	# z = Rd*np.cos(thet)
+	# # doing the integral is faster than lookiup table
+	# xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
-	##don't integrate if no dust along path
-	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
-		tauObs = 0.0
-	elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
-		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	else:
-		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	# ##don't integrate if no dust along path
+	# if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
+	# 	tauObs = 0.0
+	# elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
+	# 	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	# else:
+	# 	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
 	#tauObs = 0.0
 
-	
-	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
-	fint = fint* Rd*Rd* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)*Rd/(p-1.)
+	#fint = Qv(nu, nu0, nn) * np.e**(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)	
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
+	fint = fint* Rd*Rd* np.sin(thet) * n0*Rd/(p-1.)
 
 
 	return np.pi* aeff*aeff/Dist/Dist *fint
@@ -322,7 +301,7 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 	# it =np.where(z < TGz[2])[0].max()
 	# tauObs = tauGrid[0][it]	
 
-	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)
+	fint = Qv(nu, nu0, nn) * np.e**(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
 
 
@@ -384,8 +363,6 @@ def magPoint(params, t, THEargs, RHStable, Ttable):
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
 	return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
-
-
 
 
 

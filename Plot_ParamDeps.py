@@ -3,6 +3,7 @@
 #ADD LEGENDS
 #
 import matplotlib
+matplotlib.use('Agg')
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 #matplotlib.rcParams['font.family'] = 'sans-serif'
@@ -20,7 +21,7 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = False
+Thick = True
 Thin  = True
 
 Plot_I   = False
@@ -56,11 +57,11 @@ nu0 = numicron*0.2
 Rde = Rorb
 Rrout = 60.0*Rde
 pp = 2.0
-thetTst = 0.*np.pi/4
+thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 md = 10**(-14)
-n0 = 6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 0.00000001#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
@@ -95,7 +96,7 @@ FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
 print "Creating look up tables"
 NT = 10000
 RHS_table = np.zeros(NT)
-T_table = np.linspace(10., 3000., NT)
+T_table = np.linspace(0.1, 3000., NT)
 for i in range(NT):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -363,7 +364,7 @@ if (Thin):
 
 		plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$',  r'$J=\pi/3$', r'$J=\pi/2$'), loc='upper right')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$',  r'$J=\pi/3$', r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$', r'$J=\pi/2$'), loc='upper right')
 
 
 		plt.xlabel(r"$N_{\rm{orb}}$")

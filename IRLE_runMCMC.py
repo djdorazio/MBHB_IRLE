@@ -391,10 +391,10 @@ if (ShellFit):
 		if not pool.is_master():
 			pool.wait()
 			sys.exit(0)
-		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, pool=pool, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
+		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, pool=pool, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		pool.close()
 	else:
-		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, threads=NThread, args=(t_avg/(1.+zPG1302), W2args, RHS_table, T_table, W2_avg, W2_avsg))
+		ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, threads=NThread, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 	#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 	
 	ShW1_p0 = np.array(ShW1_p0)
@@ -666,7 +666,7 @@ W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='
 #	W1sinsoln = plt.plot(ttopt, sinPoint(W1_sin_p_opt, tt), linestyle = '--', color='orange', linewidth=2)
 #	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, tt)+0.5, linestyle = '--', color='red', linewidth=2)
 #if (ShellFit):
-W1shell = plt.plot(ttopt, magPoint(ShW1_p0, ttopt/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+W1shell = plt.plot(ttopt, magPoint(ShW1_p_opt, ttopt/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 W2shell = plt.plot(ttopt, magPoint(ShW2_p0, ttopt/(1.+zPG1302), W2args, RHS_table, T_table), linestyle = '--', color='red', linewidth=2)
 
 		
