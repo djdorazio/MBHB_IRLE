@@ -640,7 +640,7 @@ if (emcee_Fit):
 				plt.plot(ShW1_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
 				plt.ylabel(param_names[k])
 				plt.xlabel('steps')
-			plt.savefig('../emcee_data/"+Shell_File+"_PG1302_%s_%iwalkers.png' %(param_names[k]),clen)
+			plt.savefig('../emcee_data/"+Shell_File+"_PG1302_%s_%iwalkers.png' %(param_names[k],clen))
 
 
 		
@@ -717,7 +717,7 @@ sigLsrt =  TtLumS[2]
 tsrt = tsrt #- 49100
 t_MJD = t_MJD #- 49100
 
-Nt=200
+Nt=20
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
