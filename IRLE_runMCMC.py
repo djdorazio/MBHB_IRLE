@@ -97,8 +97,8 @@ Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
 #ShW1_p0  = [0.2,  1.,  1.4,  1.18427411,  1.7]
 #[cosJ, Rde(units of RdPG) ndust(units of nDust0)]
 #ShW1_p0  = [0.99342534,  1.44529096,  0.62]#0.79448298]
-ShW1_p0  = [ 0.99455796,  1.44459455,  0.62607537]
-ShW2_p0  = [0.99935378,  2.0,  0.62607537]#0.81884671]
+ShW1_p0_0  = [ 0.99455796,  1.6,  0.62607537]
+ShW2_p0_0  = [0.99935378,  2.0,  0.62607537]#0.81884671]
 #ShW2_p0  = [ 0.98811473,  1.48104263,  0.639269  ]
 #W2_p0    = [2.0]
 #ShW1_p0  = [0.1018888,  0.00336493,  1.0193042,   0.09795103,  1.27874228]
@@ -471,7 +471,7 @@ if (emcee_Fit):
 			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
 		#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		
-		ShW1_p0 = np.array(ShW2_p0)
+		ShW1_p0 = np.array(ShW2_p0_0)
 		ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-3, size=(nwalkers, ndim))
 		
 		#ShW2_p0 = np.array(ShW1_p0)
@@ -755,8 +755,8 @@ W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='
 #		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 #		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 #	else:
-W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-W2shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 	
 
 		
