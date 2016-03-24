@@ -465,13 +465,13 @@ if (emcee_Fit):
 			if not pool.is_master():
 				pool.wait()
 				sys.exit(0)
-			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, pool=pool, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
+			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, pool=pool, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
 			pool.close()
 		else:
-			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
+			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		
-		ShW1_p0 = np.array(ShW2_p0_0)
+		ShW1_p0 = np.array(ShW1_p0_0)
 		ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-3, size=(nwalkers, ndim))
 		
 		#ShW2_p0 = np.array(ShW1_p0)
@@ -755,7 +755,7 @@ W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='
 #		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 #		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 #	else:
-W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 	
 
