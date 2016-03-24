@@ -192,7 +192,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		#	istar.append(np.where(Fsrc[i] * np.exp(-tauDust) > RHStable + epsi)[0].max())
 		#	Tprof.append(Ttable[istar])
 
-		istar = np.where(Fsrc * np.exp(-tauDust) > RHStable )[0].max()
+		istar = np.where(Fsrc * np.exp(-tauDust) < RHStable )[0].min()
 		Tprof = Ttable[istar]
 
 

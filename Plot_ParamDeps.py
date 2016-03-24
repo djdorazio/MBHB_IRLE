@@ -63,7 +63,7 @@ thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 md = 10**(-14)
-n0 = 6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 0.000001#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
@@ -104,7 +104,7 @@ for i in range(NT):
 
 
 ### PLOT POINTS
-Nt=10
+Nt=20
 tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 
 
@@ -408,12 +408,12 @@ if (Thick):
 		nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
-		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2, color='orange', linewidth=2)
 
-		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3, color='brown', linewidth=2)
 		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
@@ -453,12 +453,12 @@ if (Thick):
 		nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
-		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2, color='orange', linewidth=2)
 
-		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3, color='brown', linewidth=2)
 		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')

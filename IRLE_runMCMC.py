@@ -28,7 +28,7 @@ SinFit = False
 ShellFit = True
 ThickFit = False
 ## multiprocessing
-NThread = 8
+NThread = 4
 mpi_it = False
 
 
@@ -456,7 +456,7 @@ if (emcee_Fit):
 
 		Shell_File = "W1_Shell"
 		ndim = 3
-		nwalkers = ndim*2
+		nwalkers = ndim*4
 		if (mpi_it):
 			import sys
 			from emcee.utils import MPIPool
@@ -479,7 +479,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 32
+		clen = 256
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
