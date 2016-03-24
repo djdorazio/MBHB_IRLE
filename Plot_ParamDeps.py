@@ -22,7 +22,7 @@ from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
 Thick = True
-Thin  = False
+Thin  = True
 
 Plot_I   = False
 I_name = "Incs"
@@ -172,7 +172,7 @@ if (Thin):
 		plt.xlim(0.0, 2.0)
 
 		#plt.show()
-		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+I_name+".png")
+		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+I_name+"n0_%g.png" %n0)
 
 	####-------END Inclination-------####
 
@@ -220,7 +220,7 @@ if (Thin):
 		plt.xlim(0.0, 2.0)
 
 		#plt.show()
-		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+".png")
+		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
 
 
 	####-------END Rdust-------####
@@ -273,7 +273,7 @@ if (Thin):
 		plt.xlim(0.0, 2.0)
 
 		#plt.show()
-		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+".png")
+		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+"n0_%g.png" %n0)
 
 	####-------END Ombin-------####
 
@@ -325,7 +325,7 @@ if (Thin):
 			plt.xlim(0.0, 2.0)
 
 			#plt.show()
-			plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+bet_name+".png")
+			plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+bet_name+"n0_%g.png" %n0)
 
 
 	####-------END beta -------####
@@ -375,7 +375,7 @@ if (Thin):
 		plt.xlim(0.0, 2.0)
 
 		#plt.show()
-		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+J_name+".png")
+		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+J_name+"n0_%g.png" %n0)
 
 
 	####-------END Rdust-------####
@@ -424,7 +424,7 @@ if (Thick):
 		plt.xlim(0.0, 2.0)
 
 		#plt.show()
-		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+J_name+".png")
+		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+J_name+"n0_%g.png" %n0)
 
 
 
@@ -469,5 +469,5 @@ if (Thick):
 		plt.xlim(0.0, 2.0)
 
 		#plt.show()
-		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+".png")
+		plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 

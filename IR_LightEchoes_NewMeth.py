@@ -183,7 +183,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		## GET RID OF THIS IF STATEMENT! (did becuase first one catches it)
 		
 		Qbar=1. ##for now
-		tauDust = np.pi*aeff*aeff*Qbar*n0/(1. - p)*( (r/Rd)**(-p) - Rd/r) * r
+		tauDust = np.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
 
 		#epsi = 0.0
 		#istar=[]
@@ -231,7 +231,7 @@ def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 	# elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
 	# 	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	# else:
-	# 	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
 	#tauObs = 0.0
