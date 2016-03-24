@@ -219,11 +219,11 @@ def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 ###----------------------------###
 ### compute los tau (tauObs) (effective for shell model)   ###
 ###----------------------------###
-	# x = Rd*np.sin(thet)*np.cos(ph)
-	# y = Rd*np.sin(thet)*np.sin(ph)
-	# z = Rd*np.cos(thet)
-	# # doing the integral is faster than lookiup table
-	# xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+	x = Rd*np.sin(thet)*np.cos(ph)
+	y = Rd*np.sin(thet)*np.sin(ph)
+	z = Rd*np.cos(thet)
+	# doing the integral is faster than lookiup table
+	xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
 	# ##don't integrate if no dust along path
 	# if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
