@@ -137,12 +137,12 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 	x = r*np.sin(thet)*np.cos(phi)
 	y = r*np.sin(thet)*np.sin(phi)
 	z = r*np.cos(thet)
-	rofx  = (x*x + y*y + z*z)**(0.5) 
+	#rofx  = (x*x + y*y + z*z)**(0.5) 
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
 	Tprof = 0.01*t/t
-	if (rofx>=Rd and throt>thetT and throt<(np.pi - thetT)):
+	if (r>=Rd and throt>thetT and throt<(np.pi - thetT)):
 
 	###-----------------###
 	### COMPUTE Fsrc    ###
@@ -183,7 +183,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		## GET RID OF THIS IF STATEMENT! (did becuase first one catches it)
 		
 		Qbar=1. ##for now
-		tauDust = np.pi*aeff*aeff*Qbar*n0/(1. - p)*(((rofx)/Rd)**(-p) - Rd/rofx) * rofx
+		tauDust = np.pi*aeff*aeff*Qbar*n0/(1. - p)*( (r/Rd)**(-p) - Rd/r) * r
 
 		#epsi = 0.0
 		#istar=[]
@@ -296,12 +296,12 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 	xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
 	#don't integrate if no dust along path
-	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
-		tauObs = 0.0
-	elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
-		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	else:
-		tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
+	#	tauObs = 0.0
+	#elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
+	#	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#else:
+	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
 	# #epsi = 2.*Rrout/nn

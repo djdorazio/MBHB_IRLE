@@ -22,7 +22,7 @@ from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
 Thick = True
-Thin  = True
+Thin  = False
 
 Plot_I   = False
 I_name = "Incs"
@@ -58,7 +58,7 @@ nne = 1.
 nu0 = numicron*0.2
 Rde = Rorb
 Rrout = 60.0*Rde
-pp = 2.0
+pp = 1.1
 thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
@@ -334,6 +334,7 @@ if (Thin):
 
 	####-------JJ-------####
 	Rin1 = Rorb
+	Inc1=0.0
 	if (Plot_J):
 		J1 = 0.
 		J2 = ma.pi/2. - thetTst

@@ -479,7 +479,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 2
+		clen = 32
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
