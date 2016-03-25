@@ -22,12 +22,12 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###clen
-NoFit = True
+NoFit = False
 
 emcee_Fit = False
 fmin_Fit = True
 SinFit = False
-ShellFit = False
+ShellFit = True
 ThickFit = False
 ## multiprocessing
 NThread = 4
@@ -428,6 +428,12 @@ if (fmin_Fit):
 	for i,name in enumerate(param_names):
 		target.write("W1: {name}: {0:.4f}".format(ShW1_p_opt[i], name=name))
 		target.write("\n")
+
+	target.write("\n")
+
+	for i,name in enumerate(param_names):
+		target.write("W2: {name}: {0:.4f}".format(ShW2_p_opt[i], name=name))
+		target.write("\n")
 		
 			
 
@@ -442,6 +448,12 @@ if (fmin_Fit):
 	for i,name in enumerate(param_names):
 		target.write("W1: {name}: {0:.4f}".format(ShW1_p_opt[i], name=name))
 		target.write("\n")
+	target.write("\n")
+
+	for i,name in enumerate(param_names):
+		target.write("W2: {name}: {0:.4f}".format(ShW2_p_opt[i], name=name))
+		target.write("\n")
+
 		
 			
 
