@@ -388,6 +388,7 @@ if (Thin):
 if (Thick):
 	####-------Rdust-------####
 	if (Plot_R):
+		Inc1 = 0.0
 		Rin1 = Rde
 		Rin2 = Rde*2.
 		Rin3 = Rde*3.
@@ -433,14 +434,15 @@ if (Thick):
 	####-------Ombin-------####
 	Om1 = Ombn
 	if (Plot_Om):
+		Inc1 = 0.0
 		Om2 = Ombn*3.
 		Om3 = Ombn*4.
 		tt1 = np.linspace(0., 2.,       Nt)*2*np.pi/Om1
 		tt2 = np.linspace(0., 2.,       Nt)*2*np.pi/Om2
 		tt3 = np.linspace(0., 2.,       Nt)*2*np.pi/Om3
-		argO1 = [Lav, betst, Inc1, Om1, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
-		argO2 = [Lav, betst, Inc1, Om2, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
-		argO3 = [Lav, betst, Inc1, Om3, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
+		argO1 = [Lav, betst, Inc1, Om1, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		argO2 = [Lav, betst, Inc1, Om2, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		argO3 = [Lav, betst, Inc1, Om3, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 
 		FsrcI1 = np.empty(Nt)
 		FsrcI2 = np.empty(Nt)
