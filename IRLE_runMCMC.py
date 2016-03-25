@@ -22,10 +22,12 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###clen
+NoFit = True
+
 emcee_Fit = False
 fmin_Fit = True
 SinFit = False
-ShellFit = True
+ShellFit = False
 ThickFit = False
 ## multiprocessing
 NThread = 4
@@ -113,6 +115,10 @@ if (ThickFit):
 	ShW2_p0_0  = [ 0.001, 0.707107, 2.0,  2.0]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
+if (NoFit):
+	ShW1_p0_0  = [ 0.001,  0.707107, 1.0,  0.6]
+	ShW2_p0_0  = [ 0.001,  0.707107, 1.0,  2.0]
+
 
 
 #Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
@@ -205,7 +211,7 @@ W2_avsg = np.array(W2_avsg)
 #sys.exit(0)
 ### averaging data ^####
 
-if (SinFit==False):
+if (ShellFit or ThickFit):
 	#Set up look up tables
 	##TABULATE T's and RHSs
 	print "Creating Temp look up tables..."
@@ -394,15 +400,52 @@ if (fmin_Fit):
 		W2_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W2, args=(t_avg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.0001)[0]
 
 	if (ShellFit):
+		Shell_File = "W1_Shell"
+		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 		print "Fmin optimizing W1"
 		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
 		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 	if (ThickFit):
+		Shell_File = "W1_Thick"
+		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
 		print "Fmin optimizing W1"
 		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
 		ShW2_p_opt = ShW1_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+	if (NoFit):
+		Shell_File = "NoFit"
+		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
+		ShW1_p_opt = ShW1_p0_0
+		ShW2_p_opt = ShW2_p0_0
+
+	filename = "fmin"+Shell_File+"_results.txt"
+	print "Printing Results"
+	target = open(filename, 'w')
+	#target.truncate()
+
+		
+	for i,name in enumerate(param_names):
+		target.write("W1: {name}: {0:.4f}".format(ShW1_p_opt[i], name=name))
+		target.write("\n")
+		
+			
+
+	target.close
+
+	filename = "fmin_results.txt"
+	print "Printing Results"
+	target = open(filename, 'w')
+	#target.truncate()
+
+		
+	for i,name in enumerate(param_names):
+		target.write("W1: {name}: {0:.4f}".format(ShW1_p_opt[i], name=name))
+		target.write("\n")
+		
+			
+
+	target.close
 
 
 
@@ -789,7 +832,8 @@ if (ThickFit):
 	else:
 		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-		
+
+
 plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$i=0$','',   r'$i=\pi/4$','',   r'$i=\pi/2$', ''), loc='upper right')
 
@@ -801,5 +845,5 @@ plt.xlim(3000, 8000)
 #plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
-plt.savefig("../emcee_data/"+Shell_File+"BestFit_%iwalkers.png" %clen)
+plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")
 plt.clf()

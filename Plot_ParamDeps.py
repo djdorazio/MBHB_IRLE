@@ -109,8 +109,8 @@ tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 
 
 ## INTEGRATION LIMTS FOR ALL nu
-numn = 0.00001*numicron
-numx = 1000*numicron
+numn = 0.0001*numicron
+numx = 100*numicron
 
 
 ###########------------------------------------###########
