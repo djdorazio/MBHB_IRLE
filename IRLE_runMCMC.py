@@ -25,8 +25,8 @@ from IR_LightEchoes_NewMeth import *
 emcee_Fit = True
 fmin_Fit = False
 SinFit = False
-ShellFit = True
-ThickFit = False
+ShellFit = False
+ThickFit = True
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -35,7 +35,7 @@ mpi_it = False
 
 #Define Constants
 nne = 1.
-nu0 = numicron*0.2
+nu0 = numicron
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
 zPG1302 = 0.2784
@@ -53,16 +53,16 @@ Ompc = 2.*np.pi*c/pc2cm/2.
 
 ## TEST VALUES
 Lav = L0
-betst = 0.2
+betst = 0.08
 Inc = ma.acos(0.07/betst)#0.*np.pi/4.
 Ombn = OmPG
-alph = 0.0
+alph = -1.0
 
 Rde = RdPG
 pp = 2.0
 thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
-aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
+aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 
 
 Dst = 1.4*10**9*pc2cm
@@ -96,17 +96,27 @@ Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
 #[beta, cosJ, Rde(units of RdPG), theta_T, ndust(units of nDust0)]
 #ShW1_p0  = [0.2,  1.,  1.4,  1.18427411,  1.7]
 #[cosJ, Rde(units of RdPG) ndust(units of nDust0)]
-#ShW1_p0  = [0.99342534,  1.44529096,  0.62]#0.79448298]
-ShW1_p0_0  = [ 0.99455796,  1.6,  0.62607537]
-ShW2_p0_0  = [0.99935378,  2.0,  0.62607537]#0.81884671]
-#ShW2_p0  = [ 0.98811473,  1.48104263,  0.639269  ]
-#W2_p0    = [2.0]
-#ShW1_p0  = [0.1018888,  0.00336493,  1.0193042,   0.09795103,  1.27874228]
+
+#ShW1_p0_0  = [ 0.99455796,  1.6,  0.62607537]
+#ShW2_p0_0  = [0.99935378,  2.0,  0.62607537]#0.81884671]
+
+
+if (ShellFit):
+	#p0 = [cosJ, Rin, n0]
+	ShW1_p0_0  = [ 0.001,  1.0,  0.6]
+	ShW2_p0_0  = [ 0.001,  1.0,  2.0]
+	W1args = [FW1Rel, W1mn, W1mx, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta, thetT] 
+	W2args = [FW2Rel, W2mn, W2mx, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta, thetT] 
+if (ThickFit):
+	#p0 = [cosJ, costheta_T, p, n0]
+	ShW1_p0_0  = [ 0.001, 0.707107, 2.0,  0.6]
+	ShW2_p0_0  = [ 0.001, 0.707107, 2.0,  2.0]
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 
 
 #Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
-W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst, thetTst] 
-W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst, thetTst] 
+
 
 
 
@@ -201,7 +211,7 @@ if (SinFit==False):
 	print "Creating Temp look up tables..."
 	NT = 10000
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(100., 3000., NT)
+	T_table = np.linspace(1., 2000., NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -299,20 +309,21 @@ def SinErr2(p, t, y, dy):
 
 
 ### MCMC - Set up priors
-def ln_prior(p):
+def ln_prior(params):
 			#beta, cosJJ, Rin, thetT, n0 = p
-			cosJJ, Rin, n0 = p
+			cosJJ, cosTT, pp, n0 = params
 			#if beta < 0.07 or beta > 0.5:
 			#	return -np.inf
 					
 			if cosJJ < 0 or cosJJ > 1:
 				return -np.inf
-					
-			if Rin <= 0.0:
+
+			if cosTT < 0 or cosTT > 1:
 				return -np.inf
 					
-			#if thetT <= 0.0 or thetT >= ma.pi/2.:
-			#	return -np.inf
+			if pp <= 1.0:
+				return -np.inf
+					
 
 			if n0 <= 0.0:
 				return -np.inf
@@ -387,7 +398,11 @@ if (fmin_Fit):
 		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
 		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
-
+	if (ThickFit):
+		print "Fmin optimizing W1"
+		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ThW1_p0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		print "Fmin optimizing W2"
+		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ThW2_p0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 
 
 
@@ -452,34 +467,44 @@ if (emcee_Fit):
 
 
 
-	if (ShellFit):
+	if (ShellFit or ThickFit):
+		
+		
+		# if (mpi_it):
+		# 	import sys
+		# 	from emcee.utils import MPIPool
 
-		Shell_File = "W1_Shell"
-		ndim = 3
-		nwalkers = ndim*4
-		if (mpi_it):
-			import sys
-			from emcee.utils import MPIPool
-
-			pool = MPIPool()
-			if not pool.is_master():
-				pool.wait()
-				sys.exit(0)
-			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, pool=pool, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
-			pool.close()
-		else:
+		# 	pool = MPIPool()
+		# 	if not pool.is_master():
+		# 		pool.wait()
+		# 		sys.exit(0)
+		# 	ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, pool=pool, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+		# 	pool.close()
+		# else:
+		if (ShellFit):
+			ndim = 3
+			nwalkers = ndim*2
+			Shell_File = "W1_Shell"
+			param_names = [r'cos($J$)',r'$R_in$', r'$n_0$']
 			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+		if (ThickFit):
+			ndim = 4
+			nwalkers = ndim*2
+			Shell_File = "W1_Thick"
+			param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
+			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+
 		#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		
 		ShW1_p0 = np.array(ShW1_p0_0)
-		ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-3, size=(nwalkers, ndim))
+		ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-4, size=(nwalkers, ndim))
 		
 		#ShW2_p0 = np.array(ShW1_p0)
 		#ShW2_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-2, size=(nwalkers, ndim))
 		
 
 					
-		clen = 256
+		clen = 2
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
@@ -621,9 +646,9 @@ if (emcee_Fit):
 
 
 
-	if (ShellFit):
+	if (ShellFit or ThickFit):
 		#param_names = ['beta','cosJ','Rin','thetT', 'n0']			
-		param_names = ['cosJ','Rin', 'n0']	
+			
 		
 
 
@@ -747,17 +772,19 @@ W1av   = plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='blac
 W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
 
 
-#if (SinFit):
-#	W1sinsoln = plt.plot(ttopt, sinPoint(W1_sin_p_opt, (ttopt+50000)/(1.+zPG1302)), linestyle = '--', color='orange', linewidth=2)
-#	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, (ttopt+50000)/(1.+zPG1302))+0.5, linestyle = '--', color='red', linewidth=2)
-#if (ShellFit):
-#	if (fmin_Fit):
-#		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-#		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-#	else:
-W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-	
+if (SinFit):
+	W1sinsoln = plt.plot(ttopt, sinPoint(W1_sin_p_opt, (ttopt+50000)/(1.+zPG1302)), linestyle = '--', color='orange', linewidth=2)
+	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, (ttopt+50000)/(1.+zPG1302))+0.5, linestyle = '--', color='red', linewidth=2)
+if (ShellFit):
+	if (fmin_Fit):
+		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	else:
+		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+if (ThickFit):	
+	W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 		
 plt.grid(b=True, which='both')
@@ -768,8 +795,8 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, 8000)
 #plt.ylim(10.5, 11.5)
-plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
-plt.savefig("../emcee_data/BestFit_%iwalkers.png" %clen)
+plt.savefig("../emcee_data/"+Shell_File+"BestFit_%iwalkers.png" %clen)
 plt.clf()

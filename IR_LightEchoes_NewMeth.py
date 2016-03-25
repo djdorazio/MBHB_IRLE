@@ -141,7 +141,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Tprof = 0.01*t/t
+	Tprof = 1.*t/t  ##T=0.1 is very small
 	if (r>=Rd and throt>thetT and throt<(np.pi - thetT)):
 
 	###-----------------###
@@ -192,8 +192,12 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		#	istar.append(np.where(Fsrc[i] * np.exp(-tauDust) > RHStable + epsi)[0].max())
 		#	Tprof.append(Ttable[istar])
 
-		istar = np.where(Fsrc * np.exp(-tauDust) < RHStable )[0].min()
-		Tprof = Ttable[istar]
+		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+		if (Fsrc * np.exp(-tauDust) > RHStable[len(RHStable)-1] or Fsrc * np.exp(-tauDust) <= RHStable[0]):
+			Tprof = 1.
+		else:
+			istar = np.where(Fsrc * np.exp(-tauDust) <= RHStable )[0].min()
+			Tprof = Ttable[istar]
 
 
 		#Tprof = (0.25 * Fsrc/sigSB * np.exp(-tauDust) )**(0.25)
@@ -222,29 +226,29 @@ def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 	x = Rd*np.sin(thet)*np.cos(ph)
 	y = Rd*np.sin(thet)*np.sin(ph)
 	z = Rd*np.cos(thet)
-	# doing the integral is faster than lookiup table
-	xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
-	
-	# ##don't integrate if no dust along path
-	# if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
-	# 	tauObs = 0.0
-	# elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
-	# 	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	# else:
-	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	# # doing the integral is faster than lookiup table
+	# #xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+	xe = (Rout*Rout  -  (z*z - y*y))**(0.5)
+	# # ##don't integrate if no dust along path
+	# # if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
+	# # 	tauObs = 0.0
+	# # elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
+	# # 	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	# # else:
+	tauObs = np.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
 	#tauObs = 0.0
 
-	#fint = Qv(nu, nu0, nn) * np.e**(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)	
-	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
+	fint = Qv(nu, nu0, nn) * np.e**(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)	
+	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
 	fint = fint* Rd*Rd* np.sin(thet) * n0*Rd/(p-1.)
 
 
 	return np.pi* aeff*aeff/Dist/Dist *fint
 
 
-def tauObs(x, z, Rout, aeff, n0, Rd, p, thetT, JJ):
+def tauObs(nu, x, z, Rout, aeff, n0, Rd, p, thetT, JJ):
 	y=0.0
 	r    = np.sqrt(x*x + y*y + z*z)
 	thet = np.arctan2((x*x + y*y)**(0.5), z)
@@ -253,7 +257,7 @@ def tauObs(x, z, Rout, aeff, n0, Rd, p, thetT, JJ):
 	xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
 	#if (type(x) is float):
-	return np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#else:
 	#	res=[]
 	#	for i in range(len(x)):
@@ -293,15 +297,15 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 ### compute los tau (tauObs)   ###
 ###----------------------------###
 	## doing the integral is faster than lloking it up this way
-	xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
-	
+	#xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+	xe = (Rout*Rout  -  (z*z - y*y))**(0.5)
 	#don't integrate if no dust along path
 	#if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
 	#	tauObs = 0.0
 	#elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
 	#	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#else:
-	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	tauObs = np.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
 	# #epsi = 2.*Rrout/nn
@@ -380,13 +384,13 @@ def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
 
 def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
-	cosJJ, Rin, n0 = params
+	cosJJ, cosTT, pp, n0 = params
 	n0 = n0 * 1.4032428247438431e-09
-	Rin = Rin * 2.73213149e+18
 	t = t * 86400.
 	JJ = np.arccos(cosJJ) ## CAREFUL WITH DOMAIN OF COS
+	thetT = np.arccos(cosTT)
 	
-	FRel, numin, numax, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta, thetT = THEargs
+	FRel, numin, numax, Dist, Lav, Ombn, alph, Rin, Rout, aeff, nu0, nne, beta = THEargs
 	IncFit = np.arccos(0.07/beta)
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]

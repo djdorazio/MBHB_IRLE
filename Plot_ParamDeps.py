@@ -26,7 +26,7 @@ Thin  = True
 
 Plot_I   = False
 I_name = "Incs"
-Plot_R   = False
+Plot_R   = True
 R_name = "Rdust"
 Plot_Om  = False
 Om_name = "Ombins"
@@ -45,7 +45,7 @@ MPGmx = 10**9.4*Msun
 Ryr = c*yr2sec
 RdPG = np.sqrt(0.1)*2.8 *pc2cm
 OmPG = Omb*2.*np.pi/4.1
-alphnu = 1.1
+#alphnu = 1.1
 
 Rorb = c*2.*np.pi/Omb
 Ompc = 2.*np.pi*c/pc2cm/2.
@@ -55,22 +55,22 @@ Ompc = 2.*np.pi*c/pc2cm/2.
 ### DUST stuff
 ## for Qv
 nne = 1.
-nu0 = numicron*0.2
-Rde = Rorb
-Rrout = 60.0*Rde
-pp = 1.1
+nu0 = numicron
+Rde = RdPG
+Rrout = 10.0*Rde
+pp = 2.0
 thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
-aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
+aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 tomaku nu0~1um)
 md = 10**(-14)
-n0 = 0.000001#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
 betst = 0.10
-Inc = ma.acos(0.07/betst)#0.*np.pi/4.
-Ombn = Omb
-alph = 1.1
+Inc = 0.0#ma.acos(0.07/betst)#0.*np.pi/4.
+Ombn = OmPG
+alph = 0.0
 Dst = 1.4*10**9*pc2cm
 
 
@@ -98,7 +98,7 @@ FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
 print "Creating look up tables"
 NT = 10000
 RHS_table = np.zeros(NT)
-T_table = np.linspace(0.1, 3000., NT)
+T_table = np.linspace(1., 2000., NT)
 for i in range(NT):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -182,10 +182,10 @@ if (Thin):
 
 
 	####-------Rdust-------####
-	Rin1 = Rorb
 	if (Plot_R):
-		Rin2 = Rorb/2.
-		Rin3 = Rorb/4.
+		Rin1 = Rde
+		Rin2 = Rde*2.
+		Rin3 = Rde*3.
 		argR1 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
 		argR2 = [Lav, betst, Inc1, Ombn, alph, n0, Rin2, pp, thetTst, JJt, aeff, nu0, nne]
 		argR3 = [Lav, betst, Inc1, Ombn, alph, n0, Rin3, pp, thetTst, JJt, aeff, nu0, nne]
@@ -199,9 +199,9 @@ if (Thin):
 
 		#for i in range (0, Nt):
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
-		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
-		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
+		FI1    = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
+		FI2    = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
+		FI3    = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
 
 		nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
@@ -214,7 +214,7 @@ if (Thin):
 		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=(R_{\rm{orb}}/c)/2$', r'$R_d=(R_{\rm{orb}}/c)/4$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=2(R_{\rm{orb}}/c)$', r'$R_d=3(R_{\rm{orb}}/c)$'), loc='upper right')
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -250,7 +250,7 @@ if (Thin):
 		FI3 = np.empty(Nt)
 
 		#for i in range (0, Nt):
-		FsrcI1 = -2.5*np.log10(Fsrc(tt[i], Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
 		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt1, Dst, Rrout, argO1, RHS_table, T_table)/FW1Rel)
 		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt2, Dst, Rrout, argO2, RHS_table, T_table)/FW1Rel)
 		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt3, Dst, Rrout, argO3, RHS_table, T_table)/FW1Rel)
@@ -283,7 +283,7 @@ if (Thin):
 
 	####-------beta-------####
 	bet1 = 0.1
-	if (Plot_R):
+	if (Plot_bet):
 			bet2 = 0.2
 			bet3 = 0.3
 			argb1 = [Lav, bet1, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
@@ -334,7 +334,7 @@ if (Thin):
 
 
 	####-------JJ-------####
-	Rin1 = Rorb
+	Rin1 = Rde
 	Inc1=0.0
 	if (Plot_J):
 		J1 = 0.
@@ -406,7 +406,7 @@ if (Thick):
 		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
 		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
@@ -451,7 +451,7 @@ if (Thick):
 		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
 		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
