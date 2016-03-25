@@ -21,18 +21,25 @@ from scipy.optimize import fmin
 
 from IR_LightEchoes_NewMeth import *
 
-###clen
+###OPTIONS
 NoFit = False
+pltShell = False
 
 emcee_Fit = False
 fmin_Fit = True
 SinFit = False
-ShellFit = True
-ThickFit = False
+ShellFit = False
+ThickFit = True
 ## multiprocessing
 NThread = 4
 mpi_it = False
+if (NoFit):
+	emcee_Fit = False
+	fmin_Fit = True
 
+	ShellFit = False
+	ThickFit = False
+	SinFit   = False
 
 
 #Define Constants
@@ -105,19 +112,26 @@ Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
 
 if (ShellFit):
 	#p0 = [cosJ, costheta_T, Rin, n0]
-	ShW1_p0_0  = [ 0.001,  0.707107, 1.0,  0.6]
-	ShW2_p0_0  = [ 0.001,  0.707107, 1.0,  2.0]
+	#ShW1_p0_0  = [ 0.001,  0.6905, 1.4392,  0.5880]
+	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.09,  2.5117]
+	ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880] ## this fit give p~4
+	ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, p, n0]
-	ShW1_p0_0  = [ 0.001, 0.707107, 2.0,  0.6]
-	ShW2_p0_0  = [ 0.001, 0.707107, 2.0,  2.0]
+	ShW1_p0_0  = [ 0.001,   0.6905, 4.0,   0.5880]
+	ShW2_p0_0  = [ 0.001,  0.6035, 4.0,  2.5117]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 if (NoFit):
-	ShW1_p0_0  = [ 0.001,  0.707107, 1.0,  0.6]
-	ShW2_p0_0  = [ 0.001,  0.707107, 1.0,  2.0]
+	#ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880]
+	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
+	ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  5.880]
+	ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  25.117]
+	if (pltShell):
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 
 
 
@@ -211,7 +225,7 @@ W2_avsg = np.array(W2_avsg)
 #sys.exit(0)
 ### averaging data ^####
 
-if (ShellFit or ThickFit):
+if (ShellFit or ThickFit or pltShell):
 	#Set up look up tables
 	##TABULATE T's and RHSs
 	print "Creating Temp look up tables..."
@@ -797,7 +811,7 @@ sigLsrt =  TtLumS[2]
 tsrt = tsrt #- 49100
 t_MJD = t_MJD #- 49100
 
-Nt=40
+Nt=10
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
@@ -844,6 +858,10 @@ if (ThickFit):
 	else:
 		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+if NoFit:
+	W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+
 
 
 plt.grid(b=True, which='both')
