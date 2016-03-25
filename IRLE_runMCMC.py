@@ -25,13 +25,13 @@ from IR_LightEchoes_NewMeth import *
 NoFit = False
 pltShell = False
 
-emcee_Fit = False
-fmin_Fit = True
+emcee_Fit = True
+fmin_Fit = False
 SinFit = False
-ShellFit = False
-ThickFit = True
+ShellFit = True
+ThickFit = False
 ## multiprocessing
-NThread = 4
+NThread = 48
 mpi_it = False
 if (NoFit):
 	emcee_Fit = False
@@ -127,8 +127,8 @@ if (ThickFit):
 if (NoFit):
 	#ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880]
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
-	ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  5.880]
-	ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  25.117]
+	ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880]
+	ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
 	if (pltShell):
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
@@ -552,7 +552,7 @@ if (emcee_Fit):
 		# else:
 		if (ShellFit):
 			ndim = 4
-			nwalkers = ndim*2
+			nwalkers = ndim*12
 			Shell_File = "W1_Shell"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
@@ -573,7 +573,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 2
+		clen = 1024
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
@@ -811,7 +811,7 @@ sigLsrt =  TtLumS[2]
 tsrt = tsrt #- 49100
 t_MJD = t_MJD #- 49100
 
-Nt=10
+Nt=40
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
