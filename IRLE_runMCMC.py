@@ -22,11 +22,11 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###clen
-emcee_Fit = True
-fmin_Fit = False
+emcee_Fit = False
+fmin_Fit = True
 SinFit = False
-ShellFit = False
-ThickFit = True
+ShellFit = True
+ThickFit = False
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -102,11 +102,11 @@ Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
 
 
 if (ShellFit):
-	#p0 = [cosJ, Rin, n0]
-	ShW1_p0_0  = [ 0.001,  1.0,  0.6]
-	ShW2_p0_0  = [ 0.001,  1.0,  2.0]
-	W1args = [FW1Rel, W1mn, W1mx, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta, thetT] 
-	W2args = [FW2Rel, W2mn, W2mx, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta, thetT] 
+	#p0 = [cosJ, costheta_T, Rin, n0]
+	ShW1_p0_0  = [ 0.001,  0.707107, 1.0,  0.6]
+	ShW2_p0_0  = [ 0.001,  0.707107, 1.0,  2.0]
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, p, n0]
 	ShW1_p0_0  = [ 0.001, 0.707107, 2.0,  0.6]
@@ -395,14 +395,14 @@ if (fmin_Fit):
 
 	if (ShellFit):
 		print "Fmin optimizing W1"
-		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
-		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 	if (ThickFit):
 		print "Fmin optimizing W1"
-		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ThW1_p0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
-		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ThW2_p0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW2_p_opt = ShW1_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 
 
 
@@ -482,10 +482,10 @@ if (emcee_Fit):
 		# 	pool.close()
 		# else:
 		if (ShellFit):
-			ndim = 3
+			ndim = 4
 			nwalkers = ndim*2
 			Shell_File = "W1_Shell"
-			param_names = [r'cos($J$)',r'$R_in$', r'$n_0$']
+			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
 		if (ThickFit):
 			ndim = 4
@@ -783,9 +783,12 @@ if (ShellFit):
 		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 if (ThickFit):	
-	W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-	W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-
+	if (fmin_Fit):
+		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Thick(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	else:
+		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 		
 plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$i=0$','',   r'$i=\pi/4$','',   r'$i=\pi/2$', ''), loc='upper right')

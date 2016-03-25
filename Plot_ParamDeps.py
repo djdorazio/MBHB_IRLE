@@ -21,7 +21,7 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
+Thick = False
 Thin  = True
 
 Plot_I   = False
@@ -32,7 +32,7 @@ Plot_Om  = False
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
-Plot_J = True
+Plot_J = False
 J_name = "Js"
 Plot_TT = True
 TT_name = "Theta_Ts"
@@ -110,7 +110,7 @@ tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 
 ## INTEGRATION LIMTS FOR ALL nu
 numn = 0.00001*numicron
-numx = 5*numicron
+numx = 1000*numicron
 
 
 ###########------------------------------------###########
