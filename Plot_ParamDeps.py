@@ -21,12 +21,12 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = False
-Thin  = True
+Thick = True
+Thin  = False
 
 Plot_I   = False
 I_name = "Incs"
-Plot_R   = True
+Plot_R   = False
 R_name = "Rdust"
 Plot_Om  = False
 Om_name = "Ombins"
@@ -43,12 +43,12 @@ Omb = 1./(1*yr2sec)
 L0 = 6.78*10**46
 MPGmx = 10**9.4*Msun
 Ryr = c*yr2sec
-RdPG = np.sqrt(0.1)*2.8 *pc2cm
+RdPG = ma.sqrt(0.1)*2.8 *pc2cm
 OmPG = Omb*2.*np.pi/4.1
 #alphnu = 1.1
 
-Rorb = c*2.*np.pi/Omb
-Ompc = 2.*np.pi*c/pc2cm/2.
+Rorb = c*2.*ma.pi/Omb
+Ompc = 2.*ma.pi*c/pc2cm/2.
 
 
 ## TEST VALUES
@@ -63,7 +63,7 @@ thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 tomaku nu0~1um)
 md = 10**(-14)
-n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 0.1/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0

@@ -68,7 +68,7 @@ Ombn = OmPG
 alph = -1.0
 
 Rde = RdPG
-pp = 2.0
+pp = 4.0
 thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
