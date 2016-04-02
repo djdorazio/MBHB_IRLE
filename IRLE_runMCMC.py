@@ -26,6 +26,9 @@ NoFit = False
 pltShell = False
 
 emcee_Fit = True
+W1fit = False
+W2fit = True
+
 fmin_Fit = False
 SinFit = False
 ShellFit = True
@@ -553,19 +556,42 @@ if (emcee_Fit):
 		if (ShellFit):
 			ndim = 4
 			nwalkers = ndim*12
-			Shell_File = "W1_Shell"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
-			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+			if (W2fit):
+				Shell_File = "W2_Shell"
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
+			elif (W1fit):
+				Shell_File = "W1_Shell"
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+			else:
+				print "must choose W1 or W1 to fit too (do both later)"
+				import sys
+				sys.exit(0)
 		if (ThickFit):
 			ndim = 4
-			nwalkers = ndim*2
-			Shell_File = "W1_Thick"
+			nwalkers = ndim*12
 			param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
-			ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
-
-		#ShW2_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_posterior, args=(t_avg/(1.+zPG1302), W1args, RHS_table, T_table, W1_avg, W1_avsg))
+			if (W2fit):
+				Shell_File = "W2_Thick"
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
+			elif (W1fit):
+				Shell_File = "W1_Thick"
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+			else:
+				print "must choose W1 or W1 to fit too (do both later)"
+				import sys
+				sys.exit(0)
 		
-		ShW1_p0 = np.array(ShW1_p0_0)
+		if (W2fit):
+			ShW1_p0 = np.array(ShW2_p0_0)
+		elif (W1fit):
+			ShW1_p0 = np.array(ShW1_p0_0)
+		else:
+			print "must choose W1 or W1 to fit too (do both later)"
+			import sys
+			sys.exit(0)
+
+		
 		ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-4, size=(nwalkers, ndim))
 		
 		#ShW2_p0 = np.array(ShW1_p0)
