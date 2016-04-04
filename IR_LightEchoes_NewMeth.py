@@ -376,7 +376,7 @@ def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
 	thetT = np.arccos(cosTT)
 	
 	FRel, numin, numax, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta = THEargs
-	IncFit = np.arccos(0.07/beta)
+	IncFit = np.arccos(0.067/beta)
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
 	#return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
@@ -392,7 +392,7 @@ def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 	thetT = np.arccos(cosTT)
 	
 	FRel, numin, numax, Dist, Lav, Ombn, alph, Rin, Rout, aeff, nu0, nne, beta = THEargs
-	IncFit = np.arccos(0.07/beta)
+	IncFit = np.arccos(0.067/beta)
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
 	#return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)

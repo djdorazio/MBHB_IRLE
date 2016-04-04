@@ -34,8 +34,10 @@ Plot_bet = False
 bet_name = "betas"
 Plot_J = False
 J_name = "Js"
-Plot_TT = True
+Plot_TT = False
 TT_name = "Theta_Ts"
+Plot_pp = True
+pp_name = "Theta_ps"
 
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
@@ -61,9 +63,9 @@ Rrout = 10.0*Rde
 pp = 2.0
 thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
-aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 tomaku nu0~1um)
+aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 0.1/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
@@ -568,3 +570,51 @@ if (Thick):
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		plt.savefig("plots/Thick"+TT_name+"n0_%g.png" %n0)
 		####-------END TT-------####
+
+
+
+		####-------pp-------####
+	if (Plot_pp):
+		Inc1 = 0.0
+		JJ = ma.pi/2.
+		pp1 = 2.0
+		pp2 = 3.0
+		pp3 = 4.0
+		#J4 = ma.pi/2. + thetTst
+		argp1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp1, thetTst, JJ, aeff, nu0, nne]
+		argp2 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp2, thetTst, JJ, aeff, nu0, nne]
+		argp3 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp3, thetTst, JJ, aeff, nu0, nne]
+		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
+
+
+
+		#for i in range (0, Nt):
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FI1 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argp1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argp2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argp3, RHS_table, T_table)/FW1Rel)
+		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+
+		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+
+		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+
+		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
+
+		plt.grid(b=True, which='both')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$p=2$',  r'$p=3$', r'$p=4$'), loc='upper right')
+
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel("mag")
+		plt.xlim(0.0, 2.0)
+
+		#plt.show()
+	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick"+pp_name+"n0_%g.png" %n0)
+		####-------END TT-------####
+

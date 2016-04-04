@@ -66,7 +66,7 @@ Ompc = 2.*np.pi*c/pc2cm/2.
 ## TEST VALUES
 Lav = L0
 betst = 0.08
-Inc = ma.acos(0.07/betst)#0.*np.pi/4.
+Inc = ma.acos(0.067/betst)#0.*np.pi/4.
 Ombn = OmPG
 alph = -1.0
 
