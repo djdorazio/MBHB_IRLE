@@ -85,12 +85,12 @@ zz = np.linspace(-Rrout, Rrout, nz)
 #rrg,thg,phg = np.meshgrid(rr, th, ph)
 
 
-tauGrid = [[],[],[]]
-for i in range(0, nx):
-	for j in range(0, nz):
-			tauGrid[0].append(tauObs(xx[i], zz[j], Rrout, aeff, n0, Rde, pp, thetTst, JJt))
-			tauGrid[1].append(xx[i])
-			tauGrid[2].append(zz[j])
+# tauGrid = [[],[],[]]
+# for i in range(0, nx):
+# 	for j in range(0, nz):
+# 			tauGrid[0].append(tauObs(xx[i], zz[j], Rrout, aeff, n0, Rde, pp, thetTst, JJt))
+# 			tauGrid[1].append(xx[i])
+# 			tauGrid[2].append(zz[j])
 
 
 
@@ -195,29 +195,29 @@ print t2-t1
 
 
 t1=time.clock()
-chk0=Fnuint_Shell(0.0, ma.pi/2., W1mn, 0., Dst, Rrout, Targs, RHS_table, T_table)
+chk0=Fnuint_Shell(0.0, ma.pi/2., W1mn, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)
 t2=time.clock()
 print t2-t1
 
 t3=time.clock()
-chk1=Fnudphi_Shell(ma.pi/2, W1mn, 0., Dst, Rrout, Targs, RHS_table, T_table)
+chk1=Fnudphi_Shell(ma.pi/2, W1mn, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)
 t4=time.clock()
 print t4-t3
 
 t5=time.clock()
-chk2=Fnu_Shell(W1mn, 0., Dst, Rrout, Targs, RHS_table, T_table)
+chk2=Fnu_Shell(W1mn, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)
 t6=time.clock()
 print t6-t5
 
 
 t7=time.clock()
-chk3=-2.5*np.log10(Fobs_Shell(W1mn,W1mx, 0., Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
+chk3=-2.5*np.log10(Fobs_Shell(W1mn,W1mx, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
 t8=time.clock()
 print t8-t7
 
 
 t9=time.clock()
-chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, 0.*2*ma.pi/Ombn, Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
+chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, [0.,1.]*2*ma.pi/Ombn, Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
 t10=time.clock()
 print t10-t9
 

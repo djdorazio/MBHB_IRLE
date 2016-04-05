@@ -22,10 +22,11 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
-NoFit = False
+NoFit = True
 pltShell = False
+pltThick = True
 
-emcee_Fit = True
+emcee_Fit = False
 W1fit = False
 W2fit = True
 
@@ -71,14 +72,14 @@ Ombn = OmPG
 alph = -1.0
 
 Rde = RdPG
-pp = 4.0
+pp = 2.0
 thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 
 
 Dst = 1.4*10**9*pc2cm
-Rrout = 100.0*Rde
+Rrout = 20.0*Rde
 
 md = 10**(-14)
 Mdust = 6.*10**5
@@ -100,7 +101,9 @@ FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
 beta0 = betst
 cosJJ0 = ma.cos(JJt)
 Rin0 = RdPG
-nDust0 = Mdust*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+#nDust0 = Mdust*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.)
+
 
 #p0 = [beta0, cosJJ0, Rin0, nDust0]
 Sinp0_W1 = [0.1, 365*4.1, 1.0, 11.3]
@@ -130,9 +133,9 @@ if (ThickFit):
 if (NoFit):
 	#ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880]
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
-	ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880]
-	ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
-	if (pltShell):
+	ShW1_p0_0  = [ 0.001,   0.6905, 2.0,   1.0]
+	ShW2_p0_0  = [ 0.001,   0.6035, 2.0,  1.0]
+	if (pltShell or pltThick):
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 
@@ -228,7 +231,7 @@ W2_avsg = np.array(W2_avsg)
 #sys.exit(0)
 ### averaging data ^####
 
-if (ShellFit or ThickFit or pltShell):
+if (ShellFit or ThickFit or pltShell or pltThick):
 	#Set up look up tables
 	##TABULATE T's and RHSs
 	print "Creating Temp look up tables..."
@@ -417,14 +420,14 @@ if (fmin_Fit):
 		W2_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W2, args=(t_avg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.0001)[0]
 
 	if (ShellFit):
-		Shell_File = "W1_Shell"
+		Shell_File = "W1W2fmin_Shell"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 		print "Fmin optimizing W1"
 		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
 		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 	if (ThickFit):
-		Shell_File = "W1_Thick"
+		Shell_File = "W1fmin_Thick"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
 		print "Fmin optimizing W1"
 		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
@@ -456,7 +459,7 @@ if (fmin_Fit):
 
 	target.close
 
-	filename = "fmin_results.txt"
+	filename = "fmin"+Shell_File+"_results.txt"
 	print "Printing Results"
 	target = open(filename, 'w')
 	#target.truncate()
@@ -884,10 +887,13 @@ if (ThickFit):
 	else:
 		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-if NoFit:
+if (NoFit and pltShell):
 	W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 	W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-
+if (NoFit and pltThick):
+	W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_Thick(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	
 
 
 plt.grid(b=True, which='both')

@@ -240,7 +240,10 @@ def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 
 	#tauObs = 0.0
 
-	fint = Qv(nu, nu0, nn) * np.e**(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)	
+	#if (  (h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))) > 709.7):
+	#	fint = 1.654984027680202e+308
+	#else:
+	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)	
 	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
 	fint = fint* Rd*Rd* np.sin(thet) * n0*Rd/(p-1.)
 
@@ -317,7 +320,9 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 	# it =np.where(z < TGz[2])[0].max()
 	# tauObs = tauGrid[0][it]	
 
-	fint = Qv(nu, nu0, nn) * np.e**(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)
+	#if (  (h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))) > 709.7):
+	#	fint = 1.654984027680202e+308
+	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
 
 
