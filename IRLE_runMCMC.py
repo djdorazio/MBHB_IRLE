@@ -126,15 +126,15 @@ if (ShellFit):
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, p, n0]
-	ShW1_p0_0  = [ 0.001,   0.6905, 4.0,   0.5880]
-	ShW2_p0_0  = [ 0.001,  0.6035, 4.0,  2.5117]
+	ShW1_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
+	ShW2_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 if (NoFit):
 	#ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880]
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
-	ShW1_p0_0  = [ 0.001,   0.6905, 2.0,   1.0]
-	ShW2_p0_0  = [ 0.001,   0.6035, 2.0,  1.0]
+	ShW1_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
+	ShW2_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
 	if (pltShell or pltThick):
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 

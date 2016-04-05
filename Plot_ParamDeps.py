@@ -36,8 +36,10 @@ Plot_J = False
 J_name = "Js"
 Plot_TT = False
 TT_name = "Theta_Ts"
-Plot_pp = True
-pp_name = "Theta_ps"
+Plot_pp = False
+pp_name = "_ps"
+Plot_Ro = True
+Ro_name = "_Routs"
 
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
@@ -617,4 +619,52 @@ if (Thick):
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		plt.savefig("plots/Thick"+pp_name+"n0_%g.png" %n0)
 		####-------END TT-------####
+
+
+		####------Rout-------####
+	if (Plot_Ro):
+		Inc1 = 0.0
+		JJ = ma.pi/2.
+		Ro1 = 10.*Rde
+		Ro2 = 20.0*Rde
+		Ro3 = 100.0*Rde
+		#J4 = ma.pi/2. + thetTst
+		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJ, aeff, nu0, nne]
+		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJ, aeff, nu0, nne]
+		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJ, aeff, nu0, nne]
+		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
+
+
+
+		#for i in range (0, Nt):
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FI1 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Ro1, arg, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Ro2, arg, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Ro3, arg, RHS_table, T_table)/FW1Rel)
+		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+
+		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+
+		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+
+		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
+
+		plt.grid(b=True, which='both')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel("mag")
+		plt.xlim(0.0, 2.0)
+
+		#plt.show()
+	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick"+Ro_name+"n0_%g.png" %n0)
+		####-------END pp-------####
+
+
 
