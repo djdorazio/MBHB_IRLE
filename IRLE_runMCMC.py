@@ -22,13 +22,13 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
-NoFit = True
+NoFit = False
 pltShell = False
-pltThick = True
+pltThick = False
 
 emcee_Fit = False
-W1fit = False
-W2fit = True
+W1fit = True
+W2fit = False
 
 fmin_Fit = True
 SinFit = False
@@ -125,11 +125,13 @@ if (ShellFit):
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 if (ThickFit):
-	#p0 = [cosJ, costheta_T, p, n0]
-	ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
-	ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
+	#p0 = [cosJ, costheta_T, Rin, p, n0]
+	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
+	#ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
+	ShW1_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  1.0]
+	ShW2_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  1.0]
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
 if (NoFit):
 	#ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880]
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
@@ -141,8 +143,8 @@ if (NoFit):
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	if (pltThick):
-		ShW1_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
-		ShW2_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
+		ShW1_p0_0  = [ 0.0016,  0.8, 1.0, 2.0,  0.05132]
+		ShW2_p0_0  = [ 0.0016,  0.8, 1.0, 2.0,  0.05132]
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 
@@ -342,7 +344,7 @@ def SinErr2(p, t, y, dy):
 ### MCMC - Set up priors
 def ln_prior(params):
 			#beta, cosJJ, Rin, thetT, n0 = p
-			cosJJ, cosTT, pp, n0 = params
+			cosJJ, cosTT, Rin, n0 = params
 			#if beta < 0.07 or beta > 0.5:
 			#	return -np.inf
 					
@@ -352,7 +354,7 @@ def ln_prior(params):
 			if cosTT < 0 or cosTT > 1:
 				return -np.inf
 					
-			if pp <= 1.0:
+			if Rin <= 0.0:
 				return -np.inf
 					
 
@@ -435,7 +437,7 @@ if (fmin_Fit):
 		Shell_File = "W1fmin_Thick"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
 		print "Fmin optimizing W1"
-		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.1)[0]
 		print "Fmin optimizing W2"
 		ShW2_p_opt = ShW1_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 	if (NoFit):

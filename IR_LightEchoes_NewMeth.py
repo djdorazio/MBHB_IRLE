@@ -390,13 +390,15 @@ def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
 
 def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
-	cosJJ, cosTT, pp, n0 = params
+	cosJJ, cosTT, Rin, pp, n0 = params
+	Rin = Rin * 2.73213149e+18
 	n0 = n0 * 1.4032428247438431e-09
 	t = t * 86400.
 	JJ = np.arccos(cosJJ) ## CAREFUL WITH DOMAIN OF COS
 	thetT = np.arccos(cosTT)
 	
-	FRel, numin, numax, Dist, Lav, Ombn, alph, Rin, Rout, aeff, nu0, nne, beta = THEargs
+	#FRel, numin, numax, Dist, Lav, Ombn, alph, Rin, Rout, aeff, nu0, nne, beta = THEargs
+	FRel, numin, numax, Dist, Lav, Ombn, alph, Rout, aeff, nu0, nne, beta = THEargs
 	IncFit = np.arccos(0.067/beta)
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
