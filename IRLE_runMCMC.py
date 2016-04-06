@@ -22,18 +22,18 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
-NoFit = False
+NoFit = True
 pltShell = False
-pltThick = False
+pltThick = True
 
-emcee_Fit = True
+emcee_Fit = False
 W1fit = False
 W2fit = True
 
-fmin_Fit = False
+fmin_Fit = True
 SinFit = False
-ShellFit = True
-ThickFit = False
+ShellFit = False
+ThickFit = True
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -79,7 +79,7 @@ aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 
 
 Dst = 1.4*10**9*pc2cm
-Rrout = 100.0*Rde
+Rrout = 10.0*Rde
 
 md = 10**(-14)
 Mdust = 6.*10**5
@@ -135,11 +135,16 @@ if (NoFit):
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
 	ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
-	if (pltShell or pltThick):
+	if (pltShell):
+		ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880] ## this fit give p~4
+		ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-
-
+	if (pltThick):
+		ShW1_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
+		ShW2_p0_0  = [ 0.0016,  0.9115, 0.5166,  0.1132]
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
 
 #Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 
