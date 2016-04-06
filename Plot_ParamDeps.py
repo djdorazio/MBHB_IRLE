@@ -438,9 +438,10 @@ if (Thick):
 	####-------Ombin-------####
 	Om1 = Ombn
 	if (Plot_Om):
+		Om1 = c/Rde
 		Inc1 = 0.0
-		Om2 = Ombn*3.
-		Om3 = Ombn*4.
+		Om2 = c/Rde*3.
+		Om3 = c/Rde*4.
 		tt1 = np.linspace(0., 2.,       Nt)*2*np.pi/Om1
 		tt2 = np.linspace(0., 2.,       Nt)*2*np.pi/Om2
 		tt3 = np.linspace(0., 2.,       Nt)*2*np.pi/Om3
