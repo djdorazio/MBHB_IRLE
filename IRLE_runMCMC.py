@@ -26,14 +26,14 @@ NoFit = False
 pltShell = False
 pltThick = False
 
-emcee_Fit = False
+emcee_Fit = True
 W1fit = True
 W2fit = False
 
-fmin_Fit = True
+fmin_Fit = False
 SinFit = False
-ShellFit = False
-ThickFit = True
+ShellFit = True
+ThickFit = False
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -120,8 +120,8 @@ if (ShellFit):
 	#p0 = [cosJ, costheta_T, Rin, n0]
 	#ShW1_p0_0  = [ 0.001,  0.6905, 1.4392,  0.5880]
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.09,  2.5117]
-	ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880] ## this fit give p~4
-	ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
+	ShW1_p0_0  = [ 0.99,   0.6905, 1.4392,  0.5880] ## this fit give p~4
+	ShW2_p0_0  = [ 0.99,   0.6035, 1.0947,  2.5117]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 if (ThickFit):
@@ -140,13 +140,13 @@ if (NoFit):
 	if (pltShell):
 		ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880] ## this fit give p~4
 		ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
-		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	if (pltThick):
-		ShW1_p0_0  = [ 0.0016,  0.8, 1.0, 2.0,  0.05132]
-		ShW2_p0_0  = [ 0.0016,  0.8, 1.0, 2.0,  0.05132]
-		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
-		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rde, Rrout,  aeff, nu0, nne, betst] 
+		ShW1_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
+		ShW2_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout, aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout, aeff, nu0, nne, betst] 
 
 #Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 
@@ -344,11 +344,11 @@ def SinErr2(p, t, y, dy):
 ### MCMC - Set up priors
 def ln_prior(params):
 			#beta, cosJJ, Rin, thetT, n0 = p
-			cosJJ, cosTT, Rin, n0 = params
+			sinJJ, cosTT, Rin, n0 = params
 			#if beta < 0.07 or beta > 0.5:
 			#	return -np.inf
 					
-			if cosJJ < 0 or cosJJ > 1:
+			if sinJJ < -1 or sinJJ > 1:
 				return -np.inf
 
 			if cosTT < 0 or cosTT > 1:

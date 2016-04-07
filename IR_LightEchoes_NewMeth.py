@@ -373,11 +373,11 @@ def Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
 ##FOR MCMC
 def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
-	cosJJ, cosTT, Rin, n0 = params
+	sinJJ, cosTT, Rin, n0 = params
 	n0 = n0 * 1.4032428247438431e-09
 	Rin = Rin * 2.73213149e+18
 	t = t * 86400.
-	JJ = np.arccos(cosJJ) ## CAREFUL WITH DOMAIN OF COS
+	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
 	thetT = np.arccos(cosTT)
 	
 	FRel, numin, numax, Dist, Lav, Ombn, alph, pp, Rout,  aeff, nu0, nne, beta = THEargs
@@ -390,11 +390,11 @@ def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
 
 def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
-	cosJJ, cosTT, Rin, pp, n0 = params
+	sinJJ, cosTT, Rin, pp, n0 = params
 	Rin = Rin * 2.73213149e+18
 	n0 = n0 * 1.4032428247438431e-09
 	t = t * 86400.
-	JJ = np.arccos(cosJJ) ## CAREFUL WITH DOMAIN OF COS
+	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
 	thetT = np.arccos(cosTT)
 	
 	#FRel, numin, numax, Dist, Lav, Ombn, alph, Rin, Rout, aeff, nu0, nne, beta = THEargs
