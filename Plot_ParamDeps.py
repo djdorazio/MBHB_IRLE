@@ -731,8 +731,7 @@ if (Thick):
 		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
 
-		import sys
-		sys.exit(0)
+	
 		#for i in range (0, Nt):
 		#FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
 		FI1 = -2.5*np.log10(Fobs_Thick_n0(numn, numx, 0.0, Dst, Ro1, arg, RHS_table, T_table)/FW1Rel)
