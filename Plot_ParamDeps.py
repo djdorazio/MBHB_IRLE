@@ -724,7 +724,7 @@ if (Thick):
 		JJ = ma.pi/2.
 		Ro1 = 10.*Rde
 		#J4 = ma.pi/2. + thetTst
-		n0_arr = linspace(0.1, 100.0)*n0
+		n0_arr = linspace(0.1, 100.0, Nt)*n0
 		arg = [Lav, 0.0, Inc1, Ombn, alph, n0_arr, Rde, pp, thetTst, JJ, aeff, nu0, nne]
 		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
