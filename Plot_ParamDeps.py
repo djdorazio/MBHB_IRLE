@@ -38,8 +38,9 @@ Plot_TT = False
 TT_name = "Theta_Ts"
 Plot_pp = False
 pp_name = "_ps"
-Plot_Ro = True
+Plot_Ro = False
 Ro_name = "_Routs"
+Plot_n0 = True
 
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
@@ -67,7 +68,7 @@ thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 1.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
@@ -716,6 +717,43 @@ if (Thick):
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		plt.savefig("plots/Thick"+Ro_name+"n0_%g.png" %n0)
 		####-------END pp-------####
+
+	####------v n0-------####
+	if (Plot_n0):
+		Inc1 = 0.0
+		JJ = ma.pi/2.
+		Ro1 = 10.*Rde
+		#J4 = ma.pi/2. + thetTst
+		n0_arr = linspace(0.1, 100.0*)*n0
+		arg = [Lav, 0.0, Inc1, Ombn, alph, n0_arr, Rde, pp, thetTst, JJ, aeff, nu0, nne]
+		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
+
+
+
+		#for i in range (0, Nt):
+		#FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FI1 = -2.5*np.log10(Fobs_Thick(numn, numx, 0.0, Dst, Ro1, arg, RHS_table, T_table)/FW1Rel)
+		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+
+		#nrm = np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
+		IR1 = plt.plot(n0_arr, FI1, color='red', linewidth=2)
+		
+
+		plt.grid(b=True, which='both')
+		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel(r"$\left<\rm{mag}>\right$")
+		plt.xlim(0.1, 10.0)
+
+		#plt.show()
+	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick_varyn0_in units_of_n0_%g.png" %n0)
+		####-------END v n0-------####
+
+
 
 
 
