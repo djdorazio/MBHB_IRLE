@@ -24,13 +24,14 @@ from IR_LightEchoes_NewMeth import *
 ###OPTIONS
 NoFit = False
 pltShell = False
-pltThick = False
+pltThick = True
 
-emcee_Fit = True
-W1fit = True
+emcee_Fit = False
+W1fit = False
 W2fit = False
+fit_both = True
 
-fmin_Fit = False
+fmin_Fit = True
 SinFit = False
 ShellFit = True
 ThickFit = False
@@ -79,7 +80,7 @@ aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 
 
 Dst = 1.4*10**9*pc2cm
-Rrout = 10.0*Rde
+Rrout = 100.0*Rde
 
 md = 10**(-14)
 Mdust = 6.*10**5
@@ -120,10 +121,16 @@ if (ShellFit):
 	#p0 = [cosJ, costheta_T, Rin, n0]
 	#ShW1_p0_0  = [ 0.001,  0.6905, 1.4392,  0.5880]
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.09,  2.5117]
-	ShW1_p0_0  = [ 0.99,   0.6905, 1.4392,  0.5880] ## this fit give p~4
-	ShW2_p0_0  = [ 0.99,   0.6035, 1.0947,  2.5117]
+	##ShW1_p0_0  = [ 0.99,   0.6905, 1.4392,  0.5880] ## this fit give p~4
+	##ShW2_p0_0  = [ 0.99,   0.6035, 1.0947,  2.5117]
+	#for Rout=10Rd
+	ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
+	ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	if (fit_both):
+		#p0 = [cosJ, costheta_T, R1, R2, n0]
+		Shboth_p0_0 = [0.0010,   0.7437, 1.4572, 1.2751,  0.5496, ] 
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
@@ -138,13 +145,16 @@ if (NoFit):
 	ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	if (pltShell):
-		ShW1_p0_0  = [ 0.001,   0.6905, 1.4392,  0.5880] ## this fit give p~4
-		ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
+		#for Rout=10Rd
+		ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
+		ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	if (pltThick):
-		ShW1_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
-		ShW2_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
+		#ShW1_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
+		#ShW2_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
+		ShW1_p0_0  = [ 0.0011,  0.8164, 1.9627, 0.6721,  10.0]
+		ShW2_p0_0  = [ 0.0011,  0.8164, 1.9627, 0.6721,  10.0]
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout, aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout, aeff, nu0, nne, betst] 
 
@@ -314,6 +324,21 @@ def Shell_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
 	return sum(chi*chi)
 
 
+def ShellBoth_RegErr2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+	print "EVAL", p
+	t1=time.clock()
+	#p0 = [cosJ, cosT, Rin1, Rin2, n0]
+	p1 = [p[0], p[1], p[2], p[4]]
+	p2 = [p[0], p[1], p[3], p[4]]
+	chi1 = (y1 - magPoint_Shell(p1, t, THEargs1, RHStable, Ttable)) / dy1
+	chi2 = (y2 - magPoint_Shell(p2, t, THEargs2, RHStable, Ttable)) / dy2
+	#nLnP = sum(chi*chi)
+	t2=time.clock()
+	#print(chi2)
+	print(t2-t1)
+	return sum(chi1*chi1) + sum(chi2*chi2)
+
+
 def Thick_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
 	print "EVAL", p
 	t1=time.clock()
@@ -433,9 +458,19 @@ if (fmin_Fit):
 		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
 		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+###BOTH
+		if (fit_both):
+			Shell_File = "W1W2fmin_BOTH_Shell"
+			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R1$', r'$R2$', r'$n_0$']
+			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[4]]
+			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[3], ShW1_p_opt[4]]
+
+
 	if (ThickFit):
-		Shell_File = "W1fmin_Thick"
-		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
+		Shell_File = "W1_5p_fmin_Thick"
+		#p0 = [cosJ, costheta_T, Rin, p, n0]
+		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$R_{in}$',r'$p$', r'$n_0$']
 		print "Fmin optimizing W1"
 		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.1)[0]
 		print "Fmin optimizing W2"
@@ -847,7 +882,7 @@ sigLsrt =  TtLumS[2]
 tsrt = tsrt #- 49100
 t_MJD = t_MJD #- 49100
 
-Nt=2
+Nt=20
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
@@ -884,6 +919,9 @@ if (ShellFit):
 	if (fmin_Fit):
 		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	elif (fit_both):
+		W1shell = plt.plot(ttopt, magPoint_Shell(p1both, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Shell(p2both, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 	else:
 		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
@@ -911,7 +949,7 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, 8000)
 #plt.ylim(10.5, 11.5)
-#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
 plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")

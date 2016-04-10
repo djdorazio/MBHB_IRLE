@@ -388,6 +388,7 @@ def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
 	return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
 
 
+	##FOR MCMC
 def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
 	sinJJ, cosTT, Rin, pp, n0 = params
