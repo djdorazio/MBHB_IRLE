@@ -21,8 +21,10 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
+Thick = False
 Thin  = False
+Plot_v_R = True
+
 
 Plot_I   = False
 I_name = "Incs"
@@ -40,7 +42,7 @@ Plot_pp = False
 pp_name = "_ps"
 Plot_Ro = False
 Ro_name = "_Routs"
-Plot_n0 = True
+Plot_n0 = False
 
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
@@ -74,7 +76,7 @@ n0 = 1.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(R
 Lav = L0
 betst = 0.10
 Inc = 0.0#ma.acos(0.07/betst)#0.*np.pi/4.
-Ombn = OmPG
+Ombn = c/Rde * 2.*ma.pi
 alph = 0.0
 Dst = 1.4*10**9*pc2cm
 
@@ -489,10 +491,10 @@ if (Thick):
 	####-------Ombin-------####
 	Om1 = Ombn
 	if (Plot_Om):
-		Om1 = c/Rde
+		Om1 = 0.5*Ombn
 		Inc1 = 0.0
-		Om2 = c/Rde*3.
-		Om3 = c/Rde*4.
+		Om2 = 1.0*Ombn
+		Om3 = 1.5*Ombn
 		tt1 = np.linspace(0., 2.,       Nt)*2*np.pi/Om1
 		tt2 = np.linspace(0., 2.,       Nt)*2*np.pi/Om2
 		tt3 = np.linspace(0., 2.,       Nt)*2*np.pi/Om3
@@ -525,7 +527,7 @@ if (Thick):
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$\Omega=\Omega_{0}$',  r'$\Omega=3\Omega_{0}$', r'$\Omega=4\Omega_{0}$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$\Omega=0.5\Omega_{0}$',  r'$\Omega=\Omega_{0}$', r'$\Omega=1.5\Omega_{0}$'), loc='upper right')
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -731,7 +733,7 @@ if (Thick):
 		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
 
-	
+
 		#for i in range (0, Nt):
 		#FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
 		FI1 = -2.5*np.log10(Fobs_Thick_n0(numn, numx, 0.0, Dst, Ro1, arg, RHS_table, T_table)/FW1Rel)
@@ -755,7 +757,43 @@ if (Thick):
 		plt.savefig("plots/Thick_varyn0_in units_of_n0_%g.png" %n0)
 		####-------END v n0-------####
 
+	####------v R-------####
+if (Plot_v_R):
+		Inc1 = 0.0
+		JJ = ma.pi/2.
+		Rout1 = Rde*10
+		Rout2 = Rde*20
+		Rout3 = Rde*50
+		Rout4 = Rde*100
+		#J4 = ma.pi/2. + thetTst
+		nu_arr = np.linspace(0.001*numicron, 10.*numicron, Nt)*Rde
+		
+		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJ, aeff, nu0, nne]
+		
+		FI1 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout1, arg, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout2, arg, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout3, arg, RHS_table, T_table)/FW1Rel)
+		FI4 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout4, arg, RHS_table, T_table)/FW1Rel)
+		
+		
 
+		#nrm = np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
+		IR1 = plt.plot(n0_arr, FI1, color='red', linewidth=2)
+		
+
+		plt.grid(b=True, which='both')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=50 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel("mag")
+		plt.xlim(0.001*numicron, 10.*numicron)
+
+		#plt.show()
+	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick_varynu_diffRout_n0_%g.png" %n0)
+		####-------END v n0-------####
 
 
 

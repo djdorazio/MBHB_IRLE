@@ -426,6 +426,15 @@ def Fnu_Thick(nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
 	Rd = Aargs[6]
 	return intg.quad(Fnudphidth_Thick, Rd, Rout, args=(nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 
+def Fnu_Thick_mult(nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
+	Rd = Aargs[6]
+	res=[]
+	for i in range (len(nu)):
+		res.append(intg.quad(Fnudphidth_Thick, Rd, Rout, args=(nu[i], t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])
+	return np.array(res)
+
+
+
 
 # int over freqeuncy
 def Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
