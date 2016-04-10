@@ -390,6 +390,56 @@ if (Thin):
 ###########--------THICK TORUS--------###########
 ###########---------------------------###########
 if (Thick):
+	####-------THICK INC-------####
+	if (Plot_R):
+		Inc1 = 0.0
+		Inc2 = ma.pi/3
+		Inc3 =  ma.pi/2.
+		argI1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		argI2 = [Lav, betst, Inc2, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		argI3 = [Lav, betst, Inc3, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
+
+		FsrcI1 = np.empty(Nt)
+		FsrcI2 = np.empty(Nt)
+		FsrcI3 = np.empty(Nt)
+		FI1 = np.empty(Nt)
+		FI2 = np.empty(Nt)
+		FI3 = np.empty(Nt)
+
+		#for i in range (0, Nt):
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FsrcI2 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc2, Ombn, alph)/FVbndRel)
+		FsrcI3 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc3, Ombn, alph)/FVbndRel)
+
+		FI1    = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argI1, RHS_table, T_table)/FW1Rel)
+		FI2    = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argI2, RHS_table, T_table)/FW1Rel)
+		FI3    = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argI3, RHS_table, T_table)/FW1Rel)
+
+		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+
+		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		s2=plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='blue', linewidth=2)
+
+
+		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		s3=plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='blue', linewidth=2)
+
+
+		plt.grid(b=True, which='both')
+		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$i=0$','',   r'$i=\pi/4$','',   r'$i=\pi/2$', ''), loc='upper right')
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel("mag")
+		plt.xlim(0.0, 2.0)
+
+		#plt.show()
+		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick"+I_name+"n0_%g.png" %n0)
+	####-------END THICK INC-------####
+
 	####-------Rdust-------####
 	if (Plot_R):
 		Inc1 = 0.0
