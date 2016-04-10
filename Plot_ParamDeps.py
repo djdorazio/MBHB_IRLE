@@ -724,15 +724,18 @@ if (Thick):
 		JJ = ma.pi/2.
 		Ro1 = 10.*Rde
 		#J4 = ma.pi/2. + thetTst
-		n0_arr = linspace(0.1, 100.0, Nt)*n0
-		arg = [Lav, 0.0, Inc1, Ombn, alph, n0_arr, Rde, pp, thetTst, JJ, aeff, nu0, nne]
+		n0_arr = np.linspace(0.1, 100.0, Nt)*n0
+		arg = []
+		for i in range(Nt):
+			arg.append([Lav, 0.0, Inc1, Ombn, alph, n0_arr[i], Rde, pp, thetTst, JJ, aeff, nu0, nne])
 		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
 
-
+		import sys
+		sys.exit(0)
 		#for i in range (0, Nt):
 		#FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-		FI1 = -2.5*np.log10(Fobs_Thick(numn, numx, 0.0, Dst, Ro1, arg, RHS_table, T_table)/FW1Rel)
+		FI1 = -2.5*np.log10(Fobs_Thick_n0(numn, numx, 0.0, Dst, Ro1, arg, RHS_table, T_table)/FW1Rel)
 		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
 		#nrm = np.mean(FsrcI1) - np.mean(FI1)

@@ -439,3 +439,10 @@ def Fobs_Thick(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
 		#i += 1
 	return np.array(res)
 
+def Fobs_Thick_n0(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
+	res=[]
+	for i in range (len(Aargs)):
+		res.append(intg.quad(Fnu_Thick, numin, numax, args=(t, Dist, Rout, Aargs[i], RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
+		#i += 1
+	return np.array(res)
+
