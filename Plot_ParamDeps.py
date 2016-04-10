@@ -780,7 +780,10 @@ if (Plot_v_R):
 		#nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
-		IR1 = plt.plot(n0_arr, FI1, color='red', linewidth=2)
+		IR1 = plt.plot(nu_arr, FI1, color='red', linewidth=2)
+		IR2 = plt.plot(nu_arr, FI2, color='red', linewidth=2)
+		IR3 = plt.plot(nu_arr, FI3, color='red', linewidth=2)
+		IR4 = plt.plot(nu_arr, FI4, color='red', linewidth=2)
 		
 
 		plt.grid(b=True, which='both')
