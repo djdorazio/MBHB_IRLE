@@ -24,14 +24,14 @@ from IR_LightEchoes_NewMeth import *
 ###OPTIONS
 NoFit = False
 pltShell = False
-pltThick = True
+pltThick = False
 
-emcee_Fit = False
+emcee_Fit = True
 W1fit = False
-W2fit = False
-fit_both = True
+W2fit = True
+fit_both = False
 
-fmin_Fit = True
+fmin_Fit = False
 SinFit = False
 ShellFit = True
 ThickFit = False
