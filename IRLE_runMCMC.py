@@ -23,19 +23,19 @@ from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
 NoFit = False
-pltShell = True
+pltShell = False
 pltThick = False
 
-emcee_Fit = False
-fmin_Fit = True
+emcee_Fit = True
+fmin_Fit = False
 
 W1fit = False
 W2fit = False
-fit_both = True
+fit_both = False
 
 
-SinFit = False
-ShellFit = True
+SinFit = True
+ShellFit = False
 ThickFit = False
 ## multiprocessing
 NThread = 4
@@ -108,7 +108,7 @@ Rin0 = RdPG
 n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.)
 
 
-#p0 = [beta0, cosJJ0, Rin0, nDust0]
+
 Sinp0_W1 = [0.1, 365*4.1, 1.0, 11.3]
 Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
 #[beta, cosJ, Rde(units of RdPG), theta_T, ndust(units of nDust0)]
@@ -539,7 +539,7 @@ if (emcee_Fit):
 	#sampler = emcee.EnsembleSampler(walkers, ndim, ln_posterior, args=(tsrt, W1args, RHStable, Ttable, W1_mag, W1_sig))
 	if (SinFit):
 		ndim = 4
-		nwalkers = ndim*32
+		nwalkers = ndim*12
 
 		W1_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W1_avg, W1_avsg))
 		W2_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W2_avg, W2_avsg))
@@ -552,7 +552,7 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 512#4096*2
+		clen = 1024#4096*2
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -764,28 +764,64 @@ if (emcee_Fit):
 
 
 
+		# for i,name in enumerate(param_names):
+		# 	W1_sin_diff_minus = W1_sin_MAP_vals[i] - W1_sin_perc[0,i]
+		# 	W1_sin_diff_plus = W1_sin_perc[1,i] - W1_sin_MAP_vals[i]
+		# 	print("W1: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W1_sin_MAP_vals[i], W1_sin_diff_plus, W1_sin_diff_minus, name=name))
+
+		# for i,name in enumerate(param_names):
+		# 	W2_sin_diff_minus = W2_sin_MAP_vals[i] - W2_sin_perc[0,i]
+		# 	W2_sin_diff_plus = W2_sin_perc[1,i] - W2_sin_MAP_vals[i]
+		# 	print("W2: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W2_sin_MAP_vals[i], W2_sin_diff_plus, W2_sin_diff_minus, name=name))
+					
+		# W1_sin_mxprbs = zeros(nwalkers)
+		# W2_sin_mxprbs = zeros(nwalkers)
+					
+		# for i in range(nwalkers):
+		# 	W1_sin_mxprbs[i] = max(W1_sin_lnprobs[i])
+		# 	W2_sin_mxprbs[i] = max(W2_sin_lnprobs[i])
+
+					
+		# print "W1 Max LnP = ", max(W1_sin_mxprbs)
+		# print "W2 Max LnP = ", max(W2_sin_mxprbs)		
+
+		filename = "Sin_results_%iwalkers.txt" %clen
+		print "Printing Results"
+		target = open(filename, 'w')
+		target.truncate()
+
+
 		for i,name in enumerate(param_names):
 			W1_sin_diff_minus = W1_sin_MAP_vals[i] - W1_sin_perc[0,i]
 			W1_sin_diff_plus = W1_sin_perc[1,i] - W1_sin_MAP_vals[i]
-			print("W1: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W1_sin_MAP_vals[i], W1_sin_diff_plus, W1_sin_diff_minus, name=name))
+			target.write("W1: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W1_sin_MAP_vals[i], W1_sin_diff_plus, W1_sin_diff_minus, name=name))
+			target.write("\n")
 
 		for i,name in enumerate(param_names):
 			W2_sin_diff_minus = W2_sin_MAP_vals[i] - W2_sin_perc[0,i]
 			W2_sin_diff_plus = W2_sin_perc[1,i] - W2_sin_MAP_vals[i]
-			print("W2: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W2_sin_MAP_vals[i], W2_sin_diff_plus, W2_sin_diff_minus, name=name))
-					
+			target.write("W2: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W2_sin_MAP_vals[i], W2_sin_diff_plus, W2_sin_diff_minus, name=name))
+			target.write("\n")		
+		
+		
+		
 		W1_sin_mxprbs = zeros(nwalkers)
 		W2_sin_mxprbs = zeros(nwalkers)
 					
+
 		for i in range(nwalkers):
 			W1_sin_mxprbs[i] = max(W1_sin_lnprobs[i])
 			W2_sin_mxprbs[i] = max(W2_sin_lnprobs[i])
+		
 
-					
-		print "W1 Max LnP = ", max(W1_sin_mxprbs)
-		print "W2 Max LnP = ", max(W2_sin_mxprbs)		
+		target.write("\n")		
+		target.write("Shell W1 Max LnP =  %04g" %max(W1_sin_mxprbs))
+		target.write("\n")
+		target.write("Shell W2 Max LnP =  %04g" %max(W2_sin_mxprbs))
 
+			
 
+		target.close
 
 
 
