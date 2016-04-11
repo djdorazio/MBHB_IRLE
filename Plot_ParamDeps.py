@@ -444,7 +444,7 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_Norm_"+I_name+"_J_%g_thetT_%g_n0_%g.png" %(JJt, thetTst, n0)
+		plt.savefig("plots/Thick_Norm_"+I_name+"_J_%g_thetT_%g_n0_%g.png" %(JJt, thetTst, n0))
 	####-------END THICK INC-------####
 
 	####-------Rdust-------####
