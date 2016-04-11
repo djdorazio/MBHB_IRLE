@@ -35,6 +35,8 @@ fit_both = False
 
 
 SinFit = True
+No_Prd = True
+
 ShellFit = False
 ThickFit = False
 ## multiprocessing
@@ -111,12 +113,12 @@ n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.)
 
 Sinp0_W1 = [0.1, 365*4.1, 1.0, 11.3]
 Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
-#[beta, cosJ, Rde(units of RdPG), theta_T, ndust(units of nDust0)]
-#ShW1_p0  = [0.2,  1.,  1.4,  1.18427411,  1.7]
-#[cosJ, Rde(units of RdPG) ndust(units of nDust0)]
+#no Period fit
+if (No_Prd):
+	SinPrd = 1884.
+	Sinp0_W1 = [0.1, 1.0, 11.3]
+	Sinp0_W2 = [0.1, 1.0, 10.3]
 
-#ShW1_p0_0  = [ 0.99455796,  1.6,  0.62607537]
-#ShW2_p0_0  = [0.99935378,  2.0,  0.62607537]#0.81884671]
 
 
 if (ShellFit):
@@ -356,7 +358,11 @@ def Thick_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
 
 
 def sinPoint(params, t):
-	Amp, Prd, phs, mag0 = params
+	if (No_Prd):
+		Prd = 1884.
+		Amp, phs, mag0 = params
+	else:
+		Amp, Prd, phs, mag0 = params
 	#Amp, phs, mag0 = params
 	#Prd=1884.
 	return Amp*np.sin( (2.*ma.pi)/Prd*(t - Prd*phs) ) + mag0 
@@ -395,18 +401,26 @@ def ln_prior(params):
 			return 0.
 
 def ln_Sinprior(p):
-			Amp, Prd, phs, mag0 = p
-			if Amp < 0.:
-				return -np.inf
-					
-			if Prd < 0.:
-				return -np.inf
+	if (No_Prd):
+		Amp, phs, mag0 = params
+		if Amp < 0.:
+			return -np.inf
 
-			if phs < -1.0 or phs > 1.0:
-				return -np.inf
+		if phs < -1.0 or phs > 1.0:
+			return -np.inf
+	else:
+		Amp, Prd, phs, mag0 = params	
+		if Amp < 0.:
+			return -np.inf
+					
+		if Prd < 0.:
+			return -np.inf
+
+		if phs < -1.0 or phs > 1.0:
+			return -np.inf
 					
 				
-			return 0.
+		return 0.
 
 ### MCMC - Set up posteriors
 def ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy):
@@ -538,8 +552,15 @@ if (emcee_Fit):
 				
 	#sampler = emcee.EnsembleSampler(walkers, ndim, ln_posterior, args=(tsrt, W1args, RHStable, Ttable, W1_mag, W1_sig))
 	if (SinFit):
-		Shell_File = "SinFit"
-		ndim = 4
+		if (No_Prd):
+			ndim = 3
+			Shell_File = "SinFit_NOPrd"
+			param_names = ['Amp','phase','mag0']	
+		else:
+			ndim = 4
+			Shell_File = "SinFit_wPrd"
+			param_names = ['Amp','Prd','phase','mag0']	
+			
 		nwalkers = ndim*12
 
 		W1_sin_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(t_avg, W1_avg, W1_avsg))
@@ -681,7 +702,6 @@ if (emcee_Fit):
 	#param_names = ['beta','cosJ','Rin','n0']
 
 	if (SinFit):
-		param_names = ['Amp','Prd','phase','mag0']	
 					
 
 
