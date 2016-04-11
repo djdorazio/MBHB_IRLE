@@ -538,6 +538,7 @@ if (emcee_Fit):
 				
 	#sampler = emcee.EnsembleSampler(walkers, ndim, ln_posterior, args=(tsrt, W1args, RHStable, Ttable, W1_mag, W1_sig))
 	if (SinFit):
+		Shell_File = "SinFit"
 		ndim = 4
 		nwalkers = ndim*12
 
