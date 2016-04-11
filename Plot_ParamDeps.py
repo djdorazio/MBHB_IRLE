@@ -26,7 +26,7 @@ Thin  = False
 Plot_v_R = False
 
 
-Plot_I   = False
+Plot_I   = True
 I_name = "Incs"
 Plot_R   = False
 R_name = "Rdust"
@@ -70,7 +70,7 @@ thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 1.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
@@ -425,11 +425,11 @@ if (Thick):
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
 		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
-		s2=plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='blue', linewidth=2)
+		s2=plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='purple', linewidth=2)
 
 
 		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
-		s3=plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='blue', linewidth=2)
+		s3=plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='green', linewidth=2)
 
 
 		plt.grid(b=True, which='both')

@@ -22,20 +22,24 @@ from scipy.optimize import fmin
 from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
+
+
 NoFit = False
 pltShell = False
 pltThick = False
 
 emcee_Fit = True
-fmin_Fit = False
+fmin_Fit = True
 
 W1fit = False
 W2fit = False
 fit_both = False
 
 
+Fit_Src = True
 SinFit = True
 No_Prd = True
+
 
 ShellFit = False
 ThickFit = False
@@ -62,7 +66,7 @@ L0 = 6.78*10**46 * 1.35
 MPGmx = 10**9.4*Msun
 Ryr = c*yr2sec
 RdPG = ma.sqrt(0.1)*2.8 *pc2cm
-OmPG = Omb*2.*np.pi/4.1
+OmPG = 2.*ma.pi/(1884.*24.*3600.) * (1.+zPG1302)
 #alphnu = 0.0
 
 Rorb = c*2.*np.pi/Omb
@@ -110,14 +114,14 @@ Rin0 = RdPG
 n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.)
 
 
-
-Sinp0_W1 = [0.1, 365*4.1, 1.0, 11.3]
-Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
+# p0 = [Amg, Prd, phs, mag0]
+Sinp0_W1 = [0.0887, 1884., 0.01, 11.3]
+Sinp0_W2 = [0.1, 1884., 0.01, 10.3]
 #no Period fit
 if (No_Prd):
-	SinPrd = 1884.
-	Sinp0_W1 = [0.1, 1.0, 11.3]
-	Sinp0_W2 = [0.1, 1.0, 10.3]
+	SinPrd = 1884./(1+zPG1302)  ##compare in binary frame
+	Sinp0_W1 = [0.0887, 716.3430, 11.3914]
+	Sinp0_W2 = [0.0795, 767.6635, 10.3067]
 
 
 
@@ -173,8 +177,25 @@ if (NoFit):
 
 
 print "Importing Data to fit..."
-#Import Data to fit
 
+#Import Data to fit
+## OPTICAL DATA
+Tt   =  (loadtxt("../dat/Lums_PG1302.dat", usecols=[0]))/(1.+zPG1302) * 3600.*24.
+Lum  =  loadtxt("../dat/Lums_PG1302.dat", usecols=[1])
+sigL =  loadtxt("../dat/Lums_PG1302.dat", usecols=[2])
+
+Lum_Mean = mean(Lum)
+Lum      = (Lum)# - Lum_Mean)  ## for def of mag - mag0
+
+## put in time order
+tLumS   = zip(Tt,Lum,sigL)
+tLumS.sort()
+TtLumS  = transpose(tLumS)
+tsrt    =  TtLumS[0]
+Lumsrt  =  TtLumS[1]
+sigLsrt =  TtLumS[2]
+
+### IR DATA
 t_MJD = (np.genfromtxt("../dat/all.pg1302.txt",usecols=23, comments="|"))/(1.+zPG1302) ## put in binary frame
 
 W1_mag = np.genfromtxt("../dat/all.pg1302.txt",usecols=7, comments="|")
@@ -359,18 +380,30 @@ def Thick_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
 
 def sinPoint(params, t):
 	if (No_Prd):
-		Prd = 1884.
+		Prd = SinPrd
 		Amp, phs, mag0 = params
 	else:
 		Amp, Prd, phs, mag0 = params
 	#Amp, phs, mag0 = params
 	#Prd=1884.
-	return Amp*np.sin( (2.*ma.pi)/Prd*(t - Prd*phs) ) + mag0 
+	return Amp*np.sin( 2.*ma.pi/Prd*(t + phs) ) + mag0 
 
 
 def SinErr2(p, t, y, dy):
 	print "EVAL", p
 	chi = (y - sinPoint(p, t) )/ dy
+	return sum(chi*chi)
+	#print(chi2)
+	#return nLnP
+
+
+def Fsrc_Err2(p, t, y, dy):
+	print "EVAL", p
+	Lfac, bets, phs = p
+	incl = np.arccos(0.067/bets)
+	alphnu =1.1
+	Ombin =	OmPG
+	chi = (y - -2.5*np.log10(Fsrc((t-phs*2.*ma.pi/Ombin), Dst, ma.pi/2., -ma.pi/2., Lfac*Lav, bets, incl, Ombin, alphnu)/FVbndRel) )/ dy
 	return sum(chi*chi)
 	#print(chi2)
 	#return nLnP
@@ -392,7 +425,6 @@ def ln_prior(params):
 					
 			if Rin <= 0.0:
 				return -np.inf
-					
 
 			if n0 <= 0.0:
 				return -np.inf
@@ -402,25 +434,26 @@ def ln_prior(params):
 
 def ln_Sinprior(p):
 	if (No_Prd):
-		Amp, phs, mag0 = params
+		Prd = SinPrd
+		Amp, phs, mag0 = p
 		if Amp < 0.:
 			return -np.inf
 
-		if phs < -1.0 or phs > 1.0:
+		if phs < 0.0 or phs > Prd:
 			return -np.inf
 	else:
-		Amp, Prd, phs, mag0 = params	
+		Amp, Prd, phs, mag0 = p	
 		if Amp < 0.:
 			return -np.inf
 					
 		if Prd < 0.:
 			return -np.inf
 
-		if phs < -1.0 or phs > 1.0:
+		if phs < 0.0 or phs > Prd:
 			return -np.inf
 					
 				
-		return 0.
+	return 0.
 
 ### MCMC - Set up posteriors
 def ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy):
@@ -464,11 +497,27 @@ def ln_Sinposterior(p, t, y, dy):
 
 
 if (fmin_Fit):
+### FIT SOURCE
+	if (Fit_Src):
+		Shell_File = "Source_Fit"
+		param_names = ["Lfac", "beta", "phase"]
+		No_Prd = True
+		psrc = [0.05977258,  0.067,  0.70247299]
+		Fsrc_opt = sc.optimize.fmin(Fsrc_Err2,   psrc, args=(tsrt, Lumsrt, sigLsrt), full_output=1, disp=False,ftol=0.0001)[0]
+		print Fsrc_opt
+		ShW1_p_opt = Fsrc_opt
+		ShW2_p_opt = Fsrc_opt
+
 	if (SinFit):
+		Shell_File = "Sin_W1W2fmin"
+		param_names = ["Amp", "phase", "Mag0"]
 		print "Fmin optimizing W1"
 		W1_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W1, args=(t_avg, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.0001)[0]
 		print "Fmin optimizing W2"
 		W2_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W2, args=(t_avg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.0001)[0]
+		ShW1_p_opt = W1_sin_p_opt
+		ShW2_p_opt = W2_sin_p_opt
+
 
 	if (ShellFit):
 		Shell_File = "W1W2fmin_Shell"
@@ -806,7 +855,7 @@ if (emcee_Fit):
 		# print "W1 Max LnP = ", max(W1_sin_mxprbs)
 		# print "W2 Max LnP = ", max(W2_sin_mxprbs)		
 
-		filename = "Sin_results_%iwalkers.txt" %clen
+		filename = "Sin_results_"+Shell_File+"%iwalkers.txt" %clen
 		print "Printing Results"
 		target = open(filename, 'w')
 		target.truncate()
@@ -822,6 +871,10 @@ if (emcee_Fit):
 			W2_sin_diff_minus = W2_sin_MAP_vals[i] - W2_sin_perc[0,i]
 			W2_sin_diff_plus = W2_sin_perc[1,i] - W2_sin_MAP_vals[i]
 			target.write("W2: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W2_sin_MAP_vals[i], W2_sin_diff_plus, W2_sin_diff_minus, name=name))
+			target.write("\n")	
+
+		if (No_Prd):
+			target.write("Period = %4g" %SinPrd)	
 			target.write("\n")		
 		
 		
@@ -894,7 +947,7 @@ if (emcee_Fit):
 		ShW1_perc = scoretpercentile(ShW1_flatchain, [15,85], axis=0)
 
 
-		filename = "SHW1_results_%iwalkers.txt" %clen
+		filename = "SHW1_results_"+Shell_File+"%iwalkers.txt" %clen
 		print "Printing Results"
 		target = open(filename, 'w')
 		target.truncate()
@@ -926,29 +979,23 @@ if (emcee_Fit):
 
 #####------PLOT SOLUTION------####
 ### PLOT POINTS
-Tt   =  (loadtxt("../dat/Lums_PG1302.dat", usecols=[0]))/(1.+zPG1302)
-Lum  =  loadtxt("../dat/Lums_PG1302.dat", usecols=[1])
-sigL =  loadtxt("../dat/Lums_PG1302.dat", usecols=[2])
 
-Lum_Mean = mean(Lum)
-Lum      = (Lum - Lum_Mean)  ## for def of mag - mag0
 
-## put in time order
-tLumS   = zip(Tt,Lum,sigL)
-tLumS.sort()
-TtLumS  = transpose(tLumS)
-tsrt    =  TtLumS[0]
-Lumsrt  =  TtLumS[1]
-sigLsrt =  TtLumS[2]
+#tsrt = tsrt #- 49100
+#t_MJD = t_MJD #- 49100
 
-tsrt = tsrt #- 49100
-t_MJD = t_MJD #- 49100
-
-Nt=30
+Nt=40
+tsrt = tsrt/(3600.*24.)
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
-opti = -2.5*np.log10(Fsrc(ttopt*3600.*24, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, 1.1)/FVbndRel)
+#opti = -2.5*np.log10(Fsrc(ttopt*3600.*24, Dst, ma.pi/2., -ma.pi/2., Lav, betst, Inc, OmPG, 1.1)/FVbndRel)
+if (Fit_Src):
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., -ma.pi/2., Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+else:
+	Fsrc_opt = [0.05977258,  0.067,  0.70247299]
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., -ma.pi/2., Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+
 
 ttopt = (ttopt*(1.+zPG1302) - 50000)
 t_avg = (t_avg*(1.+zPG1302) - 50000)
@@ -963,8 +1010,8 @@ t_MJD = (t_MJD*(1.+zPG1302) - 50000)
 
 
 plt.figure()
-plt.errorbar(tsrt, Lumsrt+Lum_Mean-3.0, yerr=sigL, linestyle="none", color = "black", alpha=0.5) #alpha=0.1
-Fs = plt.plot(ttopt, opti, linestyle = '--', color='blue', linewidth=2)
+plt.errorbar(tsrt, Lumsrt-3.0, yerr=sigL, linestyle="none", color = "black", alpha=0.5) #alpha=0.1
+Fs = plt.plot(ttopt, opti-3.0, linestyle = '--', color='blue', linewidth=2)
 
 
 W1dat   = plt.errorbar(t_MJD, W1_mag, yerr=W1_sig, linestyle="none", color='orange', alpha=1., elinewidth=1.5)
