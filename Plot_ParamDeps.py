@@ -749,7 +749,7 @@ if (Thick):
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
-		plt.ylabel(r"$\left<\rm{mag}>\right$")
+		plt.ylabel(r"$\left<\rm{mag}>\right>$")
 		plt.xlim(0.1, 10.0)
 
 		#plt.show()
@@ -761,12 +761,12 @@ if (Thick):
 if (Plot_v_R):
 		Inc1 = 0.0
 		JJ = ma.pi/2.
-		Rout1 = Rde*10.
+		Rout1 = Rde*5.
 		Rout2 = Rde*20.
 		Rout3 = Rde*50.
 		Rout4 = Rde*100.
 		#J4 = ma.pi/2. + thetTst
-		nu_arr = np.linspace(0.01*numicron, 1.*numicron, 20)
+		nu_arr = np.linspace(0.01*numicron, 1.*numicron, 30)
 		
 		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJ, aeff, nu0, nne]
 		
@@ -792,12 +792,12 @@ if (Plot_v_R):
 		plt.axvline(W2mx, linestyle="--", color="blue")
 
 		plt.grid(b=True, which='both')
-	#	plt.legend( [ IR1[0], IR2[0], IR3[0], IR4[0] ], ( r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=50 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
-		plt.legend( [ IR1[0], IR4[0] ], (r'$R_{\rm{out}}=10 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+		plt.legend( [ IR1[0], IR2[0], IR3[0], IR4[0] ], ( r'$R_{\rm{out}}=5 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=50 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+	#	plt.legend( [ IR1[0], IR4[0] ], (r'$R_{\rm{out}}=10 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
 
 
 		plt.xlabel(r"$\nu$ [Hz]")
-		plt.ylabel("mag")
+		plt.ylabel(r"$F_{\nu}$ [erg s$^{-1}$ cm$^{-2}$]")
 		plt.xlim(0.01*numicron, 1.*numicron)
 
 		#plt.show()

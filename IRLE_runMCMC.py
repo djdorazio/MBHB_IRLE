@@ -23,15 +23,17 @@ from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
 NoFit = False
-pltShell = False
+pltShell = True
 pltThick = False
 
-emcee_Fit = True
-W1fit = False
-W2fit = True
-fit_both = False
+emcee_Fit = False
+fmin_Fit = True
 
-fmin_Fit = False
+W1fit = False
+W2fit = False
+fit_both = True
+
+
 SinFit = False
 ShellFit = True
 ThickFit = False
@@ -70,7 +72,7 @@ Lav = L0
 betst = 0.08
 Inc = ma.acos(0.067/betst)#0.*np.pi/4.
 Ombn = OmPG
-alph = -1.0
+alph = -2.0
 
 Rde = RdPG
 pp = 2.0
@@ -118,7 +120,7 @@ Sinp0_W2 = [0.1, 365*4.1, 1.0, 10.3]
 
 
 if (ShellFit):
-	#p0 = [cosJ, costheta_T, Rin, n0]
+	#p0 = [sinJ, costheta_T, Rin, n0]
 	#ShW1_p0_0  = [ 0.001,  0.6905, 1.4392,  0.5880]
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.09,  2.5117]
 	##ShW1_p0_0  = [ 0.99,   0.6905, 1.4392,  0.5880] ## this fit give p~4
@@ -129,8 +131,9 @@ if (ShellFit):
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	if (fit_both):
-		#p0 = [cosJ, costheta_T, R1, R2, n0]
-		Shboth_p0_0 = [0.0010,   0.7437, 1.4572, 1.2751,  0.5496, ] 
+		#p0 = [sinJ, costheta_T, R1, R2, n0]
+		#Shboth_p0_0 = [0.0003,   1.00, 2.0466, 3.7068,   0.3679 ] 
+		Shboth_p0_0 = [0.0003,   0.7, 2.0466,  10.0] 
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
@@ -146,8 +149,10 @@ if (NoFit):
 	ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	if (pltShell):
 		#for Rout=10Rd
-		ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
-		ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
+		#ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
+		#ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
+		ShW1_p0_0  = [0.0003,   1.00,  2.0466,  0.3679]
+		ShW2_p0_0  = [0.0003,   1.00,  3.7068,  0.3679]
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	if (pltThick):
@@ -328,10 +333,10 @@ def ShellBoth_RegErr2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, d
 	print "EVAL", p
 	t1=time.clock()
 	#p0 = [cosJ, cosT, Rin1, Rin2, n0]
-	p1 = [p[0], p[1], p[2], p[4]]
-	p2 = [p[0], p[1], p[3], p[4]]
-	chi1 = (y1 - magPoint_Shell(p1, t, THEargs1, RHStable, Ttable)) / dy1
-	chi2 = (y2 - magPoint_Shell(p2, t, THEargs2, RHStable, Ttable)) / dy2
+	#p1 = [p[0], p[1], p[2], p[4]]
+	#p2 = [p[0], p[1], p[3], p[4]]
+	chi1 = (y1 - magPoint_Shell(p, t, THEargs1, RHStable, Ttable)) / dy1
+	chi2 = (y2 - magPoint_Shell(p, t, THEargs2, RHStable, Ttable)) / dy2
 	#nLnP = sum(chi*chi)
 	t2=time.clock()
 	#print(chi2)
@@ -460,8 +465,8 @@ if (fmin_Fit):
 		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 ###BOTH
 		if (fit_both):
-			Shell_File = "W1W2fmin_BOTH_Shell"
-			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R1$', r'$R2$', r'$n_0$']
+			Shell_File = "W1W2fmin_BOTH_SAMEr_Shell"
+			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
 			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[4]]
 			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[3], ShW1_p_opt[4]]
@@ -882,7 +887,7 @@ sigLsrt =  TtLumS[2]
 tsrt = tsrt #- 49100
 t_MJD = t_MJD #- 49100
 
-Nt=20
+Nt=30
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
@@ -947,7 +952,7 @@ plt.grid(b=True, which='both')
 plt.xlabel(r"$t$ [MJD]")
 plt.ylabel("mag")
 #plt.xlim(52000, 57500)
-plt.xlim(3000, 8000)
+plt.xlim(3000, max(ttopt))
 #plt.ylim(10.5, 11.5)
 plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
