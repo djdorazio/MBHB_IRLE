@@ -21,16 +21,16 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = False
+Thick = True
 Thin  = False
-Plot_v_R = True
+Plot_v_R = False
 
 
-Plot_I   = False
+Plot_I   = True
 I_name = "Incs"
-Plot_R   = False
+Plot_R   = True
 R_name = "Rdust"
-Plot_Om  = False
+Plot_Om  = True
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
@@ -70,7 +70,7 @@ thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 1.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 0.1/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
@@ -116,8 +116,8 @@ tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 
 
 ## INTEGRATION LIMTS FOR ALL nu
-numn = 0.0001*numicron
-numx = 100*numicron
+numn = 0.001*numicron
+numx = 10*numicron
 
 
 ###########------------------------------------###########
@@ -394,7 +394,7 @@ if (Thin):
 ###########---------------------------###########
 if (Thick):
 	####-------THICK INC-------####
-	if (Plot_R):
+	if (Plot_I):
 		Inc1 = 0.0
 		Inc2 = ma.pi/3
 		Inc3 =  ma.pi/2.
@@ -433,7 +433,7 @@ if (Thick):
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$i=0$','',   r'$i=\pi/4$','',   r'$i=\pi/2$', ''), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$I=0$','',   r'$I=\pi/4$','',   r'$I=\pi/2$', ''), loc='upper right')
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(0.0, 2.0)
@@ -761,37 +761,44 @@ if (Thick):
 if (Plot_v_R):
 		Inc1 = 0.0
 		JJ = ma.pi/2.
-		Rout1 = Rde*10
-		Rout2 = Rde*20
-		Rout3 = Rde*50
-		Rout4 = Rde*100
+		Rout1 = Rde*10.
+		Rout2 = Rde*20.
+		Rout3 = Rde*50.
+		Rout4 = Rde*100.
 		#J4 = ma.pi/2. + thetTst
-		nu_arr = np.linspace(0.001*numicron, 10.*numicron, Nt)*Rde
+		nu_arr = np.linspace(0.01*numicron, 1.*numicron, 20)
 		
 		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJ, aeff, nu0, nne]
 		
-		FI1 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout1, arg, RHS_table, T_table)/FW1Rel)
-		FI2 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout2, arg, RHS_table, T_table)/FW1Rel)
-		FI3 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout3, arg, RHS_table, T_table)/FW1Rel)
-		FI4 = -2.5*np.log10(Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout4, arg, RHS_table, T_table)/FW1Rel)
+		FI1 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout1, arg, RHS_table, T_table)
+		FI2 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout2, arg, RHS_table, T_table)
+		FI3 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout3, arg, RHS_table, T_table)
+		FI4 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout4, arg, RHS_table, T_table)
 		
 		
 
 		#nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
-		IR1 = plt.plot(nu_arr, FI1, color='red', linewidth=2)
+		IR1 = plt.plot(nu_arr, FI1, color='orange', linewidth=2)
 		IR2 = plt.plot(nu_arr, FI2, color='red', linewidth=2)
-		IR3 = plt.plot(nu_arr, FI3, color='red', linewidth=2)
-		IR4 = plt.plot(nu_arr, FI4, color='red', linewidth=2)
+		IR3 = plt.plot(nu_arr, FI3, color='brown', linewidth=2)
+		IR4 = plt.plot(nu_arr, FI4, color='black', linewidth=2)
 		
+		plt.axvline(W1mn, linestyle="--", color="black")
+		plt.axvline(W1mx, linestyle="--", color="black")
+
+		plt.axvline(W2mn, linestyle="--", color="blue")
+		plt.axvline(W2mx, linestyle="--", color="blue")
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=50 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+	#	plt.legend( [ IR1[0], IR2[0], IR3[0], IR4[0] ], ( r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=50 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+		plt.legend( [ IR1[0], IR4[0] ], (r'$R_{\rm{out}}=10 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
 
-		plt.xlabel(r"$N_{\rm{orb}}$")
+
+		plt.xlabel(r"$\nu$ [Hz]")
 		plt.ylabel("mag")
-		plt.xlim(0.001*numicron, 10.*numicron)
+		plt.xlim(0.01*numicron, 1.*numicron)
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
