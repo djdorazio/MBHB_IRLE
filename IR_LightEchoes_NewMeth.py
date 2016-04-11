@@ -92,7 +92,7 @@ def nD_Schart(x,y,z, n0, Rd, p, thetT, JJ):
 	return nprof
 
 
-## flux from beaming binary as seen by observer at r, theta, phi (centere on binary barycenter)
+## flux from beaming binary as seen by observer at r, theta, phi (centered on binary barycenter)
 def Fsrc(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu):
 #Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
 #starting point of secindary at t=0

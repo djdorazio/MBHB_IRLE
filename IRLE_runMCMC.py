@@ -386,7 +386,7 @@ def sinPoint(params, t):
 		Amp, Prd, phs, mag0 = params
 	#Amp, phs, mag0 = params
 	#Prd=1884.
-	return Amp*np.sin( 2.*ma.pi/Prd*(t + phs) ) + mag0 
+	return Amp*np.sin( 2.*ma.pi/Prd*(t - phs) - np.pi/2) + mag0 
 
 
 def SinErr2(p, t, y, dy):
@@ -403,7 +403,7 @@ def Fsrc_Err2(p, t, y, dy):
 	incl = np.arccos(0.067/bets)
 	alphnu =1.1
 	Ombin =	OmPG
-	chi = (y - -2.5*np.log10(Fsrc((t-phs*2.*ma.pi/Ombin), Dst, ma.pi/2., -ma.pi/2., Lfac*Lav, bets, incl, Ombin, alphnu)/FVbndRel) )/ dy
+	chi = (y - -2.5*np.log10(Fsrc((t-phs*2.*ma.pi/Ombin), Dst, ma.pi/2., 0.0, Lfac*Lav, bets, incl, Ombin, alphnu)/FVbndRel) )/ dy
 	return sum(chi*chi)
 	#print(chi2)
 	#return nLnP
@@ -502,7 +502,7 @@ if (fmin_Fit):
 		Shell_File = "Source_Fit"
 		param_names = ["Lfac", "beta", "phase"]
 		No_Prd = True
-		psrc = [0.05977258,  0.067,  0.70247299]
+		psrc = [0.05978958,  0.06917523,  0.45247066]
 		Fsrc_opt = sc.optimize.fmin(Fsrc_Err2,   psrc, args=(tsrt, Lumsrt, sigLsrt), full_output=1, disp=False,ftol=0.0001)[0]
 		print Fsrc_opt
 		ShW1_p_opt = Fsrc_opt
@@ -623,7 +623,7 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 1024#4096*2
+		clen = 2048#4096*2
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -887,11 +887,12 @@ if (emcee_Fit):
 			W1_sin_mxprbs[i] = max(W1_sin_lnprobs[i])
 			W2_sin_mxprbs[i] = max(W2_sin_lnprobs[i])
 		
-
+		chi2_pdf_W1 = -max(W1_sin_mxprbs)/(len(W1_avg) - len(param_names) - 1)
+		chi2_pdf_W2 = -max(W2_sin_mxprbs)/(len(W2_avg) - len(param_names) - 1)
 		target.write("\n")		
-		target.write("Shell W1 Max LnP =  %04g" %max(W1_sin_mxprbs))
+		target.write("Shell W1 reduced chi2 =  %04g" %chi2_pdf_W1)
 		target.write("\n")
-		target.write("Shell W2 Max LnP =  %04g" %max(W2_sin_mxprbs))
+		target.write("Shell W2 reduced chi2 =  %04g" %chi2_pdf_W2)
 
 			
 
@@ -989,12 +990,12 @@ tsrt = tsrt/(3600.*24.)
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
-#opti = -2.5*np.log10(Fsrc(ttopt*3600.*24, Dst, ma.pi/2., -ma.pi/2., Lav, betst, Inc, OmPG, 1.1)/FVbndRel)
+#opti = -2.5*np.log10(Fsrc(ttopt*3600.*24, Dst, ma.pi/2., 0.0, Lav, betst, Inc, OmPG, 1.1)/FVbndRel)
 if (Fit_Src):
-	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., -ma.pi/2., Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
 else:
 	Fsrc_opt = [0.05977258,  0.067,  0.70247299]
-	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., -ma.pi/2., Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
 
 
 ttopt = (ttopt*(1.+zPG1302) - 50000)
