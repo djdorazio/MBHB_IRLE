@@ -28,8 +28,8 @@ NoFit = False
 pltShell = False
 pltThick = False
 
-emcee_Fit = True
-fmin_Fit = False
+emcee_Fit = False
+fmin_Fit = True
 
 W1fit = False
 W2fit = False
@@ -37,13 +37,13 @@ fit_both = False
 
 
 Fit_Src = False  ## fmin fit for Lfrac, beta, and phase to fi optical
-sinFit_Src = True  ##emcee fit a sin cure to source
-SinFit = True
+sinFit_Src = False  ##emcee fit a sin cure to source
+SinFit = False
 No_Prd = True
 
 
 ShellFit = False
-ThickFit = False
+ThickFit = True
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -181,7 +181,7 @@ print "Importing Data to fit..."
 
 #Import Data to fit
 ## OPTICAL DATA
-Tt   =  (loadtxt("../dat/Lums_PG1302.dat", usecols=[0]))/(1.+zPG1302) * 3600.*24.
+Tt   =  (loadtxt("../dat/Lums_PG1302.dat", usecols=[0]))/(1.+zPG1302) 
 Lum  =  loadtxt("../dat/Lums_PG1302.dat", usecols=[1])
 sigL =  loadtxt("../dat/Lums_PG1302.dat", usecols=[2])
 
@@ -370,13 +370,24 @@ def ShellBoth_RegErr2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, d
 
 def Thick_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
 	print "EVAL", p
-	t1=time.clock()
+	#t1=time.clock()
 	chi = (y - magPoint_Thick(p, t, THEargs, RHStable, Ttable)) / dy
 	#nLnP = sum(chi*chi)
-	t2=time.clock()
+	#t2=time.clock()
 	#print(chi2)
-	print(t2-t1)
+	#print(t2-t1)
 	return sum(chi*chi)
+
+def Thick_RegErr2_fmin(p, t, THEargs, RHStable, Ttable, y, dy):
+	print "EVAL", p
+	#t1=time.clock()
+	chi = (y - magPoint_Thick_fmin(p, t, THEargs, RHStable, Ttable)) / dy
+	#nLnP = sum(chi*chi)
+	#t2=time.clock()
+	#print(chi2)
+	#print(t2-t1)
+	return sum(chi*chi)
+
 
 
 def sinPoint(params, t):
@@ -433,6 +444,27 @@ def ln_prior(params):
 				
 			return 0.
 
+def ln_THprior(params):
+			sinJJ, cosTT, Rin, pp, n0 = params
+					
+			if sinJJ < -1 or sinJJ > 1:
+				return -np.inf
+
+			if cosTT < 0 or cosTT > 1:
+				return -np.inf
+					
+			if Rin <= 0.0:
+				return -np.inf
+
+			if pp <= 0.0:
+				return -np.inf
+
+			if n0 <= 0.0:
+				return -np.inf
+					
+				
+			return 0.
+
 def ln_Sinprior(p):
 	if (No_Prd):
 		Prd = SinPrd
@@ -475,7 +507,7 @@ def ln_Shposterior(p, t, Wargs, RHStable, Ttable, y, dy):
 
 
 def ln_Thposterior(p, t, Wargs, RHStable, Ttable, y, dy):
-			ln_p = ln_prior(p)
+			ln_p = ln_Thprior(p)
 			if not np.isfinite(ln_p):
 				return -np.inf
 			
@@ -539,9 +571,9 @@ if (fmin_Fit):
 	if (ThickFit):
 		Shell_File = "W1_5p_fmin_Thick"
 		#p0 = [cosJ, costheta_T, Rin, p, n0]
-		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$R_{in}$',r'$p$', r'$n_0$']
+		param_names = [r'sin($J$)',r'cos($\theta_T$)',r'$R_{in}$',r'$p$', r'$n_0$']
 		print "Fmin optimizing W1"
-		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.1)[0]
+		ShW1_p_opt  = sc.optimize.fmin(Thick_RegErr2_fmin,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.1)[0]
 		print "Fmin optimizing W2"
 		ShW2_p_opt = ShW1_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 	if (NoFit):
@@ -612,7 +644,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 512#4096*2
+		clen = 2048#4096*2
 		Fsrc_pos,_,_ = Fsrc_sampler.run_mcmc(Fsrc_walker_p0 , clen)
 
 		
@@ -677,7 +709,7 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 512#4096*2
+		clen = 2048#4096*2
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -731,7 +763,7 @@ if (emcee_Fit):
 		if (ShellFit):
 			ndim = 4
 			nwalkers = ndim*12
-			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
+			param_names = [r'sin($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 			if (W2fit):
 				Shell_File = "W2_Shell"
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
@@ -745,7 +777,7 @@ if (emcee_Fit):
 		if (ThickFit):
 			ndim = 4
 			nwalkers = ndim*12
-			param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
+			param_names = [r'sin($J$)',r'cos($\theta_T$)',r'$R_{in}$', r'$p$', r'$n_0$']
 			if (W2fit):
 				Shell_File = "W2_Thick"
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
@@ -1127,7 +1159,7 @@ if (emcee_Fit):
 #t_MJD = t_MJD #- 49100
 
 Nt=40
-tsrt = tsrt/(3600.*24.)
+
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
