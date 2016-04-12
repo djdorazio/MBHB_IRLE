@@ -144,10 +144,10 @@ if (ShellFit):
 	ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-	if (fit_both):
-		#p0 = [sinJ, costheta_T, R1, R2, n0]
-		#Shboth_p0_0 = [0.0003,   1.00, 2.0466, 3.7068,   0.3679 ] 
-		Shboth_p0_0 = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)
+if (fit_both):
+	#p0 = [sinJ, costheta_T, R1, R2, n0]
+	#Shboth_p0_0 = [0.0003,   1.00, 2.0466, 3.7068,   0.3679 ] 
+	Shboth_p0_0 = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
@@ -567,13 +567,13 @@ if (fmin_Fit):
 		print "Fmin optimizing W2"
 		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 ###BOTH
-		if (fit_both):
-			Shell_File = "W1W2fmin_BOTH_SAMEr_Shell"
-			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
-			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
-			ShW2_p_opt  = ShW1_p_opt 
-			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
-			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
+	if (fit_both):
+		Shell_File = "W1W2fmin_BOTH_SAMEr_Shell"
+		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
+		ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW2_p_opt  = ShW1_p_opt 
+		p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
+		p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
 
 
 	if (ThickFit):
