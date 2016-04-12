@@ -31,9 +31,9 @@ pltThick = False
 emcee_Fit = False
 fmin_Fit = True
 
-W1fit = False
+W1fit = True
 W2fit = False
-fit_both = True
+fit_both = False
 
 
 Fit_Src = False ## fmin fit for Lfrac, beta, and phase to fi optical
@@ -43,7 +43,7 @@ No_Prd = True
 
 
 ShellFit = False
-ThickFit = False
+ThickFit = True
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -580,7 +580,7 @@ if (fmin_Fit):
 
 	if (ThickFit):
 		if (W1fit):
-			Shell_File = "W1_5p_fmin_Thick"
+			Shell_File = "W1_5p_fmin_Thick_Fsrcoffset"
 			#p0 = [cosJ, costheta_T, Rin, p, n0]
 			param_names = [r'sin($J$)',r'cos($\theta_T$)',r'$R_{in}$',r'$p$', r'$n_0$']
 			print "Fmin optimizing W1"
@@ -588,7 +588,7 @@ if (fmin_Fit):
 			print "Fmin optimizing W2"
 			ShW2_p_opt = ShW1_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		if (W2fit):
-			Shell_File = "W2_5p_fmin_Thick"
+			Shell_File = "W2_5p_fmin_ThickFsrcoffset"
 			#p0 = [cosJ, costheta_T, Rin, p, n0]
 			param_names = [r'sin($J$)',r'cos($\theta_T$)',r'$R_{in}$',r'$p$', r'$n_0$']
 			print "Fmin optimizing W2"
