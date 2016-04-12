@@ -562,7 +562,7 @@ if (Thick):
 		argJ1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J1, aeff, nu0, nne]
 		argJ2 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J2, aeff, nu0, nne]
 		argJ3 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J3, aeff, nu0, nne]
-		argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
+		argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J4, aeff, nu0, nne]
 
 
 
