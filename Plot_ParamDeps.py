@@ -23,14 +23,14 @@ from IR_LightEchoes_NewMeth import *
 ###OPTIONS
 Thick = True
 Thin  = False
-Plot_v_R = True
+Plot_v_R = False
 
 
-Plot_I   = True
+Plot_I   = False
 I_name = "Incs"
 Plot_R   = True
 R_name = "Rdust"
-Plot_Om  = True
+Plot_Om  = False
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
@@ -461,9 +461,9 @@ if (Thick):
 		tt2 = np.linspace(0., 2.,       Nt)*2*np.pi/Om2
 		tt3 = np.linspace(0., 2.,       Nt)*2*np.pi/Om3
 
-		argR1 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
-		argR2 = [Lav, betst, Inc1, Ombn, alph, n0, Rin2, pp, thetTst, JJt, aeff, nu0, nne]
-		argR3 = [Lav, betst, Inc1, Ombn, alph, n0, Rin3, pp, thetTst, JJt, aeff, nu0, nne]
+		argR1 = [Lav, betst, Inc1, Om1, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
+		argR2 = [Lav, betst, Inc1, Om2, alph, n0, Rin2, pp, thetTst, JJt, aeff, nu0, nne]
+		argR3 = [Lav, betst, Inc1, Om3, alph, n0, Rin3, pp, thetTst, JJt, aeff, nu0, nne]
 
 		FsrcI1 = np.empty(Nt)
 		FsrcI2 = np.empty(Nt)
