@@ -532,8 +532,8 @@ if (fmin_Fit):
 			Shell_File = "W1W2fmin_BOTH_SAMEr_Shell"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
 			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
-			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[4]]
-			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[3], ShW1_p_opt[4]]
+			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
+			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
 
 
 	if (ThickFit):
