@@ -148,6 +148,8 @@ if (fit_both):
 	#p0 = [sinJ, costheta_T, R1, R2, n0]
 	#Shboth_p0_0 = [0.0003,   1.00, 2.0466, 3.7068,   0.3679 ] 
 	Shboth_p0_0 = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
