@@ -585,7 +585,7 @@ if (Thick):
 		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$', r'$J=-(\pi/2 - \theta_T)$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$', r'$J=-(\pi/2 - \theta_T)$'), loc='upper right')
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
