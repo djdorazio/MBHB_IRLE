@@ -99,6 +99,9 @@ def Fsrc(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu):
 	phis = -np.pi/2
 	thetas = np.pi/2
 
+	#Make in phase with PG 1302 data (in seconds) # 0.34 from best fit to data
+	t = (t - 3600.*24.*1884./(1.+0.2784) * 0.34049274)
+
 	Vxorb = np.cos(incl) *np.sin(phis + Ombin*t) * np.sin(thetas)
 	Vyorb = -np.cos(phis + Ombin*t) * np.sin(thetas)
 	Vzorb = -np.sin(incl)* np.sin(phis + Ombin*t) * np.sin(thetas)

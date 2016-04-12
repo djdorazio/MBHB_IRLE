@@ -32,18 +32,18 @@ emcee_Fit = False
 fmin_Fit = True
 
 W1fit = False
-W2fit = True
-fit_both = False
+W2fit = False
+fit_both = True
 
 
-Fit_Src = False  ## fmin fit for Lfrac, beta, and phase to fi optical
+Fit_Src = False ## fmin fit for Lfrac, beta, and phase to fi optical
 sinFit_Src = False  ##emcee fit a sin cure to source
 SinFit = False
 No_Prd = True
 
 
 ShellFit = False
-ThickFit = True
+ThickFit = False
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -51,9 +51,16 @@ if (NoFit):
 	emcee_Fit = False
 	fmin_Fit = True
 
+	W1fit = False
+	W2fit = False
+	fit_both = False
+
+	Fit_Src = False
+	sinFit_Src = False
 	ShellFit = False
 	ThickFit = False
 	SinFit   = False
+	No_Prd = True
 
 
 #Define Constants
@@ -121,8 +128,8 @@ Sinp0_W2 = [0.1, 1884., 0.01, 10.3]
 #no Period fit
 if (No_Prd):
 	SinPrd = 1884./(1+zPG1302)  ##compare in binary frame
-	Sinp0_W1 = [0.0887, 716.3430, 11.3914]
-	Sinp0_W2 = [0.0795, 767.6635, 10.3067]
+	Sinp0_W1 = [0.0887, 347.7479, 11.3914]
+	Sinp0_W2 = [0.0795, 399.3936, 10.3067]
 
 
 
@@ -140,7 +147,7 @@ if (ShellFit):
 	if (fit_both):
 		#p0 = [sinJ, costheta_T, R1, R2, n0]
 		#Shboth_p0_0 = [0.0003,   1.00, 2.0466, 3.7068,   0.3679 ] 
-		Shboth_p0_0 = [0.0003,   0.7, 2.0466,  10.0] 
+		Shboth_p0_0 = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
@@ -158,8 +165,8 @@ if (NoFit):
 		#for Rout=10Rd
 		#ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
 		#ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
-		ShW1_p0_0  = [0.0003,   1.00,  2.0466,  0.3679]
-		ShW2_p0_0  = [0.0003,   1.00,  3.7068,  0.3679]
+		ShW1_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]#[0.0003,   1.00,  2.0466,  0.3679]
+		ShW2_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]#[0.0003,   1.00,  3.7068,  0.3679]   ## fit both, dfferent r's
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	if (pltThick):
@@ -411,8 +418,8 @@ def SinErr2(p, t, y, dy):
 
 def Fsrc_Err2(p, t, y, dy):
 	print "EVAL", p
-	Lfac, bets, phs = p
-	incl = np.arccos(0.067/bets)
+	Lfac, bets, phs, incl = p
+	#incl = np.arccos(0.067/bets)
 	alphnu =1.1
 	Ombin =	OmPG
 	chi = (y - -2.5*np.log10(Fsrc((t-phs*2.*ma.pi/Ombin), Dst, ma.pi/2., 0.0, Lfac*Lav, bets, incl, Ombin, alphnu)/FVbndRel) )/ dy
@@ -533,9 +540,9 @@ if (fmin_Fit):
 ### FIT SOURCE
 	if (Fit_Src):
 		Shell_File = "Source_Fit"
-		param_names = ["Lfac", "beta", "phase"]
+		param_names = ["Lfac", "beta", "phase", "incl"]
 		No_Prd = True
-		psrc = [0.05978958,  0.06917523,  0.45247066]
+		psrc = [5.79860006e-02,   6.83846646e-02,   3.36574394e-01, 9.66557496e-05]  # best fit for PG 1302
 		fminFsrc_opt = sc.optimize.fmin(Fsrc_Err2,   psrc, args=(tsrt, Lumsrt, sigLsrt), full_output=1, disp=False,ftol=0.0001)[0]
 		print fminFsrc_opt
 		ShW1_p_opt = fminFsrc_opt
@@ -564,6 +571,7 @@ if (fmin_Fit):
 			Shell_File = "W1W2fmin_BOTH_SAMEr_Shell"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
 			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+			ShW2_p_opt  = ShW1_p_opt 
 			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
 			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
 
@@ -653,7 +661,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 2048#4096*2
+		clen = 32#4096*2
 		Fsrc_pos,_,_ = Fsrc_sampler.run_mcmc(Fsrc_walker_p0 , clen)
 
 		
@@ -718,7 +726,7 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 2048#4096*2
+		clen = 32#4096*2
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -1174,12 +1182,14 @@ ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 #opti = -2.5*np.log10(Fsrc(ttopt*3600.*24, Dst, ma.pi/2., 0.0, Lav, betst, Inc, OmPG, 1.1)/FVbndRel)
 if (Fit_Src):
-	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	#opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - 0.0), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], fminFsrc_opt[3], OmPG, 1.1)/FVbndRel)
 #elif (sinFit_Src):
 #	opti =  plt.plot(ttopt, sinPoint(Fsrc_opt, (ttopt+50000)/(1.+zPG1302)), linestyle = '--', color='orange', linewidth=2)
 else:
-	fminFsrc_opt = [0.05977258,  0.067,  0.70247299]
-	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	fminFsrc_opt = [ 5.79860006e-02,   6.83846646e-02,   3.36574394e-01, 9.66557496e-05]
+	#opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - 0.0), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], fminFsrc_opt[3], OmPG, 1.1)/FVbndRel)
 
 
 ttopt = (ttopt*(1.+zPG1302) - 50000)
@@ -1249,5 +1259,5 @@ plt.xlim(3000, max(ttopt))
 plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
-plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")
+plt.savefig("../emcee_data/ShwllBoth_SameR"+Shell_File+"BestFit.png")
 plt.clf()
