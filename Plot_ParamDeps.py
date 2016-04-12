@@ -455,7 +455,7 @@ if (Thick):
 		Rin2 = Rde*2.
 		Om2 = 2.* ma.pi*c/(2.*Rde)
 		Rin3 = Rde*3.
-		Om2 = 2.* ma.pi*c/(3.*Rde)
+		Om3 = 2.* ma.pi*c/(3.*Rde)
 
 		tt1 = np.linspace(0., 2.,       Nt)*2*np.pi/Om1
 		tt2 = np.linspace(0., 2.,       Nt)*2*np.pi/Om2
@@ -501,7 +501,6 @@ if (Thick):
 	####-------END Rdust-------####
 
 	####-------Ombin-------####
-	Om1 = Ombn
 	if (Plot_Om):
 		Om1 = 0.5*Ombn
 		Inc1 = 0.0

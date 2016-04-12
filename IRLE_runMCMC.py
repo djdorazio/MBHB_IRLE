@@ -29,14 +29,15 @@ pltShell = False
 pltThick = False
 
 emcee_Fit = True
-fmin_Fit = True
+fmin_Fit = False
 
 W1fit = False
 W2fit = False
 fit_both = False
 
 
-Fit_Src = True
+Fit_Src = False  ## fmin fit for Lfrac, beta, and phase to fi optical
+sinFit_Src = True  ##emcee fit a sin cure to source
 SinFit = True
 No_Prd = True
 
@@ -503,10 +504,10 @@ if (fmin_Fit):
 		param_names = ["Lfac", "beta", "phase"]
 		No_Prd = True
 		psrc = [0.05978958,  0.06917523,  0.45247066]
-		Fsrc_opt = sc.optimize.fmin(Fsrc_Err2,   psrc, args=(tsrt, Lumsrt, sigLsrt), full_output=1, disp=False,ftol=0.0001)[0]
-		print Fsrc_opt
-		ShW1_p_opt = Fsrc_opt
-		ShW2_p_opt = Fsrc_opt
+		fminFsrc_opt = sc.optimize.fmin(Fsrc_Err2,   psrc, args=(tsrt, Lumsrt, sigLsrt), full_output=1, disp=False,ftol=0.0001)[0]
+		print fminFsrc_opt
+		ShW1_p_opt = fminFsrc_opt
+		ShW2_p_opt = fminFsrc_opt
 
 	if (SinFit):
 		Shell_File = "Sin_W1W2fmin"
@@ -598,9 +599,62 @@ if (emcee_Fit):
 	print "Running MCMC (!)..."
 	### Run MCMC
 
+	if (sinFit_Src):
+		ndim = 3
+		nwalkers = ndim*12
+		Shell_File = "sinFsrcFit_NOPrd"
+		Fsrc_param_names = ['Amp','phase','mag0']
+
+		Fsrc_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(tsrt, Lumsrt, sigLsrt))
+		Fsrc_p0  = np.array([0.14,   1100.,   1.48111852e+01])
+		
+		Fsrc_walker_p0 = np.random.normal(Fsrc_p0, np.abs(Fsrc_p0)*1E-4, size=(nwalkers, ndim))
+		
+
+					
+		clen = 512#4096*2
+		Fsrc_pos,_,_ = Fsrc_sampler.run_mcmc(Fsrc_walker_p0 , clen)
+
+		
+
+		print "SAVING THE PICKLE mmmmm"
+		with open("../emcee_data/Pickles/PG1302_Fsrc_%iwalkers.pickle" %clen, "w") as f1:
+			pickle.dump((Fsrc_sampler.chain, Fsrc_sampler.lnprobability), f1)
+
+
 				
+
+
+		### OPEN OUTPUT DATA
+		with open("../emcee_data/Pickles/PG1302_Fsrc_%iwalkers.pickle" %clen) as f1:
+			Fsrc_chain,Fsrc_lnprobs = pickle.load(f1)
+
+
+
+		Fsrc_flatchain   = np.vstack(Fsrc_chain[:,clen/2:])
+		Fsrc_flatlnprobs = np.vstack(Fsrc_lnprobs[:,clen/2:])
+
+					
+				
+		Fsrc_opt  = Fsrc_flatchain[Fsrc_flatlnprobs.argmax()]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	#sampler = emcee.EnsembleSampler(walkers, ndim, ln_posterior, args=(tsrt, W1args, RHStable, Ttable, W1_mag, W1_sig))
 	if (SinFit):
+
 		if (No_Prd):
 			ndim = 3
 			Shell_File = "SinFit_NOPrd"
@@ -623,7 +677,7 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 2048#4096*2
+		clen = 512#4096*2
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -748,12 +802,99 @@ if (emcee_Fit):
 	print "ANALYSING MCMC (!)..."
 	### MCMC ANALYSIS
 
-	#param_names = ['beta','cosJ','Rin','n0']
+	if (sinFit_Src):
+		with open("../emcee_data/Pickles/PG1302_Fsrc_%iwalkers.pickle" %clen) as f1:
+			Fsrc_chain,Fsrc_lnprobs = pickle.load(f1)
+		
+
+
+		##PLOT dem WALKERS
+		for k in range(Fsrc_chain.shape[2]):
+			plt.figure()
+			#plt.figure()
+			for i in range(Fsrc_chain.shape[0]):
+				plt.plot(Fsrc_chain[i,:,k], drawstyle='steps', color='k', marker=None, alpha=0.2)
+				plt.ylabel(Fsrc_param_names[k])
+				plt.xlabel('steps')
+			plt.savefig('../emcee_data/Fsrc_PG1302_%s_%iwalkers.png' %(Fsrc_param_names[k],clen))
+			plt.clf()
+
+		
+
+
+
+		###CORNER PLOT	
+		Fsrc_flatchain = np.vstack(Fsrc_chain[:,clen/2:])
+		Fsrc_flatlnprobs = np.vstack(Fsrc_lnprobs[:,clen/2:])
+
+				
+
+		#import triangle
+		import corner as triangle
+		Fsrc_fig = triangle.corner(Fsrc_flatchain, labels=Fsrc_param_names)			
+		Fsrc_fig.savefig('../emcee_data/Fsrc_PG1302_Corner_Plot_%iwalkers.png' %clen)
+
+
+
+
+		## Do some stats on the walkers
+		from scipy.stats import scoreatpercentile as scoretpercentile
+
+		## max posterior + percentiles
+		Fsrc_MAP_vals = Fsrc_flatchain[Fsrc_flatlnprobs.argmax()]
+		Fsrc_perc = scoretpercentile(Fsrc_flatchain, [15,85], axis=0)
+
+
+		filename = "Fsrc_results_"+Shell_File+"%iwalkers.txt" %clen
+		print "Printing Results"
+		target = open(filename, 'w')
+		target.truncate()
+
+
+		for i,name in enumerate(Fsrc_param_names):
+			Fsrc_diff_minus = Fsrc_MAP_vals[i] - Fsrc_perc[0,i]
+			Fsrc_diff_plus = Fsrc_perc[1,i] - Fsrc_MAP_vals[i]
+			target.write("Fsrc: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(Fsrc_MAP_vals[i], Fsrc_diff_plus, Fsrc_diff_minus, name=name))
+			target.write("\n")
+
+		
+
+		if (No_Prd):
+			target.write("Period = %4g" %SinPrd)	
+			target.write("\n")		
+		
+		
+		
+		Fsrc_mxprbs = zeros(nwalkers)
+					
+
+		for i in range(nwalkers):
+			Fsrc_mxprbs[i] = max(Fsrc_lnprobs[i])
+			
+		
+		chi2_pdf_Fsrc = -max(Fsrc_mxprbs)/(len(tsrt) - len(Fsrc_param_names) - 1)
+		
+		target.write("\n")		
+		target.write("Fsrc_fit reduced chi2 =  %04g" %chi2_pdf_Fsrc)
+		
+
+			
+
+		target.close
+
+
+
+
+
+
+
+
+
+
+
 
 	if (SinFit):
 					
-
-
 		with open("../emcee_data/Pickles/PG1302_W1_sin_%iwalkers.pickle" %clen) as f1:
 			W1_sin_chain,W1_sin_lnprobs = pickle.load(f1)
 		with open("../emcee_data/Pickles/PG1302_W2_sin_%iwalkers.pickle" %clen) as f2:
@@ -992,10 +1133,12 @@ ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 #opti = -2.5*np.log10(Fsrc(ttopt*3600.*24, Dst, ma.pi/2., 0.0, Lav, betst, Inc, OmPG, 1.1)/FVbndRel)
 if (Fit_Src):
-	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+#elif (sinFit_Src):
+#	opti =  plt.plot(ttopt, sinPoint(Fsrc_opt, (ttopt+50000)/(1.+zPG1302)), linestyle = '--', color='orange', linewidth=2)
 else:
-	Fsrc_opt = [0.05977258,  0.067,  0.70247299]
-	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - Fsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, Fsrc_opt[0]*Lav, Fsrc_opt[1], np.arccos(0.067/Fsrc_opt[1]), OmPG, 1.1)/FVbndRel)
+	fminFsrc_opt = [0.05977258,  0.067,  0.70247299]
+	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
 
 
 ttopt = (ttopt*(1.+zPG1302) - 50000)
@@ -1011,8 +1154,11 @@ t_MJD = (t_MJD*(1.+zPG1302) - 50000)
 
 
 plt.figure()
-plt.errorbar(tsrt, Lumsrt-3.0, yerr=sigL, linestyle="none", color = "black", alpha=0.5) #alpha=0.1
-Fs = plt.plot(ttopt, opti-3.0, linestyle = '--', color='blue', linewidth=2)
+plt.errorbar(tsrt, Lumsrt-3.0, yerr=sigL, linestyle="none", color = "blue", alpha=0.5) #alpha=0.1
+if (sinFit_Src):
+	Fs =  plt.plot(ttopt, sinPoint(Fsrc_opt, (ttopt+50000)/(1.+zPG1302))-3.0, linestyle = '--', color='blue', linewidth=2)
+else:
+	Fs = plt.plot(ttopt, opti-3.0, linestyle = '--', color='blue', linewidth=2)
 
 
 W1dat   = plt.errorbar(t_MJD, W1_mag, yerr=W1_sig, linestyle="none", color='orange', alpha=1., elinewidth=1.5)
