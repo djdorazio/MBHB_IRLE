@@ -34,7 +34,7 @@ Plot_Om  = False
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
-Plot_J = False
+Plot_J = True
 J_name = "Js"
 Plot_TT = False
 TT_name = "Theta_Ts"
@@ -593,7 +593,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+J_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick"+J_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick_"+J_name+"_n0_%g.png" %n0)
 	####-------END JJ-------####
 
 	####-------TT-------####

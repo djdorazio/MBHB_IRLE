@@ -23,31 +23,34 @@ from IR_LightEchoes_NewMeth import *
 
 ###OPTIONS
 
-
+## JUST PLOT DONT FIT
 NoFit = False
 pltShell = False
+pltboth  = False
 pltThick = False
 
+## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
 emcee_Fit = False
 fmin_Fit = True
 
-W1fit = True
+W1fit = False
 W2fit = False
-fit_both = False
+fit_both = True
 
 
-Fit_Src = False ## fmin fit for Lfrac, beta, and phase to fi optical
+Fit_Src = False ## fmin fit for Lfrac, beta, phase, and Inc to fit optical data
 sinFit_Src = False  ##emcee fit a sin cure to source
 SinFit = False
 No_Prd = True
 
 
 ShellFit = False
-ThickFit = True
+ThickFit = False
 ## multiprocessing
 NThread = 4
 mpi_it = False
 if (NoFit):
+	Shell_File = "NoFit"
 	emcee_Fit = False
 	fmin_Fit = True
 
@@ -163,7 +166,16 @@ if (NoFit):
 	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.0947,  2.5117]
 	ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
+	if (pltboth): 
+		Shell_File = "ShellBoth_SameR"
+		p1both = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)
+		p2both = p1both
+		ShW1_p0_0 = p1both
+		ShW2_p0_0 = p1both
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	if (pltShell):
+		Shell_File = "Shell"
 		#for Rout=10Rd
 		#ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
 		#ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
@@ -172,6 +184,7 @@ if (NoFit):
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	if (pltThick):
+		Shell_File = "Thick"
 		#ShW1_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
 		#ShW2_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
 		ShW1_p0_0  = [ 0.0011,  0.8164, 1.9627, 0.6721,  10.0]
@@ -274,7 +287,18 @@ for i in range(0 , len(iseg)-1):
 	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
 	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
 
-
+## APPEND THE ONE AKARI DATA POINT
+#MJD 51537.0 (ISO), 55022.5 (Akari)
+#t_avg.append(51537.0-50000.0)
+t_avg.append(55022.5/(1.+zPG1302))
+#W1 NaN, 11.3008
+W1_avg.append(11.3008)
+#W1_error NaN, 0.0603544
+W1_avsg.append(0.0603544)
+#W2 10.3370, 10.2411
+W2_avg.append(10.2411)
+#W2_error 0.217200, 0.0691765
+W2_avsg.append(0.0691765)
 
 t_avg = np.array(t_avg)
 W1_avg = np.array(W1_avg)
@@ -286,7 +310,7 @@ W2_avsg = np.array(W2_avsg)
 #sys.exit(0)
 ### averaging data ^####
 
-if (ShellFit or ThickFit or pltShell or pltThick or fit_both):
+if (ShellFit or ThickFit or fit_both or pltShell or pltThick or pltboth):
 	#Set up look up tables
 	##TABULATE T's and RHSs
 	print "Creating Temp look up tables..."
@@ -596,7 +620,7 @@ if (fmin_Fit):
 			print "Fmin optimizing W1"
 			ShW1_p_opt = ShW2_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 	if (NoFit):
-		Shell_File = "NoFit"
+		Shell_File = Shell_File + "_NoFit"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
 		ShW1_p_opt = ShW1_p0_0
 		ShW2_p_opt = ShW2_p0_0
@@ -657,13 +681,13 @@ if (emcee_Fit):
 		Fsrc_param_names = ['Amp','phase','mag0']
 
 		Fsrc_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Sinposterior, threads=NThread,args=(tsrt, Lumsrt, sigLsrt))
-		Fsrc_p0  = np.array([0.14,   1100.,   1.48111852e+01])
+		Fsrc_p0  = np.array([0.1269,   1403.3821,   14.8330])
 		
 		Fsrc_walker_p0 = np.random.normal(Fsrc_p0, np.abs(Fsrc_p0)*1E-4, size=(nwalkers, ndim))
 		
 
 					
-		clen = 32#4096*2
+		clen = 2048#4096*2
 		Fsrc_pos,_,_ = Fsrc_sampler.run_mcmc(Fsrc_walker_p0 , clen)
 
 		
@@ -728,7 +752,7 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 32#4096*2
+		clen = 2048#4096*2
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -1204,7 +1228,7 @@ t_MJD = (t_MJD*(1.+zPG1302) - 50000)
 #W1_sin_p_opt[1] = W1_sin_p_opt[1]*(1.+zPG1302) 
 #W2_sin_p_opt[1] = W2_sin_p_opt[1]*(1.+zPG1302) 
 
-
+print "PLOTTING"
 
 plt.figure()
 plt.errorbar(tsrt, Lumsrt-3.0, yerr=sigL, linestyle="none", color = "blue", alpha=0.5) #alpha=0.1
@@ -1228,12 +1252,12 @@ if (ShellFit):
 	if (fmin_Fit):
 		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-	elif (fit_both):
-		W1shell = plt.plot(ttopt, magPoint_Shell(p1both, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-		W2shell = plt.plot(ttopt, magPoint_Shell(p2both, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 	else:
 		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+if (fit_both or pltboth):
+		W1shell = plt.plot(ttopt, magPoint_Shell(p1both, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Shell(p2both, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 if (ThickFit):	
 	if (fmin_Fit):
 		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
@@ -1261,5 +1285,9 @@ plt.xlim(3000, max(ttopt))
 plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
-plt.savefig("../emcee_data/ShwllBoth_SameR"+Shell_File+"BestFit.png")
+plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")
 plt.clf()
+
+print "ALL DONE"
+
+
