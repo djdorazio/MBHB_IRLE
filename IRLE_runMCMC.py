@@ -286,7 +286,7 @@ W2_avsg = np.array(W2_avsg)
 #sys.exit(0)
 ### averaging data ^####
 
-if (ShellFit or ThickFit or pltShell or pltThick):
+if (ShellFit or ThickFit or pltShell or pltThick or fit_both):
 	#Set up look up tables
 	##TABULATE T's and RHSs
 	print "Creating Temp look up tables..."
