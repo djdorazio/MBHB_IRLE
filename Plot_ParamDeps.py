@@ -23,12 +23,12 @@ from IR_LightEchoes_NewMeth import *
 ###OPTIONS
 Thick = True
 Thin  = False
-Plot_v_R = False
+Plot_v_R = True
 
 
 Plot_I   = False
 I_name = "Incs"
-Plot_R   = True
+Plot_R   = False
 R_name = "Rdust"
 Plot_Om  = False
 Om_name = "Ombins"
@@ -70,7 +70,7 @@ thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 0.1/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
@@ -553,13 +553,16 @@ if (Thick):
 	if (Plot_J):
 		Inc1 = 0.0
 		J1 = 0.
-		J2 = ma.pi/2. - thetTst
+		J2 = (ma.pi/2. - thetTst)
 		J3 = ma.pi/2.
+		J4 = -(ma.pi/2. - thetTst)
+
+
 		#J4 = ma.pi/2. + thetTst
 		argJ1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J1, aeff, nu0, nne]
 		argJ2 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J2, aeff, nu0, nne]
 		argJ3 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J3, aeff, nu0, nne]
-		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
+		argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
 
 
@@ -568,7 +571,7 @@ if (Thick):
 		FI1 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
 		FI2 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
 		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
-		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+		FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
@@ -579,10 +582,10 @@ if (Thick):
 		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2, color='orange', linewidth=2)
 
 		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3, color='brown', linewidth=2)
-		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
+		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$', r'$J=-(\pi/2 - \theta_T)$'), loc='upper right')
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -778,8 +781,10 @@ if (Plot_v_R):
 		Rout4 = Rde*100.
 		#J4 = ma.pi/2. + thetTst
 		nu_arr = np.linspace(0.01*numicron, 1.*numicron, 30)
-		
-		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJ, aeff, nu0, nne]
+
+		JJt = -(ma.pi/2. - thetTst) # so we can see all of back inner edge
+		n0 = 1000.0*n0
+		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		
 		FI1 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout1, arg, RHS_table, T_table)
 		FI2 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout2, arg, RHS_table, T_table)
