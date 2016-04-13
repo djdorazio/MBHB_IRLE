@@ -76,7 +76,7 @@ def nDust(x,y,z, n0, Rd, p, thetT, JJ):
 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r
 	r  = (x*x + y*y + z*z)**(0.5)
 	throt = np.arctan2( (xrot*xrot + y*y)**(0.5), zrot)   ##arctan of arg1/arg2 arg1 always positive so btwn 0, pi
-	if (r>=Rd and throt>thetT and throt<(np.pi - thetT)):
+	if (r>=Rd and throt>=thetT and throt<=(np.pi - thetT)):
 		nprof = n0*(Rd/r)**(p)
 
 	return nprof
@@ -151,7 +151,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
 	Tprof = 1.*t/t  ##T=1 is very small
-	if (r>=Rd and throt>thetT and throt<(np.pi - thetT)):
+	if (r>=Rd and throt>=thetT and throt<=(np.pi - thetT)):
 
 	###-----------------###
 	### COMPUTE Fsrc    ###
@@ -193,7 +193,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		
 		Qbar=1. ##for now
 		tauDust = np.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-
+		# ^NO NEED TO USE HEAVISIDE WHEN r>=RD always
 		#epsi = 0.0
 		#istar=[]
 		#Tprof=[]
@@ -237,7 +237,7 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	z = r*np.cos(thet)
 	# # doing the integral is faster than lookiup table
 	# #xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
-	xe = (Rout*Rout  -  (z*z - y*y))**(0.5)
+	xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
 	# # ##don't integrate if no dust along path
 	# # if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
 	# # 	tauObs = 0.0
@@ -315,7 +315,7 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 ###----------------------------###
 	## doing the integral is faster than lloking it up this way
 	#xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
-	xe = (Rout*Rout  -  (z*z - y*y))**(0.5)
+	xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
 	#don't integrate if no dust along path
 	#if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
 	#	tauObs = 0.0

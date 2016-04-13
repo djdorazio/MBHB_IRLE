@@ -26,9 +26,9 @@ Thin  = False
 Plot_v_R = True
 
 
-Plot_I   = False
+Plot_I   = True
 I_name = "Incs"
-Plot_R   = False
+Plot_R   = True
 R_name = "Rdust"
 Plot_Om  = True
 Om_name = "Ombins"
@@ -111,7 +111,7 @@ for i in range(NT):
 
 
 ### PLOT POINTS
-Nt=40
+Nt=20
 tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 
 
@@ -779,16 +779,16 @@ if (Thick):
 	####------v R-------####
 if (Plot_v_R):
 		Inc1 = 0.0
-		JJ = ma.pi/2.
+		#JJ = ma.pi/2.
 		Rout1 = Rde*5.
 		Rout2 = Rde*20.
 		Rout3 = Rde*50.
 		Rout4 = Rde*100.
 		#J4 = ma.pi/2. + thetTst
-		nu_arr = np.linspace(0.01*numicron, 1.*numicron, 30)
+		nu_arr = np.linspace(0.001*numicron, 1.*numicron, 30)
 
-		JJt = -(ma.pi/2. - thetTst) # so we can see all of back inner edge
-		#n0 = 1.0*n0
+		JJt = ma.pi/2#-(ma.pi/2. - thetTst) # so we can see all of back inner edge
+		n0 = 100.0*n0
 		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		
 		FI1 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout1, arg, RHS_table, T_table)
