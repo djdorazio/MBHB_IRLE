@@ -24,39 +24,44 @@ from IR_LightEchoes_NewMeth import *
 ###OPTIONS
 
 ## JUST PLOT DONT FIT
-NoFit = False
+NoFit = False   ## jsut plot - turn on one of the plt... options below
 pltShell = False
-### fit for rem and Rin in shell model??
-rem_is_Rin = False
+rem_is_Rin = False ### fit for rem and Rin in shell model??
 #
 pltboth  = False
 pltThick = False
 
-## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
-emcee_Fit = True
-fmin_Fit = False
 
-W1fit = False
-W2fit = False
-fit_both = True
+
+## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
+emcee_Fit = False # use emcee to fit
+## multiprocessing
+NThread = 48
+#
+fmin_Fit = True   # use simple fmin to fit
+
+W1fit = False  ### fit only W1fit, Thick or Shell
+W2fit = False  ### fit only W1fit, Thick or Shell
+fit_both = True  ### fit using chi2 for both W1 and W2 - SHELL ONLY - 4 or 6 params depends on rem_is_Rin
+				### if rem_is_Rin is FALSE, then 6 params [sinJ, cosT, rem1, rem2, Rin, n0] where rems are
+				### where emission for W1 and W2 comes from and Rin is the sublimation radius rem>Rin
 if (fit_both):
 	W1fit = False
 	W2fit = False
 
 
-Fit_Src = False ## fmin fit for Lfrac, beta, phase, and Inc to fit optical data
-sinFit_Src = False  ##emcee fit a sin cure to source
-SinFit = False
-No_Prd = True
+Fit_Src = False     ## fmin fit for Lfrac, beta, phase, and Inc to fit optical data
+sinFit_Src = False  ## emcee fit a sin curve to optical data
+SinFit = False      ## emcee fit a sin curve to IR data (W1 and W2)
+No_Prd = True       ## fix the period at 1884/(1+z) ~ 1474 for fitting
 
 
-ShellFit = True
-ThickFit = False
+ShellFit = False #-> make false if fitboth is on - this fits for W1 and W2 independnetly and in addition to fitboth
+ThickFit = False # Fits W1 or W2 as selected above for THick model
+
+mpi_it = False  #defunct
 
 
-## multiprocessing
-NThread = 48
-mpi_it = False
 if (NoFit):
 	Shell_File = "NoFit"
 	emcee_Fit = False
@@ -165,8 +170,10 @@ if (fit_both):
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst]
 	else:
 		Shboth_p0_0 = [0.0004,   0.6356, 1.0, 0.01, 1.0,  0.4841]
-		ShW1_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[2], Shboth_p0_0[4], Shboth_p0_0[5]]
-		ShW2_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[3], Shboth_p0_0[4], Shboth_p0_0[5]]
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst]
+		#ShW1_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[2], Shboth_p0_0[4], Shboth_p0_0[5]]
+		#ShW2_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[3], Shboth_p0_0[4], Shboth_p0_0[5]]
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
@@ -198,7 +205,7 @@ if (NoFit):
 		else:
 			Shell_File = "Shell_rem_xefix"
 			#p0 = [sinJ, CosT, rem1, rem2, Rin, n0]
-			SHboth_p0  = [0.0004,   0.6356, 1.0, 0.01, 1.0,  10.0]
+			SHboth_p0  = [0.0016,   0.6356, 1.0, 0.01, 1.0,  10.0]
 			ShW1_p0_0  = [SHboth_p0[0], SHboth_p0[1],SHboth_p0[2],SHboth_p0[4], SHboth_p0[5]]
 			ShW2_p0_0  = [SHboth_p0[0], SHboth_p0[1],SHboth_p0[3],SHboth_p0[4], SHboth_p0[5]]
 			W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
@@ -644,7 +651,7 @@ if (fmin_Fit):
 
 
 	if (ShellFit):
-		Shell_File = "W1W2fmin_Shell_xefix"
+		Shell_File = "W1andW2fmin_Shell_xefix"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 		print "Fmin optimizing W1"
 		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
@@ -660,13 +667,13 @@ if (fmin_Fit):
 			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
 			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
 		else:
-			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
-			ShW2_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW2_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
-
+			#ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
+			#ShW2_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW2_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
+			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 			Shell_File = "W1W2fmin_BOTH_rem_diff_Rin_Shell_xefix"
-			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$rem$', r'$Rin$', r'$n_0$']
+			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$rem1$', r'$rem2$', r'$Rin$', r'$n_0$']
 			p1both = ShW1_p_opt
-			p2both = ShW2_p_opt
+			p2both = ShW1_p_opt  # should be the same
 
 	if (ThickFit):
 		if (W1fit):
@@ -1363,7 +1370,7 @@ if (ThickFit):
 		W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 if (NoFit and pltShell):
 	W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table, rem_is_Rin), linestyle = '--', color='orange', linewidth=2)
-	W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table, rem_is_Rin)+0.5, linestyle = '--', color='red', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table, rem_is_Rin)+0.5, linestyle = '--', color='red', linewidth=2)
 if (NoFit and pltThick):
 	W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 	W2shell = plt.plot(ttopt, magPoint_Thick(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
