@@ -178,7 +178,7 @@ if (NoFit):
 	ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	if (pltboth): 
-		Shell_File = "ShellBoth_SameR"
+		Shell_File = "ShellBoth_SameR_xefix"
 		p1both = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)
 		p2both = p1both
 		ShW1_p0_0 = p1both
@@ -187,13 +187,13 @@ if (NoFit):
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	if (pltShell):
 		if (rem_is_Rin):
-			Shell_File = "Shell_rem_is_Rin"
+			Shell_File = "Shell_rem_is_Rin_xefix"
 			ShW1_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]
 			ShW2_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]
 			W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 			W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst]
 		else:
-			Shell_File = "Shell_rem"
+			Shell_File = "Shell_rem_xefix"
 			#p0 = [sinJ, CosT, rem1, rem2, Rin, n0]
 			SHboth_p0  = [0.0004,   0.6356, 1.0, 0.01, 1.0,  10.0]
 			ShW1_p0_0  = [SHboth_p0[0], SHboth_p0[1],SHboth_p0[2],SHboth_p0[4], SHboth_p0[5]]
@@ -202,7 +202,7 @@ if (NoFit):
 			W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst]
 
 	if (pltThick):
-		Shell_File = "Thick"
+		Shell_File = "Thick_xefix"
 		#ShW1_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
 		#ShW2_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
 		ShW1_p0_0  = [ 0.0011,  0.8164, 1.9627, 0.6721,  10.0]
@@ -613,7 +613,7 @@ if (fmin_Fit):
 		ShW2_p_opt = fminFsrc_opt
 
 	if (SinFit):
-		Shell_File = "Sin_W1W2fmin"
+		Shell_File = "Sin_W1W2fmin_xefix"
 		param_names = ["Amp", "phase", "Mag0"]
 		print "Fmin optimizing W1"
 		W1_sin_p_opt  = sc.optimize.fmin(SinErr2,     Sinp0_W1, args=(t_avg, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.0001)[0]
@@ -624,7 +624,7 @@ if (fmin_Fit):
 
 
 	if (ShellFit):
-		Shell_File = "W1W2fmin_Shell"
+		Shell_File = "W1W2fmin_Shell_xefix"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 		print "Fmin optimizing W1"
 		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
@@ -635,7 +635,7 @@ if (fmin_Fit):
 		if (rem_is_Rin):
 			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 			ShW2_p_opt  = ShW1_p_opt 
-			Shell_File = "W1W2fmin_BOTH_SAMEreqRin_Shell"
+			Shell_File = "W1W2fmin_BOTH_SAMEreqRin_Shell_xefix"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
 			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
 			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
@@ -643,14 +643,14 @@ if (fmin_Fit):
 			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 			ShW2_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW2_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 
-			Shell_File = "W1W2fmin_BOTH_rem_diff_Rin_Shell"
+			Shell_File = "W1W2fmin_BOTH_rem_diff_Rin_Shell_xefix"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$rem$', r'$Rin$', r'$n_0$']
 			p1both = ShW1_p_opt
 			p2both = ShW2_p_opt
 
 	if (ThickFit):
 		if (W1fit):
-			Shell_File = "W1_5p_fmin_Thick_Fsrcoffset"
+			Shell_File = "W1_5p_fmin_Thick_Fsrcoffset_xefix"
 			#p0 = [cosJ, costheta_T, Rin, p, n0]
 			param_names = [r'sin($J$)',r'cos($\theta_T$)',r'$R_{in}$',r'$p$', r'$n_0$']
 			print "Fmin optimizing W1"
@@ -658,7 +658,7 @@ if (fmin_Fit):
 			print "Fmin optimizing W2"
 			ShW2_p_opt = ShW1_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 		if (W2fit):
-			Shell_File = "W2_5p_fmin_ThickFsrcoffset"
+			Shell_File = "W2_5p_fmin_ThickFsrcoffset_xefix"
 			#p0 = [cosJ, costheta_T, Rin, p, n0]
 			param_names = [r'sin($J$)',r'cos($\theta_T$)',r'$R_{in}$',r'$p$', r'$n_0$']
 			print "Fmin optimizing W2"
@@ -869,10 +869,10 @@ if (emcee_Fit):
 			nwalkers = ndim*12
 			param_names = [r'sin($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 			if (W2fit):
-				Shell_File = "W2_Shell"
+				Shell_File = "W2_Shell_xefix"
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg, rem_is_Rin))
 			elif (W1fit):
-				Shell_File = "W1_Shell"
+				Shell_File = "W1_Shell_xefix"
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg, rem_is_Rin))
 			else:
 				print "must choose W1 or W1 to fit too (do both later)"
@@ -883,10 +883,10 @@ if (emcee_Fit):
 			nwalkers = ndim*12
 			param_names = [r'sin($J$)',r'cos($\theta_T$)',r'$R_{in}$', r'$p$', r'$n_0$']
 			if (W2fit):
-				Shell_File = "W2_Thick"
+				Shell_File = "W2_Thick_xefix"
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
 			elif (W1fit):
-				Shell_File = "W1_Thick"
+				Shell_File = "W1_Thick_xefix"
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Thposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
 			else:
 				print "must choose W1 or W1 to fit too (do both later)"
