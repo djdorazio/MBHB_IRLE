@@ -38,6 +38,7 @@ yr2sec = 3600.*24.*365.25
 
 
 ## Back body specific intensity
+#DD CHECKED 4/12/16
 def Bv(nu, T):
 	return 2.*h*nu*nu*nu/(c*c)*1./(np.exp( h*nu/(kb*T) ) - 1.)
 ## Dust absorption efficiency
@@ -53,7 +54,7 @@ def Qv(nu, nu0, nn):
 	return np.min( [(nu/nu0)**(nn), 1.*nu/nu])#qv #
 	
 
-
+#DD CHECKED 4/12/16
 def QvBv(nu, T, nu0, nn):
 	qv = (nu/nu0)**(nn)
 	if (type(qv) is float):
@@ -67,15 +68,16 @@ def QvBv(nu, T, nu0, nn):
 
 
 
-# Torical dust profile
+# Torical dust profile DD CHECKED 4/12/16
 def nDust(x,y,z, n0, Rd, p, thetT, JJ):
 	nprof = 0.0
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5)
-	throt = np.arctan2(np.sqrt(xrot*xrot + y*y), zrot)
-	if (rofx>=Rd and throt>thetT and throt<(np.pi - thetT)):
-		nprof = n0*(rofx/Rd)**(-p)
+	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r
+	r  = (x*x + y*y + z*z)**(0.5)
+	throt = np.arctan2( (xrot*xrot + y*y)**(0.5), zrot)   ##arctan of arg1/arg2 arg1 always positive so btwn 0, pi
+	if (r>=Rd and throt>thetT and throt<(np.pi - thetT)):
+		nprof = n0*(Rd/r)**(p)
 
 	return nprof
 
@@ -123,7 +125,9 @@ def Fsrc(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu):
 
 
 ## equation to tabulate RHS and T
+#DD CHECKED 4/12/16
 def T_RHS(Td, nu0, nn):
+	# for for difference in cross sectional area and surface area, pi for isotropic flux from Grain
 	RHS = 4.*np.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,numicron*1000., args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#return np.log10(RHS)
 	return RHS
@@ -140,11 +144,13 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 	x = r*np.sin(thet)*np.cos(phi)
 	y = r*np.sin(thet)*np.sin(phi)
 	z = r*np.cos(thet)
-	#rofx  = (x*x + y*y + z*z)**(0.5) 
+	
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
+
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Tprof = 1.*t/t  ##T=0.1 is very small
+	Tprof = 1.*t/t  ##T=1 is very small
 	if (r>=Rd and throt>thetT and throt<(np.pi - thetT)):
 
 	###-----------------###
@@ -215,20 +221,20 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 
 
 
-
-def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
+## SHELL IS AT r, dust shell starts at Rd
+def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 ###----------------------------###
 ### SETUP COORDS TO INTEGRATE  ###
 ###----------------------------###
 ## retarded time - time light emitted form dust
-	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+	tem = t - r/c*(1. - np.sin(thet)*np.cos(ph))
 ###----------------------------###
 ### compute los tau (tauObs) (effective for shell model)   ###
 ###----------------------------###
-	x = Rd*np.sin(thet)*np.cos(ph)
-	y = Rd*np.sin(thet)*np.sin(ph)
-	z = Rd*np.cos(thet)
+	x = r*np.sin(thet)*np.cos(ph)
+	y = r*np.sin(thet)*np.sin(ph)
+	z = r*np.cos(thet)
 	# # doing the integral is faster than lookiup table
 	# #xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	xe = (Rout*Rout  -  (z*z - y*y))**(0.5)
@@ -246,31 +252,36 @@ def Fnuint_Shell(ph, thet, nu, t, Dist, Rout, args, RHStable, Ttable):
 	#if (  (h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))) > 709.7):
 	#	fint = 1.654984027680202e+308
 	#else:
-	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)	
+	#
+	##RECALL r is teh radisu of the smititng shell, Rd is the inner edge of the shell
+	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)	
 	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
-	fint = fint* Rd*Rd* np.sin(thet) * n0*Rd/(p-1.)
+	fint = fint* r*r* np.sin(thet) * n0 * (-(Rd/Rout)**p * Rout + (Rd/r)**p * r)/(-1. + p)
+	##^ last term is integral from r to Rout 
+	#* n0*Rd/(p-1.) 
+	##^last term is the surface density if integrating from rr to Rout for Rout>>Rd
 
-
+	# pi for uniform emitting dust grain
 	return np.pi* aeff*aeff/Dist/Dist *fint
 
 
-def tauObs(nu, x, z, Rout, aeff, n0, Rd, p, thetT, JJ):
-	y=0.0
-	r    = np.sqrt(x*x + y*y + z*z)
-	thet = np.arctan2((x*x + y*y)**(0.5), z)
-	ph   = np.arctan2(y, x)
+# def tauObs(nu, x, z, Rout, aeff, n0, Rd, p, thetT, JJ):
+# 	y=0.0
+# 	r    = np.sqrt(x*x + y*y + z*z)
+# 	thet = np.arctan2((x*x + y*y)**(0.5), z)
+# 	ph   = np.arctan2(y, x)
 
-	xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+# 	xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
-	#if (type(x) is float):
-	return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	#else:
-	#	res=[]
-	#	for i in range(len(x)):
-	#		for j in range(len(z)):
-	#				res.append(np.pi*aeff*aeff * intg.quad(nDust  ,x[i], xe[i] , args=(y, z[j], n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
+# 	#if (type(x) is float):
+# 	return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+# 	#else:
+# 	#	res=[]
+# 	#	for i in range(len(x)):
+# 	#		for j in range(len(z)):
+# 	#				res.append(np.pi*aeff*aeff * intg.quad(nDust  ,x[i], xe[i] , args=(y, z[j], n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
 
-	#	return np.array(res)
+# 	#	return np.array(res)
 
 
 def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tauGrid):
@@ -335,9 +346,9 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 
 
 # integrate over phi 
-def Fnudphi_Shell(thet, nu, t, Dist, Rout, Aargs, RHStable, Ttable):
+def Fnudphi_Shell(thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable):
 	#if (type(t) is float):
-	return intg.quad(Fnuint_Shell, 0.,2.*np.pi, args=(thet, nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	return intg.quad(Fnuint_Shell, 0.,2.*np.pi, args=(thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	# else:
 	# 	res=[]
 	# 	i=0
@@ -347,9 +358,9 @@ def Fnudphi_Shell(thet, nu, t, Dist, Rout, Aargs, RHStable, Ttable):
 	# 	return np.array(res)
 
 # then int over theta
-def Fnu_Shell(nu, t, Dist, Rout, Aargs, RHStable, Ttable):
+def Fnu_Shell(nu, r, t, Dist, Rout, Aargs, RHStable, Ttable):
 	#if (type(t) is float):
-	return intg.quad(Fnudphi_Shell, 0., np.pi, args=(nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+	return intg.quad(Fnudphi_Shell, 0., np.pi, args=(nu, r, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 	#else:
 	#	res=[]
 	#	i=0
@@ -359,7 +370,7 @@ def Fnu_Shell(nu, t, Dist, Rout, Aargs, RHStable, Ttable):
 	#	return np.array(res)
 
 # int over freqeuncy
-def Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
+def Fobs_Shell(numin, numax, r, t, Dist, Rout, Aargs, RHStable, Ttable):
 	#if (type(t) is float):
 	#	return intg.quad(Fnu_Shell, numin, numax, args=(t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 	#else:
@@ -367,18 +378,24 @@ def Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable):
 	#i=0
 	#while (i<len(t)):
 	for i in range(len(t)):
-		res.append(intg.quad(Fnu_Shell, numin, numax, args=(t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
+		res.append(intg.quad(Fnu_Shell, numin, numax, args=(r, t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
 			#i += 1
 	return np.array(res)
 
 
 
 ##FOR MCMC
-def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
-	#beta, cosJJ, Rin, thetT, n0 = params
-	sinJJ, cosTT, Rin, n0 = params
+def magPoint_Shell(params, t, THEargs, RHStable, Ttable, rem_is_Rin):
+	if (rem_is_Rin):
+		sinJJ, cosTT, Rin, n0 = params
+		rem_pls = 0.0
+	else:
+		sinJJ, cosTT, rem_pls, Rin, n0 = params
+
 	n0 = n0 * 1.4032428247438431e-09
 	Rin = Rin * 2.73213149e+18
+	rem = Rin + rem_pls * 2.73213149e+18
+
 	t = t * 86400.
 	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
 	thetT = np.arccos(cosTT)
@@ -387,15 +404,14 @@ def magPoint_Shell(params, t, THEargs, RHStable, Ttable):
 	IncFit = np.arccos(0.067/beta)
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
-	#return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
-	return -2.5*np.log10(Fobs_Shell(numin, numax, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
+	
+	return -2.5*np.log10(Fobs_Shell(numin, numax, rem, t, Dist, Rout, Aargs, RHStable, Ttable)/FRel)
 
 
 	##FOR MCMC
 def magPoint_Thick_fmin(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
 	sinJJ, cosTT, Rin, pp, n0 = params
-
 	if (sinJJ<-1.0 or sinJJ >1.0):
 		return np.inf
 	elif (cosTT<0.0 or cosTT >1.0):

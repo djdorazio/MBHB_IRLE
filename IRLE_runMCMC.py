@@ -26,6 +26,9 @@ from IR_LightEchoes_NewMeth import *
 ## JUST PLOT DONT FIT
 NoFit = False
 pltShell = False
+### fit for rem and Rin in shell model??
+rem_is_Rin = False
+#
 pltboth  = False
 pltThick = False
 
@@ -35,7 +38,7 @@ fmin_Fit = True
 
 W1fit = False
 W2fit = False
-fit_both = True
+fit_both = False
 
 
 Fit_Src = False ## fmin fit for Lfrac, beta, phase, and Inc to fit optical data
@@ -44,8 +47,10 @@ SinFit = False
 No_Prd = True
 
 
-ShellFit = False
+ShellFit = True
 ThickFit = False
+
+
 ## multiprocessing
 NThread = 4
 mpi_it = False
@@ -137,22 +142,28 @@ if (No_Prd):
 
 
 if (ShellFit):
-	#p0 = [sinJ, costheta_T, Rin, n0]
-	#ShW1_p0_0  = [ 0.001,  0.6905, 1.4392,  0.5880]
-	#ShW2_p0_0  = [ 0.0009,  0.6035, 1.09,  2.5117]
-	##ShW1_p0_0  = [ 0.99,   0.6905, 1.4392,  0.5880] ## this fit give p~4
-	##ShW2_p0_0  = [ 0.99,   0.6035, 1.0947,  2.5117]
-	#for Rout=10Rd
-	ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
-	ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	if (rem_is_Rin):
+		#p0 = [sinJ, costheta_T, Rin, n0]
+		ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
+		ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	else:
+		#p0 = [sinJ, costheta_T, rem, Rin, n0]
+		ShW1_p0_0  = [0.0010,   0.7437, 1.0,   1.0,  0.5496] 
+		ShW2_p0_0  = [0.0008,   0.6142, 0.01,  1.0, 2.9455]
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 if (fit_both):
-	#p0 = [sinJ, costheta_T, R1, R2, n0]
-	#Shboth_p0_0 = [0.0003,   1.00, 2.0466, 3.7068,   0.3679 ] 
-	Shboth_p0_0 = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	if (rem_is_Rin):
+		#p0 = [sinJ, costheta_T, R1, n0]
+		Shboth_p0_0 = [0.0004,   0.6356, 2.5976,  0.4841] # fit both withh all same parameters (from same inner edge)	
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst]
+	else:
+		Shboth_p0_0 = [0.0004,   0.6356, 1.0, 0.01, 1.0,  0.4841]
+		ShW1_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[2], Shboth_p0_0[4], Shboth_p0_0[5]]
+		ShW2_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[3], Shboth_p0_0[4], Shboth_p0_0[5]]
 if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
@@ -175,14 +186,21 @@ if (NoFit):
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	if (pltShell):
-		Shell_File = "Shell"
-		#for Rout=10Rd
-		#ShW1_p0_0  = [0.0010,   0.7437, 1.4572,  0.5496] 
-		#ShW2_p0_0  = [0.0008,   0.6142, 1.2751,  2.9455]
-		ShW1_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]#[0.0003,   1.00,  2.0466,  0.3679]
-		ShW2_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]#[0.0003,   1.00,  3.7068,  0.3679]   ## fit both, dfferent r's
-		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
-		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
+		if (rem_is_Rin):
+			Shell_File = "Shell_rem_is_Rin"
+			ShW1_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]
+			ShW2_p0_0  = [0.0004,   0.6356, 2.5976,  0.4841]
+			W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
+			W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst]
+		else:
+			Shell_File = "Shell_rem"
+			#p0 = [sinJ, CosT, rem1, rem2, Rin, n0]
+			SHboth_p0  = [0.0004,   0.6356, 1.0, 0.01, 1.0,  10.0]
+			ShW1_p0_0  = [SHboth_p0[0], SHboth_p0[1],SHboth_p0[2],SHboth_p0[4], SHboth_p0[5]]
+			ShW2_p0_0  = [SHboth_p0[0], SHboth_p0[1],SHboth_p0[3],SHboth_p0[4], SHboth_p0[5]]
+			W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
+			W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst]
+
 	if (pltThick):
 		Shell_File = "Thick"
 		#ShW1_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
@@ -375,10 +393,10 @@ print "start timing"
 
 
 ### best fit fits both W1 and W2
-def Shell_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
+def Shell_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy,rem_is_Rin):
 	print "EVAL", p
 	t1=time.clock()
-	chi = (y - magPoint_Shell(p, t, THEargs, RHStable, Ttable)) / dy
+	chi = (y - magPoint_Shell(p, t, THEargs, RHStable, Ttable, rem_is_Rin)) / dy
 	#nLnP = sum(chi*chi)
 	t2=time.clock()
 	#print(chi2)
@@ -386,14 +404,18 @@ def Shell_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy):
 	return sum(chi*chi)
 
 
-def ShellBoth_RegErr2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+def ShellBoth_RegErr2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2, rem_is_Rin):
 	print "EVAL", p
 	t1=time.clock()
-	#p0 = [cosJ, cosT, Rin1, Rin2, n0]
-	#p1 = [p[0], p[1], p[2], p[4]]
-	#p2 = [p[0], p[1], p[3], p[4]]
-	chi1 = (y1 - magPoint_Shell(p, t, THEargs1, RHStable, Ttable)) / dy1
-	chi2 = (y2 - magPoint_Shell(p, t, THEargs2, RHStable, Ttable)) / dy2
+	#p0 = [cosJ, cosT, rem1, rem2, Rin, n0]
+	if (rem_is_Rin):
+		chi1 = (y1 - magPoint_Shell(p, t, THEargs1, RHStable, Ttable, rem_is_Rin)) / dy1
+		chi2 = (y2 - magPoint_Shell(p, t, THEargs2, RHStable, Ttable, rem_is_Rin)) / dy2
+	else:
+		p1 = [p[0], p[1], p[2], p[4], p[5]]
+		p2 = [p[0], p[1], p[3], p[4], p[5]]
+		chi1 = (y1 - magPoint_Shell(p1, t, THEargs1, RHStable, Ttable, rem_is_Rin)) / dy1
+		chi2 = (y2 - magPoint_Shell(p2, t, THEargs2, RHStable, Ttable, rem_is_Rin)) / dy2
 	#nLnP = sum(chi*chi)
 	t2=time.clock()
 	#print(chi2)
@@ -456,23 +478,39 @@ def Fsrc_Err2(p, t, y, dy):
 
 
 ### MCMC - Set up priors
-def ln_prior(params):
+def ln_prior(params, rem_is_Rin):
 			#beta, cosJJ, Rin, thetT, n0 = p
-			sinJJ, cosTT, Rin, n0 = params
-			#if beta < 0.07 or beta > 0.5:
-			#	return -np.inf
+			if (rem_is_Rin):
+				sinJJ, cosTT, Rin, n0 = params
 					
-			if sinJJ < -1 or sinJJ > 1:
-				return -np.inf
+				if sinJJ < -1 or sinJJ > 1:
+					return -np.inf
 
-			if cosTT < 0 or cosTT > 1:
-				return -np.inf
+				if cosTT < 0 or cosTT > 1:
+					return -np.inf
+						
+				if Rin <= 0.0:
+					return -np.inf
+
+				if n0 <= 0.0:
+					return -np.inf
+			else:
+				sinJJ, cosTT, rem, Rin, n0 = params
 					
-			if Rin <= 0.0:
-				return -np.inf
+				if sinJJ < -1 or sinJJ > 1:
+					return -np.inf
 
-			if n0 <= 0.0:
-				return -np.inf
+				if cosTT < 0 or cosTT > 1:
+					return -np.inf
+
+				if rem <= 0.0:
+					return -np.inf
+						
+				if Rin <= 0.0:
+					return -np.inf
+
+				if n0 <= 0.0:
+					return -np.inf
 					
 				
 			return 0.
@@ -522,20 +560,20 @@ def ln_Sinprior(p):
 	return 0.
 
 ### MCMC - Set up posteriors
-def ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy):
-			return -(Shell_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
+def ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin):
+			return -(Shell_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
 
 def ln_Thlikelihood(p, t, Wargs, RHStable, Ttable, y, dy):
 			return -(Thick_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
 
 
 
-def ln_Shposterior(p, t, Wargs, RHStable, Ttable, y, dy):
-			ln_p = ln_prior(p)
+def ln_Shposterior(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin):
+			ln_p = ln_prior(p, rem_is_Rin)
 			if not np.isfinite(ln_p):
 				return -np.inf
 			
-			ln_l = ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy)
+			ln_l = ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin)
 			return ln_l + ln_p
 
 
@@ -589,18 +627,26 @@ if (fmin_Fit):
 		Shell_File = "W1W2fmin_Shell"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 		print "Fmin optimizing W1"
-		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW1_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 		print "Fmin optimizing W2"
-		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
+		ShW2_p_opt  = sc.optimize.fmin(Shell_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 ###BOTH
 	if (fit_both):
-		Shell_File = "W1W2fmin_BOTH_SAMEr_Shell"
-		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
-		ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
-		ShW2_p_opt  = ShW1_p_opt 
-		p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
-		p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
+		if (rem_is_Rin):
+			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
+			ShW2_p_opt  = ShW1_p_opt 
+			Shell_File = "W1W2fmin_BOTH_SAMEreqRin_Shell"
+			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
+			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
+			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
+		else:
+			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
+			ShW2_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW2_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 
+			Shell_File = "W1W2fmin_BOTH_rem_diff_Rin_Shell"
+			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$rem$', r'$Rin$', r'$n_0$']
+			p1both = ShW1_p_opt
+			p2both = ShW2_p_opt
 
 	if (ThickFit):
 		if (W1fit):
@@ -621,7 +667,10 @@ if (fmin_Fit):
 			ShW1_p_opt = ShW2_p_opt#ShW2_p_opt  = sc.optimize.fmin(Thick_RegErr2,     ShW2_p0_0, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.01)[0]
 	if (NoFit):
 		Shell_File = Shell_File + "_NoFit"
-		param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$p$', r'$n_0$']
+		if (rem_is_Rin):
+			param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$Rin$', r'$n_0$']
+		else:	
+			param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$rem$',r'$Rin$', r'$n_0$']
 		ShW1_p_opt = ShW1_p0_0
 		ShW2_p_opt = ShW2_p0_0
 
@@ -789,6 +838,18 @@ if (emcee_Fit):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 	if (ShellFit or ThickFit):
 		
 		
@@ -809,10 +870,10 @@ if (emcee_Fit):
 			param_names = [r'sin($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 			if (W2fit):
 				Shell_File = "W2_Shell"
-				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg))
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg, rem_is_Rin))
 			elif (W1fit):
 				Shell_File = "W1_Shell"
-				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg))
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg, rem_is_Rin))
 			else:
 				print "must choose W1 or W1 to fit too (do both later)"
 				import sys
@@ -1250,14 +1311,14 @@ if (SinFit):
 	W2sinsoln = plt.plot(ttopt, sinPoint(W2_sin_p_opt, (ttopt+50000)/(1.+zPG1302))+0.5, linestyle = '--', color='red', linewidth=2)
 if (ShellFit):
 	if (fmin_Fit):
-		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table, rem_is_Rin), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table, rem_is_Rin)+0.5, linestyle = '--', color='red', linewidth=2)
 	else:
-		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+		W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table, rem_is_Rin), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table, rem_is_Rin)+0.5, linestyle = '--', color='red', linewidth=2)
 if (fit_both or pltboth):
-		W1shell = plt.plot(ttopt, magPoint_Shell(p1both, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-		W2shell = plt.plot(ttopt, magPoint_Shell(p2both, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+		W1shell = plt.plot(ttopt, magPoint_Shell(p1both, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table, rem_is_Rin), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Shell(p2both, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table, rem_is_Rin)+0.5, linestyle = '--', color='red', linewidth=2)
 if (ThickFit):	
 	if (fmin_Fit):
 		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
@@ -1266,8 +1327,8 @@ if (ThickFit):
 		W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 if (NoFit and pltShell):
-	W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-	W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	W1shell = plt.plot(ttopt, magPoint_Shell(ShW1_p0_0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table, rem_is_Rin), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_Shell(ShW2_p0_0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table, rem_is_Rin)+0.5, linestyle = '--', color='red', linewidth=2)
 if (NoFit and pltThick):
 	W1shell = plt.plot(ttopt, magPoint_Thick(ShW1_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 	W2shell = plt.plot(ttopt, magPoint_Thick(ShW2_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
@@ -1282,7 +1343,7 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, max(ttopt))
 #plt.ylim(10.5, 11.5)
-plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
 plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")

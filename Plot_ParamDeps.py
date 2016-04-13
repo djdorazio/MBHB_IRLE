@@ -21,7 +21,7 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
+Thick = False
 Thin  = False
 Plot_v_R = True
 
@@ -149,14 +149,14 @@ if (Thin):
 		FI2 = np.empty(Nt)
 		FI3 = np.empty(Nt)
 
-		
+		rem = Rde
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
 		FsrcI2 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc2, Ombn, alph)/FVbndRel)
 		FsrcI3 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc3, Ombn, alph)/FVbndRel)
 		#for i in range (0, Nt):
-		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argI1, RHS_table, T_table)/FW1Rel)
-		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argI2, RHS_table, T_table)/FW1Rel)
-		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argI3, RHS_table, T_table)/FW1Rel)
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI3, RHS_table, T_table)/FW1Rel)
 
 		nrm = FsrcI3 - FI3
 		###PLOT###
@@ -204,11 +204,12 @@ if (Thin):
 		FI2 = np.empty(Nt)
 		FI3 = np.empty(Nt)
 
+		rem = Rde
 		#for i in range (0, Nt):
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-		FI1    = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
-		FI2    = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
-		FI3    = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
+		FI1    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
+		FI2    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
+		FI3    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
 
 		nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
@@ -257,11 +258,12 @@ if (Thin):
 		FI2 = np.empty(Nt)
 		FI3 = np.empty(Nt)
 
+		rem = Rde
 		#for i in range (0, Nt):
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt1, Dst, Rrout, argO1, RHS_table, T_table)/FW1Rel)
-		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt2, Dst, Rrout, argO2, RHS_table, T_table)/FW1Rel)
-		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt3, Dst, Rrout, argO3, RHS_table, T_table)/FW1Rel)
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt1, Dst, Rrout, argO1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt2, Dst, Rrout, argO2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt3, Dst, Rrout, argO3, RHS_table, T_table)/FW1Rel)
 
 		nrm = np.mean(FsrcI1) - np.mean(FI1) 
 		###PLOT###
@@ -305,13 +307,14 @@ if (Thin):
 			FI2 = np.empty(Nt)
 			FI3 = np.empty(Nt)
 
+			rem = Rde
 			#for i in range (0, Nt):
 			FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet1, Inc1, Ombn, alph)/FVbndRel)
 			FsrcI2 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet2, Inc1, Ombn, alph)/FVbndRel)
 			FsrcI3 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet3, Inc1, Ombn, alph)/FVbndRel)
-			FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argb1, RHS_table, T_table)/FW1Rel)
-			FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argb2, RHS_table, T_table)/FW1Rel)
-			FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argb3, RHS_table, T_table)/FW1Rel)
+			FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb1, RHS_table, T_table)/FW1Rel)
+			FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb2, RHS_table, T_table)/FW1Rel)
+			FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb3, RHS_table, T_table)/FW1Rel)
 
 			nrm = np.mean(FsrcI1) - np.mean(FI1)
 			###PLOT###
@@ -355,13 +358,13 @@ if (Thin):
 		argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
 	
-
+		rem = Rde
 		#for i in range (0, Nt):
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
-		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
 		#FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
-		FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+		FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
 		nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
@@ -582,7 +585,7 @@ if (Thick):
 		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2, color='orange', linewidth=2)
 
 		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3, color='brown', linewidth=2)
-		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
+		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
 		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$', r'$J=-(\pi/2 - \theta_T)$'), loc='upper right')
@@ -782,7 +785,7 @@ if (Plot_v_R):
 		#J4 = ma.pi/2. + thetTst
 		nu_arr = np.linspace(0.01*numicron, 1.*numicron, 30)
 
-		JJt = -(ma.pi/2. - thetTst) # so we can see all of back inner edge
+		JJt = 0.0#-(ma.pi/2. - thetTst) # so we can see all of back inner edge
 		n0 = 1000.0*n0
 		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		
