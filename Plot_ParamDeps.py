@@ -21,7 +21,7 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = False
+Thick = True
 Thin  = False
 Plot_v_R = True
 
@@ -30,17 +30,17 @@ Plot_I   = False
 I_name = "Incs"
 Plot_R   = False
 R_name = "Rdust"
-Plot_Om  = False
+Plot_Om  = True
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
 Plot_J = True
 J_name = "Js"
-Plot_TT = False
+Plot_TT = True
 TT_name = "Theta_Ts"
-Plot_pp = False
+Plot_pp = True
 pp_name = "_ps"
-Plot_Ro = False
+Plot_Ro = True
 Ro_name = "_Routs"
 Plot_n0 = False
 
@@ -66,17 +66,17 @@ nu0 = numicron
 Rde = RdPG
 Rrout = 10.0*Rde
 pp = 2.0
-thetTst = 1.*np.pi/4
-JJt =4.*np.pi/8
+thetTst = 1.*np.pi/4.
+JJt =np.pi/2.
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 100.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
 betst = 0.10
 Inc = 0.0#ma.acos(0.07/betst)#0.*np.pi/4.
-Ombn = c/Rde * 2.*ma.pi
+Ombn = 2.*ma.pi/(Rde/c)  ##(2pi/P)
 alph = 0.0
 Dst = 1.4*10**9*pc2cm
 
@@ -94,7 +94,7 @@ W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-nuVbnd = c/(545*10**(-7))
+nuVbnd = c/(545.*10**(-7))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
 FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
 FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
@@ -111,7 +111,7 @@ for i in range(NT):
 
 
 ### PLOT POINTS
-Nt=20
+Nt=40
 tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 
 
@@ -447,7 +447,7 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_Norm_"+I_name+"_J_%g_thetT_%g_n0_%g.png" %(JJt, thetTst, n0))
+		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
 	####-------END THICK INC-------####
 
 	####-------Rdust-------####
@@ -500,7 +500,7 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nonorm_"+R_name+"_PrdEqlCoR_n0_%g.png" %n0)
+		plt.savefig("plots/Thick_nrm%g_"%nrm+R_name+"_PrdEqlCoR_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
 	####-------END Rdust-------####
 
 	####-------Ombin-------####
@@ -549,7 +549,7 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_Norm_"+Om_name+"_n0_%g.png" %n0)
+		plt.savefig("plots/Thick_nrm%g_"%nrm+Om_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
 	####-------END Ombin-------####
 
 	####-------JJ-------####
@@ -558,14 +558,14 @@ if (Thick):
 		J1 = 0.
 		J2 = (ma.pi/2. - thetTst)
 		J3 = ma.pi/2.
-		J4 = -(ma.pi/2. - thetTst)
+		#J4 = -(ma.pi/2. - thetTst)
 
 
 		#J4 = ma.pi/2. + thetTst
 		argJ1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J1, aeff, nu0, nne]
 		argJ2 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J2, aeff, nu0, nne]
 		argJ3 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J3, aeff, nu0, nne]
-		argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J4, aeff, nu0, nne]
+		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, J4, aeff, nu0, nne]
 
 
 
@@ -574,7 +574,7 @@ if (Thick):
 		FI1 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
 		FI2 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
 		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
-		FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
@@ -585,10 +585,12 @@ if (Thick):
 		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2, color='orange', linewidth=2)
 
 		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3, color='brown', linewidth=2)
-		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4, color='brown', linewidth=2)
+		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$', r'$J=-(\pi/2 - \theta_T)$'), loc='upper right')
+		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$', r'$J=-(\pi/2 - \theta_T)$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',  r'$J=\pi/2 - \theta_T$', r'$J=\pi/2$'), loc='upper right')
+
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -596,7 +598,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+J_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_"+J_name+"_n0_%g.png" %n0)
+		plt.savefig("plots/Thick_nrm%g_"%nrm+J_name+"_thetT%g_Rout%g_p%g_n0%g.png" %(thetTst, Rrout, pp, n0))
 	####-------END JJ-------####
 
 	####-------TT-------####
@@ -641,7 +643,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick"+TT_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0))
 		####-------END TT-------####
 
 
@@ -668,7 +670,7 @@ if (Thick):
 		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argp3, RHS_table, T_table)/FW1Rel)
 		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
@@ -688,7 +690,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick"+pp_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_Rout%g_n0%g.png" %(JJt, thetTst, Rrout, n0))
 		####-------END TT-------####
 
 
@@ -714,7 +716,7 @@ if (Thick):
 		FI3 = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Ro3, arg, RHS_table, T_table)/FW1Rel)
 		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
@@ -734,7 +736,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick"+Ro_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_p%g_n0%g.png" %(JJt, thetTst, pp, n0))
 		####-------END pp-------####
 
 	####------v n0-------####
@@ -785,8 +787,8 @@ if (Plot_v_R):
 		#J4 = ma.pi/2. + thetTst
 		nu_arr = np.linspace(0.01*numicron, 1.*numicron, 30)
 
-		JJt = 0.0#-(ma.pi/2. - thetTst) # so we can see all of back inner edge
-		n0 = 1000.0*n0
+		JJt = -(ma.pi/2. - thetTst) # so we can see all of back inner edge
+		#n0 = 1.0*n0
 		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		
 		FI1 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout1, arg, RHS_table, T_table)
@@ -821,7 +823,7 @@ if (Plot_v_R):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_varynu_diffRout_n0_%g.png" %n0)
+		plt.savefig("plots/Thick_varynu_diffRout_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
 		####-------END v n0-------####
 
 
