@@ -33,12 +33,15 @@ pltboth  = False
 pltThick = False
 
 ## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
-emcee_Fit = False
-fmin_Fit = True
+emcee_Fit = True
+fmin_Fit = False
 
 W1fit = False
 W2fit = False
-fit_both = False
+fit_both = True
+if (fit_both):
+	W1fit = False
+	W2fit = False
 
 
 Fit_Src = False ## fmin fit for Lfrac, beta, phase, and Inc to fit optical data
@@ -52,7 +55,7 @@ ThickFit = False
 
 
 ## multiprocessing
-NThread = 4
+NThread = 48
 mpi_it = False
 if (NoFit):
 	Shell_File = "NoFit"
@@ -168,8 +171,8 @@ if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	#ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
-	ShW1_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  1.0]
-	ShW2_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  1.0]
+	ShW1_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  10.0]
+	ShW2_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  10.0]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
 if (NoFit):
@@ -403,7 +406,7 @@ def Shell_RegErr2(p, t, THEargs, RHStable, Ttable, y, dy,rem_is_Rin):
 	print(t2-t1)
 	return sum(chi*chi)
 
-
+	
 def ShellBoth_RegErr2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2, rem_is_Rin):
 	print "EVAL", p
 	t1=time.clock()
@@ -495,7 +498,7 @@ def ln_prior(params, rem_is_Rin):
 				if n0 <= 0.0:
 					return -np.inf
 			else:
-				sinJJ, cosTT, rem, Rin, n0 = params
+				sinJJ, cosTT, rem1, rem2, Rin, n0 = params
 					
 				if sinJJ < -1 or sinJJ > 1:
 					return -np.inf
@@ -503,7 +506,10 @@ def ln_prior(params, rem_is_Rin):
 				if cosTT < 0 or cosTT > 1:
 					return -np.inf
 
-				if rem <= 0.0:
+				if rem1 <= 0.0:
+					return -np.inf
+
+				if rem2 <= 0.0:
 					return -np.inf
 						
 				if Rin <= 0.0:
@@ -561,7 +567,12 @@ def ln_Sinprior(p):
 
 ### MCMC - Set up posteriors
 def ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin):
-			return -(Shell_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
+			return -(Shell_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin))
+
+
+def ln_ShBothlikelihood(p, t, W1args, W2args, RHStable, Ttable, y1, dy1,y2, dy2, rem_is_Rin):
+			return -(ShellBoth_RegErr2(p, t, W1args, W2args, RHStable, Ttable, y1, dy1,y2, dy2, rem_is_Rin))
+
 
 def ln_Thlikelihood(p, t, Wargs, RHStable, Ttable, y, dy):
 			return -(Thick_RegErr2(p, t, Wargs, RHStable, Ttable, y, dy)) #+ RegErr2(p, t, W2args, RHStable, Ttable, y2, dy2))
@@ -574,6 +585,15 @@ def ln_Shposterior(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin):
 				return -np.inf
 			
 			ln_l = ln_Shlikelihood(p, t, Wargs, RHStable, Ttable, y, dy, rem_is_Rin)
+			return ln_l + ln_p
+
+
+def ln_ShBothPosterior(p, t, W1args, W2args, RHStable, Ttable, y1, dy1,y2, dy2, rem_is_Rin):
+			ln_p = ln_prior(p, rem_is_Rin)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_ShBothlikelihood(p, t, W1args, W2args, RHStable, Ttable, y1, dy1,y2, dy2, rem_is_Rin)
 			return ln_l + ln_p
 
 
@@ -870,14 +890,27 @@ if (emcee_Fit):
 			param_names = [r'sin($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 			if (W2fit):
 				Shell_File = "W2_Shell_xefix"
+				ShW1_p0 = np.array(ShW2_p0_0)
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W2args, RHS_table, T_table, W2_avg, W2_avsg, rem_is_Rin))
-			elif (W1fit):
+			if (W1fit):
 				Shell_File = "W1_Shell_xefix"
+				ShW1_p0 = np.array(ShW1_p0_0)
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg, rem_is_Rin))
-			else:
-				print "must choose W1 or W1 to fit too (do both later)"
-				import sys
-				sys.exit(0)
+			if (fit_both):
+				ShW1_p0 = np.array(Shboth_p0_0)
+				if (rem_is_Rin):
+					Shell_File = "_fitbothW1W2_rem_is_Rin"
+					ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
+				else:
+					param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$r_1$',r'$r_2$', r'$R_{in}$', r'$n_0$']
+					ndim = 6
+					nwalkers = ndim*8
+					Shell_File = "_fitbothW1W2_rem1_rem2"
+					ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
+			# else:
+			# 	print "must choose W1 or W1 or both"
+			# 	import sys
+			# 	sys.exit(0)
 		if (ThickFit):
 			ndim = 4
 			nwalkers = ndim*12
@@ -893,14 +926,16 @@ if (emcee_Fit):
 				import sys
 				sys.exit(0)
 		
-		if (W2fit):
-			ShW1_p0 = np.array(ShW2_p0_0)
-		elif (W1fit):
-			ShW1_p0 = np.array(ShW1_p0_0)
-		else:
-			print "must choose W1 or W1 to fit too (do both later)"
-			import sys
-			sys.exit(0)
+		# if (W2fit):
+		# 	ShW1_p0 = np.array(ShW2_p0_0)
+		# elif (W1fit):
+		# 	ShW1_p0 = np.array(ShW1_p0_0)
+		# elif (fit_both):
+		# 	ShW1_p0 = np.array(Shboth_p0_0)
+		# else:
+		# 	print "must choose W1 or W1 or both"
+		# 	import sys
+		# 	sys.exit(0)
 
 		
 		ShW1_walker_p0 = np.random.normal(ShW1_p0, np.abs(ShW1_p0)*1E-4, size=(nwalkers, ndim))
