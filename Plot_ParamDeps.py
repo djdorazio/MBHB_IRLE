@@ -23,24 +23,24 @@ from IR_LightEchoes_NewMeth import *
 ###OPTIONS
 Thick = True
 Thin  = False
-Plot_v_R = True
+Plot_v_R = False
 
 
 Plot_I   = True
 I_name = "Incs"
 Plot_R   = True
 R_name = "Rdust"
-Plot_Om  = True
+Plot_Om  = False
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
-Plot_J = True
+Plot_J = False
 J_name = "Js"
-Plot_TT = True
+Plot_TT = False
 TT_name = "Theta_Ts"
-Plot_pp = True
+Plot_pp = False
 pp_name = "_ps"
-Plot_Ro = True
+Plot_Ro = False
 Ro_name = "_Routs"
 Plot_n0 = False
 
@@ -465,8 +465,8 @@ if (Thick):
 		tt3 = np.linspace(0., 2.,       Nt)*2*np.pi/Om3
 
 		argR1 = [Lav, betst, Inc1, Om1, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
-		argR2 = [Lav, betst, Inc1, Om2, alph, n0, Rin2, pp, thetTst, JJt, aeff, nu0, nne]
-		argR3 = [Lav, betst, Inc1, Om3, alph, n0, Rin3, pp, thetTst, JJt, aeff, nu0, nne]
+		argR2 = [Lav, betst, Inc1, Om1, alph, n0, Rin2, pp, thetTst, JJt, aeff, nu0, nne]
+		argR3 = [Lav, betst, Inc1, Om1, alph, n0, Rin3, pp, thetTst, JJt, aeff, nu0, nne]
 
 		FsrcI1 = np.empty(Nt)
 		FsrcI2 = np.empty(Nt)
@@ -476,7 +476,7 @@ if (Thick):
 		FI3 = np.empty(Nt)
 
 		#for i in range (0, Nt):
-		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Om1, alph)/FVbndRel)
 		FI1    = -2.5*np.log10(Fobs_Thick(numn, numx, tt1, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
 		FI2    = -2.5*np.log10(Fobs_Thick(numn, numx, tt2, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
 		FI3    = -2.5*np.log10(Fobs_Thick(numn, numx, tt3, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
@@ -484,12 +484,12 @@ if (Thick):
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
-		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Om1), FI1+nrm, color='red', linewidth=2)
 		s1=plt.plot(tt1/(2*np.pi/Om1), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
-		IR2=plt.plot(tt2/(2*np.pi/Om2), FI2+nrm, color='orange', linewidth=2)
+		IR2=plt.plot(tt2/(2*np.pi/Om1), FI2+nrm, color='orange', linewidth=2)
 
-		IR3=plt.plot(tt3/(2*np.pi/Om3), FI3+nrm, color='brown', linewidth=2)
+		IR3=plt.plot(tt3/(2*np.pi/Om1), FI3+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
 		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=2(R_{\rm{orb}}/c)$', r'$R_d=3(R_{\rm{orb}}/c)$'), loc='upper right')
@@ -500,7 +500,7 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+R_name+"_PrdEqlCoR_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
+		plt.savefig("plots/Thick_nrm%g_"%nrm+R_name+"_Om1_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
 	####-------END Rdust-------####
 
 	####-------Ombin-------####
