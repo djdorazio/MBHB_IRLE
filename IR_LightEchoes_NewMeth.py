@@ -16,10 +16,10 @@ import scipy.integrate as intg
 #### INTEGRATION ERROR TOLS
 myrel = 0.1
 myabs = 0.1
-reclim = 1
+reclim = 4
 limlst = 3
 maxp1 = 1
-fo = 1
+fo = 0
 
 ##GLOBAL PHYSICS CONSTANTS (cgs):
 c = 2.9979*10**(10)
@@ -43,15 +43,16 @@ def Bv(nu, T):
 	return 2.*h*nu*nu*nu/(c*c)*1./(np.exp( h*nu/(kb*T) ) - 1.)
 ## Dust absorption efficiency
 def Qv(nu, nu0, nn):
-	#qv = (nu/nu0)**(nn)
-	#qv = min(qv, 1.0)
-	#if (type(qv) is float):
-	#	if (qv>1.0):
-	#		qv=1.0
-	#else:
-	#	ii = np.where(qv > 1.0)[0]
-	#	qv[ii] = 1.0
-	return np.min( [(nu/nu0)**(nn), 1.*nu/nu])#qv #
+	qv = (nu/nu0)**(nn)
+	if (type(qv) is float):
+		qv = min(qv, 1.0)
+		#if (qv>1.0):
+		#	qv=1.0
+	else:
+		ii = np.where(qv > 1.0)[0]
+		qv[ii] = 1.0
+	return qv
+	#return np.min( [(nu/nu0)**(nn), 1.*nu/nu])#qv #
 	
 
 #DD CHECKED 4/12/16
@@ -265,23 +266,25 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	return np.pi* aeff*aeff/Dist/Dist *fint
 
 
-# def tauObs(nu, x, z, Rout, aeff, n0, Rd, p, thetT, JJ):
-# 	y=0.0
-# 	r    = np.sqrt(x*x + y*y + z*z)
-# 	thet = np.arctan2((x*x + y*y)**(0.5), z)
-# 	ph   = np.arctan2(y, x)
+def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
+	#y=0.0
+	#r    = np.sqrt(x*x + y*y + z*z)
+	#thet = np.arctan2((x*x + y*y)**(0.5), z)
+	#ph   = np.arctan2(y, x)
 
-# 	xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
+	xe     = (Rout*Rout - (z*z + y*y))**(0.5)#Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
-# 	#if (type(x) is float):
-# 	return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-# 	#else:
-# 	#	res=[]
-# 	#	for i in range(len(x)):
-# 	#		for j in range(len(z)):
-# 	#				res.append(np.pi*aeff*aeff * intg.quad(nDust  ,x[i], xe[i] , args=(y, z[j], n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
+	#if (type(x) is float):
+	return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ))[0]
 
-# 	#	return np.array(res)
+	#else:
+	#	res=[]
+	#	for i in range(len(x)):
+	#		for j in range(len(z)):
+	#				res.append(np.pi*aeff*aeff * intg.quad(nDust  ,x[i], xe[i] , args=(y, z[j], n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
+
+	#	return np.array(res)
 
 
 def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tauGrid):

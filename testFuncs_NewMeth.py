@@ -70,9 +70,9 @@ nnu = np.linspace(0.01, 2.,       Nt)*numicron
 
 ##TABULATE T's and RHSs
 print "Creating look up tables"
-NT = 1000
+NT = 100
 RHS_table = np.zeros(NT)
-T_table = np.linspace(10., 3000., NT)
+T_table = np.linspace(1., 2000., NT)
 for i in range(NT):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -118,6 +118,28 @@ Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 
 print "Plotting stuff"
 
+
+Nx = 100
+xx = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
+zz = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
+
+thtst = ma.pi/4
+Jtst = 0.0#-ma.pi/4
+tauT = np.zeros([Nx,Nx])
+nd = np.zeros([Nx,Nx])
+for i in range(0, Nx):
+	for j in range(0, Nx):
+ 		tauT[j][i] = np.log10(tauObs(2.*numicron, xx[i], 0.0, zz[j], 10.*Rde, aeff, 3.e-9, Rde, 2., thtst, Jtst, numicron, 1.))
+ 		nd[j][i] =  np.log10(nDust(xx[i], 0.0, zz[j], 3.e-9, Rde, 2.0, thtst, Jtst))
+
+plt.figure()
+plt.subplot(211)
+tauplt = plt.contourf(xx, zz,  tauT, colorbar=True ) 
+plt.colorbar(tauplt)
+plt.subplot(212)
+ndplt = plt.contourf(xx, zz,  nd, colorbar=True ) 
+plt.colorbar(ndplt)
+plt.show()
 
 #for i in range(0, len(tt)):
 #	Targs_t.append([tt[i], Rde, np.pi/2., 0.0, Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne])
@@ -217,7 +239,7 @@ print t8-t7
 
 
 t9=time.clock()
-chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, [0.,1.]*2*ma.pi/Ombn, Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
+chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
 t10=time.clock()
 print t10-t9
 
