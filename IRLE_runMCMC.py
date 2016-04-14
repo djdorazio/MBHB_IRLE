@@ -664,16 +664,16 @@ if (fmin_Fit):
 			ShW2_p_opt  = ShW1_p_opt 
 			Shell_File = "W1W2fmin_BOTH_SAMEreqRin_Shell_xefix"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$n_0$']
-			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
-			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[3]]
+			p1both = ShW1_p_opt
+			p2both = ShW1_p_opt
 		else:
 			#ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW1_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 			#ShW2_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     ShW2_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 			Shell_File = "W1W2fmin_BOTH_rem_diff_Rin_Shell_xefix"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$rem1$', r'$rem2$', r'$Rin$', r'$n_0$']
-			p1both = ShW1_p_opt
-			p2both = ShW1_p_opt  # should be the same
+			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[4], ShW1_p_opt[5]]
+			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[3], ShW1_p_opt[4], ShW1_p_opt[5]]
 
 	if (ThickFit):
 		if (W1fit):
@@ -903,17 +903,18 @@ if (emcee_Fit):
 				Shell_File = "W1_Shell_xefix"
 				ShW1_p0 = np.array(ShW1_p0_0)
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_Shposterior, threads=NThread, args=(t_avg, W1args, RHS_table, T_table, W1_avg, W1_avsg, rem_is_Rin))
-			if (fit_both):
-				ShW1_p0 = np.array(Shboth_p0_0)
-				if (rem_is_Rin):
-					Shell_File = "_fitbothW1W2_rem_is_Rin"
-					ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
-				else:
-					param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$r_1$',r'$r_2$', r'$R_{in}$', r'$n_0$']
-					ndim = 6
-					nwalkers = ndim*8
-					Shell_File = "_fitbothW1W2_rem1_rem2"
-					ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
+		if (fit_both):
+			ShW1_p0 = np.array(Shboth_p0_0)
+			if (rem_is_Rin):
+				Shell_File = "_fitbothW1W2_rem_is_Rin"
+				param_names = [r'sin($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
+			else:
+				param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$r_1$',r'$r_2$', r'$R_{in}$', r'$n_0$']
+				ndim = 6
+				nwalkers = ndim*8
+				Shell_File = "_fitbothW1W2_rem1_rem2"
+				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
 			# else:
 			# 	print "must choose W1 or W1 or both"
 			# 	import sys
@@ -973,6 +974,14 @@ if (emcee_Fit):
 					
 				
 		ShW1_p_opt  = ShW1_flatchain[ShW1_flatlnprobs.argmax()]
+		if (fit_both):
+			if (rem_is_Rin):
+				p1both = ShW1_p_opt
+				p2both = ShW1_p_opt
+			else:
+				p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[4], ShW1_p_opt[5]]
+				p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[3], ShW1_p_opt[4], ShW1_p_opt[5]]
+
 
 
 
