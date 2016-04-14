@@ -643,7 +643,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0))
+		plt.savefig("plots/Thick_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0))
 		####-------END TT-------####
 
 
@@ -690,7 +690,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_Rout%g_n0%g.png" %(JJt, thetTst, Rrout, n0))
+		plt.savefig("plots/Thick_nrm%g_"%nrm+pp_name+"_J%g_thetT%g_Rout%g_n0%g.png" %(JJt, thetTst, Rrout, n0))
 		####-------END TT-------####
 
 
@@ -736,7 +736,7 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_p%g_n0%g.png" %(JJt, thetTst, pp, n0))
+		plt.savefig("plots/Thick_nrm%g_"%nrm+Ro_name+"_J%g_thetT%g_p%g_n0%g.png" %(JJt, thetTst, pp, n0))
 		####-------END pp-------####
 
 	####------v n0-------####
