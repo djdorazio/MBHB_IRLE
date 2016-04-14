@@ -60,8 +60,8 @@ FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
 
 Nt=20
 Nr=10
-Nth=40
-Nph=40
+Nth=100
+Nph=100
 tt = np.linspace(0., 2.,       Nt)*2*np.pi/Ombn
 rr = np.linspace(1., 10.,      Nr)*Rde
 th = np.linspace(0., np.pi,    Nth)
@@ -123,14 +123,21 @@ Nx = 100
 xx = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
 zz = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
 
+#xx = Rde* np.sin(th) * np.cos(ph)
+#zz = Rde* np.cos(th)
+#ytst = ( Rde*Rde - (xx*xx + zz*zz) )**(0.5)
+
+ytst = 0*Rde
+
 thtst = ma.pi/4
-Jtst = 0.0#-ma.pi/4
+Jtst = -ma.pi/4
 tauT = np.zeros([Nx,Nx])
 nd = np.zeros([Nx,Nx])
 for i in range(0, Nx):
 	for j in range(0, Nx):
- 		tauT[j][i] = np.log10(tauObs(2.*numicron, xx[i], 0.0, zz[j], 10.*Rde, aeff, 3.e-9, Rde, 2., thtst, Jtst, numicron, 1.))
- 		nd[j][i] =  np.log10(nDust(xx[i], 0.0, zz[j], 3.e-9, Rde, 2.0, thtst, Jtst))
+		#ytst = ( Rde*Rde - (xx[i]*xx[i] + zz[j]*zz[j]) )**(0.5)
+ 		tauT[j][i] = np.log10(tauObs(2.*numicron, xx[i], ytst, zz[j], 10.*Rde, aeff, 3.e-6, Rde, 2., thtst, Jtst, numicron, 1.))
+ 		nd[j][i] =  np.log10(nDust(xx[i], ytst, zz[j], 3.e-6, Rde, 2.0, thtst, Jtst))
 
 plt.figure()
 plt.subplot(211)

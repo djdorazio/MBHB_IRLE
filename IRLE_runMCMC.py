@@ -26,7 +26,7 @@ from IR_LightEchoes_NewMeth import *
 ## JUST PLOT DONT FIT
 NoFit = False   ## jsut plot - turn on one of the plt... options below
 pltShell = False
-rem_is_Rin = False ### fit for rem and Rin in shell model??
+rem_is_Rin = True ### fit for rem and Rin in shell model??
 #
 pltboth  = False
 pltThick = False
@@ -34,11 +34,11 @@ pltThick = False
 
 
 ## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
-emcee_Fit = True# use emcee to fit
+emcee_Fit = False# use emcee to fit
 ## multiprocessing
 NThread = 48
 #
-fmin_Fit = False   # use simple fmin to fit
+fmin_Fit = True   # use simple fmin to fit
 
 W1fit = False  ### fit only W1fit, Thick or Shell
 W2fit = False  ### fit only W1fit, Thick or Shell
