@@ -23,14 +23,14 @@ from IR_LightEchoes_NewMeth import *
 ###OPTIONS
 Thick = True
 Thin  = False
-Plot_v_R = False
+Plot_v_R = True
 
 
 Plot_I   = True
 I_name = "Incs"
 Plot_R   = True
 R_name = "Rdust"
-Plot_Om  = False
+Plot_Om  = True
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
@@ -425,7 +425,7 @@ if (Thick):
 		FI2    = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argI2, RHS_table, T_table)/FW1Rel)
 		FI3    = -2.5*np.log10(Fobs_Thick(numn, numx, tt, Dst, Rrout, argI3, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = np.mean(FsrcI3) - np.mean(FI3)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
