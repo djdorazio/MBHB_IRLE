@@ -26,7 +26,7 @@ from IR_LightEchoes_NewMeth import *
 ## JUST PLOT DONT FIT
 NoFit = False   ## jsut plot - turn on one of the plt... options below
 pltShell = False
-rem_is_Rin = True ### fit for rem and Rin in shell model??
+rem_is_Rin = False ### fit for rem and Rin in shell model??
 #
 pltboth  = False
 pltThick = False
@@ -672,6 +672,8 @@ if (fmin_Fit):
 			ShW1_p_opt  = sc.optimize.fmin(ShellBoth_RegErr2,     Shboth_p0_0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin), full_output=1, disp=False,ftol=0.01)[0]
 			Shell_File = "W1W2fmin_BOTH_rem_diff_Rin_Shell_xefix"
 			param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$rem1$', r'$rem2$', r'$Rin$', r'$n_0$']
+			ShW2_p_opt = ShW1_p_opt
+
 			p1both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[2], ShW1_p_opt[4], ShW1_p_opt[5]]
 			p2both = [ShW1_p_opt[0], ShW1_p_opt[1], ShW1_p_opt[3], ShW1_p_opt[4], ShW1_p_opt[5]]
 

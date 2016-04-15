@@ -43,7 +43,7 @@ Dst = 1.4*10**9*pc2cm
 Rrout = 85.0*Rde
 
 md = 10**(-14)
-n0 = 6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 1e-4#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 
 
@@ -119,7 +119,7 @@ Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 print "Plotting stuff"
 
 
-Nx = 100
+Nx = 20
 xx = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
 zz = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
 
@@ -148,22 +148,22 @@ ndplt = plt.contourf(xx, zz,  nd, colorbar=True )
 plt.colorbar(ndplt)
 plt.show()
 
-#for i in range(0, len(tt)):
-#	Targs_t.append([tt[i], Rde, np.pi/2., 0.0, Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne])
-#	TD_t.append( IRLE.TDust(Targs_t[i]) )
+# for i in range(0, len(tt)):
+# 	Targs_t.append([tt[i], Rde, np.pi/2., 0.0, Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne])
+# 	TD_t.append( IRLE.TDust(Targs_t[i]) )
 
 
-# for i in range(0, Nth):
-# 	for j in range(0, Nph):
-# 		Targs_angles = [0., Rde, th[i], ph[j], Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
-# 		TD_angles[i][j] =  IRLE.TDust(0.5*2.*np.pi/Ombn, 2.1*Rde, th[i], ph[j], Targs, RHS_table, T_table) 
+for i in range(0, Nth):
+	for j in range(0, Nph):
+		#Targs_angles = [0., Rde, th[i], ph[j], Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		TD_angles[i][j] =  IRLE.TDust(0.5*2.*np.pi/Ombn, 2.1*Rde, th[i], ph[j], Targs, RHS_table, T_table) 
 
 
 
-# for i in range(0, Nth):
-# 	for j in range(0, Nr):
-# #		Targs_rth = [0., rr[j], th[i], 0., Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
-# 		TD_rth[i][j] =  IRLE.TDust(0.5*2.*np.pi/Ombn, rr[j], th[i], 0, Targs, RHS_table, T_table) 
+for i in range(0, Nth):
+	for j in range(0, Nr):
+#		Targs_rth = [0., rr[j], th[i], 0., Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		TD_rth[i][j] =  IRLE.TDust(0.5*2.*np.pi/Ombn, rr[j], th[i], 0, Targs, RHS_table, T_table) 
 
 
 
@@ -189,12 +189,14 @@ plt.show()
 #Targs_angles = [ Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 #TD_angles =  IRLE.TDust(0., rr, th, 0,Targs_rth) 
 
-# plt.figure()
-# plt.subplot(121)
-# plt.contourf(ph,th,TD_angles, contours=100)
-# plt.subplot(122)
-# plt.contourf(rr,th,TD_rth, contours=100)
-# plt.show()
+plt.figure()
+plt.subplot(121)
+Ta = plt.contourf(ph,th,TD_angles, contours=100, colorbar = True)
+plt.colorbar(Ta)
+plt.subplot(122)
+Tr = plt.contourf(rr,th,TD_rth, contours=100, colorbar = True)
+plt.colorbar(Tr)
+plt.show()
 
 
 

@@ -16,7 +16,7 @@ import scipy.integrate as intg
 #### INTEGRATION ERROR TOLS
 myrel = 0.1
 myabs = 0.1
-reclim = 4
+reclim = 2
 limlst = 3
 maxp1 = 1
 fo = 0
