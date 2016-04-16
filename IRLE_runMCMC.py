@@ -178,8 +178,8 @@ if (ThickFit):
 	#p0 = [cosJ, costheta_T, Rin, p, n0]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	#ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
-	ShW1_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  10.0]
-	ShW2_p0_0  = [ 0.0016,  0.7, 1.0, 2.0,  10.0]
+	ShW1_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  0.1114]
+	ShW2_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  0.1114]  # W2 fit
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
 if (NoFit):
@@ -215,8 +215,8 @@ if (NoFit):
 		Shell_File = "Thick_xefix"
 		#ShW1_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
 		#ShW2_p0_0  = [ 1.0,  0.8957, 0.1, 0.5254,  0.1163]
-		ShW1_p0_0  = [ 0.0011,  0.8164, 1.9627, 0.6721,  10.0]
-		ShW2_p0_0  = [ 0.0011,  0.8164, 1.9627, 0.6721,  10.0]
+		ShW1_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  0.1114]
+		ShW2_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  0.1114]
 		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout, aeff, nu0, nne, betst] 
 		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout, aeff, nu0, nne, betst] 
 

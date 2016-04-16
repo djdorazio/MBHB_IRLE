@@ -21,8 +21,8 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
-Thin  = False
+Thick = False
+Thin  = True
 Plot_v_R = True
 
 
@@ -180,7 +180,9 @@ if (Thin):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+I_name+"n0_%g.png" %n0)
-		plt.savefig("plots/"+I_name+"n0_%g.png" %n0)
+		#plt.savefig("plots/Shell_"+I_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Shell_nrm%g_"%nrm+I_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
+
 
 	####-------END Inclination-------####
 
@@ -230,7 +232,9 @@ if (Thin):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/"+R_name+"n0_%g.png" %n0)
+		#plt.savefig("plots/"+R_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Shell_nrm%g_"%nrm+R_name+"_Om%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Ombn, JJt, thetTst, Rrout, pp, n0))
+
 
 	####-------END Rdust-------####
 
@@ -285,7 +289,9 @@ if (Thin):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+"n0_%g.png" %n0)
-		plt.savefig("plots/"+Om_name+"n0_%g.png" %n0)
+		#plt.savefig("plots/"+Om_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Shell_nrm%g_"%nrm+Om_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
+
 	####-------END Ombin-------####
 
 
@@ -338,7 +344,9 @@ if (Thin):
 
 			#plt.show()
 			#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+bet_name+"n0_%g.png" %n0)
-			plt.savefig("plots/"+bet_name+"n0_%g.png" %n0)
+			#plt.savefig("plots/"+bet_name+"n0_%g.png" %n0)
+			plt.savefig("plots/Shell_nrm%g_"%nrm+bet_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
+
 
 	####-------END beta -------####
 
@@ -388,9 +396,59 @@ if (Thin):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+J_name+"n0_%g.png" %n0)
-		plt.savefig("plots/"+J_name+"n0_%g.png" %n0)
+		#plt.savefig("plots/"+J_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Shell_nrm%g_"%nrm+J_name+"_Rin%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, thetTst, Rrout, pp, n0))
+
 
 	####-------END JJ -------####
+
+
+
+		####-------TT-------####
+	if (Plot_TT):
+		Inc1 = 0.0
+		JJ = ma.pi/2.
+		TT1 = 0.
+		TT2 = ma.pi/4
+		TT3 = ma.pi/3.
+		#J4 = ma.pi/2. + thetTst
+		argJ1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, TT1, JJ, aeff, nu0, nne]
+		argJ2 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, TT2, JJ, aeff, nu0, nne]
+		argJ3 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, TT3, JJ, aeff, nu0, nne]
+		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
+
+
+
+		#for i in range (0, Nt):
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
+		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
+		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+
+		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2, color='orange', linewidth=2)
+
+		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3, color='brown', linewidth=2)
+		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
+
+		plt.grid(b=True, which='both')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$\theta_T=0$',  r'$\theta_T=\pi/4$', r'$\theta_T=\pi/3$'), loc='upper right')
+
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel("mag")
+		plt.xlim(0.0, 2.0)
+
+		#plt.show()
+	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Shell_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0))
+		####-------END TT-------####
+
 
 
 ###########---------------------------###########
