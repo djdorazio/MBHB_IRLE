@@ -43,16 +43,16 @@ def Bv(nu, T):
 	return 2.*h*nu*nu*nu/(c*c)*1./(np.exp( h*nu/(kb*T) ) - 1.)
 ## Dust absorption efficiency
 def Qv(nu, nu0, nn):
-	qv = (nu/nu0)**(nn)
-	if (type(qv) is float):
-		qv = min(qv, 1.0)
-		#if (qv>1.0):
-		#	qv=1.0
-	else:
-		ii = np.where(qv > 1.0)[0]
-		qv[ii] = 1.0
-	return qv
-	#return np.min( [(nu/nu0)**(nn), 1.*nu/nu])#qv #
+	# qv = (nu/nu0)**(nn)
+	# if (type(qv) is float):
+	# 	qv = min(qv, 1.0)
+	# 	#if (qv>1.0):
+	# 	#	qv=1.0
+	# else:
+	# 	ii = np.where(qv > 1.0)[0]
+	# 	qv[ii] = 1.0
+	# return qv
+	return np.min( [(nu/nu0)**(nn), 1.*nu/nu])#qv #
 	
 
 #DD CHECKED 4/12/16

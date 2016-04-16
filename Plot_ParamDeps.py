@@ -125,6 +125,7 @@ numx = 10*numicron
 ###########------------------------------------###########
 
 if (Thin):
+	print "Plottin Shells"
 	###########---------------------------###########
 	###########--------THIN SPHERE--------###########
 	###########---------------------------###########
@@ -132,6 +133,7 @@ if (Thin):
 	Inc1 = 0.0
 	#nrm = 1.27392461  #hack
 	if (Plot_I):
+		print "Vary Inc Shells"
 		Inc1 = 0.0
 		Inc2 = ma.pi/4.
 		Inc3 = ma.pi/2.
@@ -192,6 +194,7 @@ if (Thin):
 
 	####-------Rdust-------####
 	if (Plot_R):
+		print "Vary Rin Shells"
 		Rin1 = Rde
 		Rin2 = Rde*2.
 		Rin3 = Rde*3.
@@ -245,6 +248,7 @@ if (Thin):
 	####-------Ombin-------####
 	
 	if (Plot_Om):
+		print "Vary Om Shells"
 		Om1 = 0.5*Ombn
 		Om2 = Ombn*1.
 		Om3 = Ombn*1.5
@@ -300,52 +304,53 @@ if (Thin):
 	####-------beta-------####
 	bet1 = 0.1
 	if (Plot_bet):
-			bet2 = 0.2
-			bet3 = 0.3
-			argb1 = [Lav, bet1, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
-			argb2 = [Lav, bet2, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
-			argb3 = [Lav, bet3, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
+		print "Vary beta Shells"
+		bet2 = 0.2
+		bet3 = 0.3
+		argb1 = [Lav, bet1, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
+		argb2 = [Lav, bet2, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
+		argb3 = [Lav, bet3, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
 
-			FsrcI1 = np.empty(Nt)
-			FsrcI2 = np.empty(Nt)
-			FsrcI3 = np.empty(Nt)
-			FI1 = np.empty(Nt)
-			FI2 = np.empty(Nt)
-			FI3 = np.empty(Nt)
+		FsrcI1 = np.empty(Nt)
+		FsrcI2 = np.empty(Nt)
+		FsrcI3 = np.empty(Nt)
+		FI1 = np.empty(Nt)
+		FI2 = np.empty(Nt)
+		FI3 = np.empty(Nt)
 
-			rem = Rde
-			#for i in range (0, Nt):
-			FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet1, Inc1, Ombn, alph)/FVbndRel)
-			FsrcI2 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet2, Inc1, Ombn, alph)/FVbndRel)
-			FsrcI3 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet3, Inc1, Ombn, alph)/FVbndRel)
-			FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb1, RHS_table, T_table)/FW1Rel)
-			FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb2, RHS_table, T_table)/FW1Rel)
-			FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb3, RHS_table, T_table)/FW1Rel)
+		rem = Rde
+		#for i in range (0, Nt):
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet1, Inc1, Ombn, alph)/FVbndRel)
+		FsrcI2 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet2, Inc1, Ombn, alph)/FVbndRel)
+		FsrcI3 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, bet3, Inc1, Ombn, alph)/FVbndRel)
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argb3, RHS_table, T_table)/FW1Rel)
 
-			nrm = np.mean(FsrcI1) - np.mean(FI1)
-			###PLOT###
-			plt.figure()
+		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
 
-			IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
-			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
+		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
-			IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
-			s2 = plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='purple', linewidth=2)
+		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
+		s2 = plt.plot(tt/(2*np.pi/Ombn), FsrcI2, linestyle = '--', color='purple', linewidth=2)
 
-			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
-			s3 = plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='green', linewidth=2)
+		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		s3 = plt.plot(tt/(2*np.pi/Ombn), FsrcI3, linestyle = '--', color='green', linewidth=2)
 
-			plt.grid(b=True, which='both')
-			plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$\beta=0.1$','',   r'$\beta=0.2$','',   r'$\beta=0.3$', ''), loc='upper right')
+		plt.grid(b=True, which='both')
+		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$\beta=0.1$','',   r'$\beta=0.2$','',   r'$\beta=0.3$', ''), loc='upper right')
 
-			plt.xlabel(r"$N_{\rm{orb}}$")
-			plt.ylabel("mag")
-			plt.xlim(0.0, 2.0)
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel("mag")
+		plt.xlim(0.0, 2.0)
 
-			#plt.show()
-			#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+bet_name+"n0_%g.png" %n0)
-			#plt.savefig("plots/"+bet_name+"n0_%g.png" %n0)
-			plt.savefig("plots/Shell_nrm%g_"%nrm+bet_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
+		#plt.show()
+		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+bet_name+"n0_%g.png" %n0)
+		#plt.savefig("plots/"+bet_name+"n0_%g.png" %n0)
+		plt.savefig("plots/Shell_nrm%g_"%nrm+bet_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
 
 
 	####-------END beta -------####
@@ -356,6 +361,7 @@ if (Thin):
 	Rin1 = Rde
 	Inc1=0.0
 	if (Plot_J):
+		print "Vary J Shells"
 		J1 = 0.
 		J2 = ma.pi/2. - thetTst
 		J3 = ma.pi/3.
@@ -406,6 +412,7 @@ if (Thin):
 
 		####-------TT-------####
 	if (Plot_TT):
+		print "Vary theta_T Shells"
 		Inc1 = 0.0
 		JJ = ma.pi/2.
 		TT1 = 0.
@@ -455,8 +462,10 @@ if (Thin):
 ###########--------THICK TORUS--------###########
 ###########---------------------------###########
 if (Thick):
+	print "Plottin Thick"
 	####-------THICK INC-------####
 	if (Plot_I):
+		print "Vary Inc Thick"
 		Inc1 = 0.0
 		Inc2 = ma.pi/3
 		Inc3 =  ma.pi/2.
@@ -510,6 +519,7 @@ if (Thick):
 
 	####-------Rdust-------####
 	if (Plot_R):
+		print "Vary Rin Thick"
 		Inc1 = 0.0
 		Rin1 = Rde
 		Om1 = 2.* ma.pi*c/Rde
@@ -563,6 +573,7 @@ if (Thick):
 
 	####-------Ombin-------####
 	if (Plot_Om):
+		print "Vary Om Thick"
 		Om1 = 0.5*Ombn
 		Inc1 = 0.0
 		Om2 = 1.0*Ombn
@@ -612,6 +623,7 @@ if (Thick):
 
 	####-------JJ-------####
 	if (Plot_J):
+		print "Vary J Thick"
 		Inc1 = 0.0
 		J1 = 0.
 		J2 = (ma.pi/2. - thetTst)
@@ -661,6 +673,7 @@ if (Thick):
 
 	####-------TT-------####
 	if (Plot_TT):
+		print "Vary theta_T Thick"
 		Inc1 = 0.0
 		JJ = ma.pi/2.
 		TT1 = 0.
@@ -708,6 +721,7 @@ if (Thick):
 
 		####-------pp-------####
 	if (Plot_pp):
+		print "Vary p Thick"
 		Inc1 = 0.0
 		JJ = ma.pi/2.
 		pp1 = 2.0
@@ -754,6 +768,7 @@ if (Thick):
 
 		####------Rout-------####
 	if (Plot_Ro):
+		print "Vary Rout Thick"
 		Inc1 = 0.0
 		JJ = ma.pi/2.
 		Ro1 = 10.*Rde
@@ -836,6 +851,7 @@ if (Thick):
 
 	####------v R-------####
 if (Plot_v_R):
+		print "plot Fnu v nu for diff Routs"
 		Inc1 = 0.0
 		#JJ = ma.pi/2.
 		Rout1 = Rde*5.
@@ -846,7 +862,7 @@ if (Plot_v_R):
 		nu_arr = np.linspace(0.001*numicron, 1.*numicron, 30)
 
 		JJt = ma.pi/2#-(ma.pi/2. - thetTst) # so we can see all of back inner edge
-		n0 = 100.0*n0
+		#n0 = 100.0*n0
 		arg = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		
 		FI1 = Fnu_Thick_mult(nu_arr, 0.0, Dst, Rout1, arg, RHS_table, T_table)
