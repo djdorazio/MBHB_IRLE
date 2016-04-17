@@ -22,21 +22,21 @@ Thin  = True
 Plot_v_R = False
 
 
-Plot_I   = True
+Plot_I   = False
 I_name = "Incs"
-Plot_R   = True
+Plot_R   = False
 R_name = "Rdust"
-Plot_Om  = True
+Plot_Om  = False
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
-Plot_J = True
+Plot_J = False
 J_name = "Js"
 Plot_TT = True
 TT_name = "Theta_Ts"
-Plot_pp = True
+Plot_pp = False
 pp_name = "_ps"
-Plot_Ro = True
+Plot_Ro = False
 Ro_name = "_Routs"
 Plot_n0 = False
 
@@ -424,9 +424,9 @@ if (Thin):
 
 		#for i in range (0, Nt):
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
-		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
-		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Rrout, argJ1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Rrout, argJ2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
 		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
