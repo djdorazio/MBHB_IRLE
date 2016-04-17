@@ -30,13 +30,13 @@ Plot_Om  = True
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
-Plot_J = False
+Plot_J = True
 J_name = "Js"
-Plot_TT = False
+Plot_TT = True
 TT_name = "Theta_Ts"
-Plot_pp = False
+Plot_pp = True
 pp_name = "_ps"
-Plot_Ro = False
+Plot_Ro = True
 Ro_name = "_Routs"
 Plot_n0 = False
 
