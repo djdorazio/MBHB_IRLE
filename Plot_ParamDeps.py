@@ -524,9 +524,9 @@ if (Thick):
 		Rin1 = Rde
 		Om1 = 2.* ma.pi*c/Rde
 		Rin2 = Rde*2.
-		Om2 = 2.* ma.pi*c/(2.*Rde)
+		Om2 = 2.* ma.pi*c/(Rin2)
 		Rin3 = Rde*3.
-		Om3 = 2.* ma.pi*c/(3.*Rde)
+		Om3 = 2.* ma.pi*c/(Rin3)
 
 		tt1 = np.linspace(0., 2.,       Nt)*2*np.pi/Om1
 		tt2 = np.linspace(0., 2.,       Nt)*2*np.pi/Om2
@@ -555,9 +555,9 @@ if (Thick):
 		IR1 = plt.plot(tt/(2*np.pi/Om1), FI1+nrm, color='red', linewidth=2)
 		s1=plt.plot(tt1/(2*np.pi/Om1), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
-		IR2=plt.plot(tt2/(2*np.pi/Om1), FI2+nrm, color='orange', linewidth=2)
+		IR2=plt.plot(tt1/(2*np.pi/Om1), FI2+nrm, color='orange', linewidth=2)
 
-		IR3=plt.plot(tt3/(2*np.pi/Om1), FI3+nrm, color='brown', linewidth=2)
+		IR3=plt.plot(tt1/(2*np.pi/Om1), FI3+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
 		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F_{\rm{Bol}}$',   r'$R_d=R_{\rm{orb}}/c$',  r'$R_d=2(R_{\rm{orb}}/c)$', r'$R_d=3(R_{\rm{orb}}/c)$'), loc='upper right')
