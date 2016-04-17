@@ -22,17 +22,17 @@ Thin  = True
 Plot_v_R = False
 
 
-Plot_I   = False
+Plot_I   = True
 I_name = "Incs"
-Plot_R   = False
+Plot_R   = True
 R_name = "Rdust"
 Plot_Om  = False
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
-Plot_J = False
+Plot_J = True
 J_name = "Js"
-Plot_TT = True
+Plot_TT = False
 TT_name = "Theta_Ts"
 Plot_pp = False
 pp_name = "_ps"
@@ -212,7 +212,7 @@ if (Thin):
 		FI2    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
 		FI3    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
@@ -376,7 +376,7 @@ if (Thin):
 		#FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ3, RHS_table, T_table)/FW1Rel)
 		FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
@@ -385,7 +385,7 @@ if (Thin):
 		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
 
 		#IR3=plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
-		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 		plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0] ], (r'$F_{\rm{Bol}}$', r'$J=0$',   r'$J=\pi/4$',  r'$J=\pi/3$', r'$J=\pi/2$'), loc='upper right')
