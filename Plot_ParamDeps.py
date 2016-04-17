@@ -1,7 +1,3 @@
-#TODO 3/18/16
-#ADD GRIDLINES
-#ADD LEGENDS
-#
 import matplotlib
 matplotlib.use('Agg')
 matplotlib.rcParams['pdf.fonttype'] = 42
@@ -21,8 +17,8 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = False
-Thin  = True
+Thick = True
+Thin  = False
 Plot_v_R = True
 
 
@@ -70,7 +66,7 @@ thetTst = 1.*np.pi/4.
 JJt =np.pi/2.
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 100.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 ##BINARY STUFF
 Lav = L0
