@@ -17,9 +17,9 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
-Thin  = False
-Plot_v_R = True
+Thick = False
+Thin  = True
+Plot_v_R = False
 
 
 Plot_I   = True
@@ -156,7 +156,7 @@ if (Thin):
 		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI2, RHS_table, T_table)/FW1Rel)
 		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI3, RHS_table, T_table)/FW1Rel)
 
-		nrm = FsrcI3 - FI3
+		nrm = np.mean(FsrcI3) - np.mean(FI3)
 		###PLOT###
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
