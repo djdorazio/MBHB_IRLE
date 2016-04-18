@@ -17,9 +17,9 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = False
-Thin  = True
-Plot_v_R = False
+Thick = True
+Thin  = False
+Plot_v_R = True
 
 
 Plot_I   = True
@@ -472,7 +472,7 @@ if (Thick):
 		Inc2 = ma.pi/3
 		Inc3 =  ma.pi/2.
 
-		JJt = ma.pi/3.
+		JJt = ma.pi/2.
 
 		argI1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		argI2 = [Lav, betst, Inc2, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
