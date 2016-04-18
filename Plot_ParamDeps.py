@@ -17,9 +17,9 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
-Thin  = False
-Plot_v_R = True
+Thick = False
+Thin  = True
+Plot_v_R = False
 
 
 Plot_I   = True
@@ -127,7 +127,6 @@ if (Thin):
 	###########---------------------------###########
 	####-------Inclination-------####
 	Inc1 = 0.0
-	#nrm = 1.27392461  #hack
 	if (Plot_I):
 		print "Vary Inc Shells"
 		Inc1 = 0.0
@@ -136,9 +135,9 @@ if (Thin):
 		argI1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		argI2 = [Lav, betst, Inc2, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 		argI3 = [Lav, betst, Inc3, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
-		argI1 = np.array(argI1)
-		argI2 = np.array(argI2)
-		argI3 = np.array(argI3)
+		# argI1 = np.array(argI1)
+		# argI2 = np.array(argI2)
+		# argI3 = np.array(argI3)
 
 		# FsrcI1 = np.empty(Nt)
 		# FsrcI2 = np.empty(Nt)
@@ -147,14 +146,14 @@ if (Thin):
 		# FI2 = np.empty(Nt)
 		# FI3 = np.empty(Nt)
 
-		rem = Rde
+		
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
 		FsrcI2 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc2, Ombn, alph)/FVbndRel)
 		FsrcI3 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc3, Ombn, alph)/FVbndRel)
-		#for i in range (0, Nt):
-		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI1, RHS_table, T_table)/FW1Rel)
-		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI2, RHS_table, T_table)/FW1Rel)
-		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argI3, RHS_table, T_table)/FW1Rel)
+		
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Rrout, argI1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Rrout, argI2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Rrout, argI3, RHS_table, T_table)/FW1Rel)
 
 		nrm = np.mean(FsrcI3) - np.mean(FI3)
 		###PLOT###
@@ -176,9 +175,7 @@ if (Thin):
 		plt.ylabel("mag")
 		plt.xlim(0.0, 2.0)
 
-		#plt.show()
-		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+I_name+"n0_%g.png" %n0)
-		#plt.savefig("plots/Shell_"+I_name+"n0_%g.png" %n0)
+
 		Savename = "plots/Shell_nrm%g_"%nrm+I_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
 		Savename.replace('.', 'p')
 		plt.savefig(Savename)
@@ -199,19 +196,12 @@ if (Thin):
 		argR2 = [Lav, betst, Inc1, Ombn, alph, n0, Rin2, pp, thetTst, JJt, aeff, nu0, nne]
 		argR3 = [Lav, betst, Inc1, Ombn, alph, n0, Rin3, pp, thetTst, JJt, aeff, nu0, nne]
 
-		# FsrcI1 = np.empty(Nt)
-		# FsrcI2 = np.empty(Nt)
-		# FsrcI3 = np.empty(Nt)
-		# FI1 = np.empty(Nt)
-		# FI2 = np.empty(Nt)
-		# FI3 = np.empty(Nt)
 
-		rem = Rde
-		#for i in range (0, Nt):
+		
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-		FI1    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
-		FI2    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
-		FI3    = -2.5*np.log10(Fobs_Shell(numn, numx, rem, tt, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
+		FI1    = -2.5*np.log10(Fobs_Shell(numn, numx, Rin1, tt, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
+		FI2    = -2.5*np.log10(Fobs_Shell(numn, numx, Rin2, tt, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
+		FI3    = -2.5*np.log10(Fobs_Shell(numn, numx, Rin3, tt, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
 
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###

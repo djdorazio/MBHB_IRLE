@@ -16,10 +16,10 @@ import scipy.integrate as intg
 #### INTEGRATION ERROR TOLS
 myrel = 0.1
 myabs = 0.1
-reclim = 2
+reclim = 1
 limlst = 3
 maxp1 = 1
-fo = 0
+fo = 1
 
 ##GLOBAL PHYSICS CONSTANTS (cgs):
 c = 2.9979*10**(10)
@@ -77,7 +77,7 @@ def nDust(x,y,z, n0, Rd, p, thetT, JJ):
 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r
 	r  = (x*x + y*y + z*z)**(0.5)
 	throt = np.arctan2( (xrot*xrot + y*y)**(0.5), zrot)   ##arctan of arg1/arg2 arg1 always positive so btwn 0, pi
-	if (r>=Rd and throt>=thetT and throt<=(np.pi - thetT)):
+	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
 		nprof = n0*(Rd/r)**(p)
 
 	return nprof
@@ -99,8 +99,8 @@ def nD_Schart(x,y,z, n0, Rd, p, thetT, JJ):
 def Fsrc(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu):
 #Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
 #starting point of secindary at t=0
-	phis = -np.pi/2
-	thetas = np.pi/2
+	phis = -ma.pi/2
+	thetas = ma.pi/2
 
 	#Make in phase with PG 1302 data (in seconds) # 0.34 from best fit to data
 	t = (t - 3600.*24.*1884./(1.+0.2784) * 0.34049274)
@@ -122,14 +122,14 @@ def Fsrc(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu):
 	Dop = 1./(Gams*(1. - bets*FracLOS))
 
 # return flux at observer coordinates r, phi, theta (in dust or at earth)
-	return Lavg/(4.*np.pi*r*r)*(Dop)**(3. - alphnu)
+	return Lavg/(4.*ma.pi*r*r)*(Dop)**(3. - alphnu)
 
 
 ## equation to tabulate RHS and T
 #DD CHECKED 4/12/16
 def T_RHS(Td, nu0, nn):
 	# for for difference in cross sectional area and surface area, pi for isotropic flux from Grain
-	RHS = 4.*np.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,numicron*1000., args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	RHS = 4.*ma.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,numicron*1000., args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#return np.log10(RHS)
 	return RHS
 
@@ -152,15 +152,15 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
 	Tprof = 1.*t/t  ##T=1 is very small
-	if (r>=Rd and throt>=thetT and throt<=(np.pi - thetT)):
+	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
 
 	###-----------------###
 	### COMPUTE Fsrc    ###
 	###-----------------###
 		#Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
 		#starting point of secindary at t=0
-		phis = -np.pi/2.
-		thetas = np.pi/2.
+		phis = -ma.pi/2.
+		thetas = ma.pi/2.
 
 
 		Vxorb = np.cos(incl) *np.sin(phis + Ombin*t) * np.sin(thetas)
@@ -180,7 +180,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		Dop = 1./(Gams*(1. - bets*FracLOS))
 
 	# return flux at observer coordinates r, phi, theta (in dust or at earth)
-		Fsrc = Lavg/(4.*np.pi*r*r)*(Dop)**(3. - alphnu)
+		Fsrc = Lavg/(4.*ma.pi*r*r)*(Dop)**(3. - alphnu)
 
 
 
@@ -193,7 +193,7 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 		## GET RID OF THIS IF STATEMENT! (did becuase first one catches it)
 		
 		Qbar=1. ##for now
-		tauDust = np.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
 		# ^NO NEED TO USE HEAVISIDE WHEN r>=RD always
 		#epsi = 0.0
 		#istar=[]
@@ -243,9 +243,9 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	# # if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
 	# # 	tauObs = 0.0
 	# # elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
-	# # 	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	# # 	tauObs = ma.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	# # else:
-	tauObs = np.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust, x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	tauObs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust, x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
 	#tauObs = 0.0
@@ -263,7 +263,7 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	##^last term is the surface density if integrating from rr to Rout for Rout>>Rd
 
 	# pi for uniform emitting dust grain
-	return np.pi* aeff*aeff/Dist/Dist *fint
+	return ma.pi* aeff*aeff/Dist/Dist *fint
 
 
 def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
@@ -275,14 +275,14 @@ def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
 	xe     = (Rout*Rout - (z*z + y*y))**(0.5)#Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
 	
 	#if (type(x) is float):
-	return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	#return np.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ))[0]
+	return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ))[0]
 
 	#else:
 	#	res=[]
 	#	for i in range(len(x)):
 	#		for j in range(len(z)):
-	#				res.append(np.pi*aeff*aeff * intg.quad(nDust  ,x[i], xe[i] , args=(y, z[j], n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
+	#				res.append(ma.pi*aeff*aeff * intg.quad(nDust  ,x[i], xe[i] , args=(y, z[j], n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
 
 	#	return np.array(res)
 
@@ -323,9 +323,9 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 	#if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
 	#	tauObs = 0.0
 	#elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
-	#	tauObs = np.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#	tauObs = ma.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#else:
-	tauObs = np.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	tauObs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 
 	# #epsi = 2.*Rrout/nn
@@ -343,7 +343,7 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
 
 
-	return np.pi* aeff*aeff/Dist/Dist *fint
+	return ma.pi* aeff*aeff/Dist/Dist *fint
 
 
 
@@ -351,24 +351,24 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 # integrate over phi 
 def Fnudphi_Shell(thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable):
 	#if (type(t) is float):
-	return intg.quad(Fnuint_Shell, 0.,2.*np.pi, args=(thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	return intg.quad(Fnuint_Shell, 0.,2.*ma.pi, args=(thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	# else:
 	# 	res=[]
 	# 	i=0
 	# 	while (i<len(t)):
-	# 		res.append(intg.quad(Fnuint_Shell, 0.,2.*np.pi, args=(thet, nu, t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
+	# 		res.append(intg.quad(Fnuint_Shell, 0.,2.*ma.pi, args=(thet, nu, t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
 	# 		i += 1
 	# 	return np.array(res)
 
 # then int over theta
 def Fnu_Shell(nu, r, t, Dist, Rout, Aargs, RHStable, Ttable):
 	#if (type(t) is float):
-	return intg.quad(Fnudphi_Shell, 0., np.pi, args=(nu, r, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+	return intg.quad(Fnudphi_Shell, 0., ma.pi, args=(nu, r, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 	#else:
 	#	res=[]
 	#	i=0
 	#	while (i<len(t)):
-	#		res.append(intg.quad(Fnudphi_Shell, 0., np.pi, args=(nu, t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
+	#		res.append(intg.quad(Fnudphi_Shell, 0., ma.pi, args=(nu, t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
 	#		i += 1
 	#	return np.array(res)
 
@@ -459,11 +459,11 @@ def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 
 ## integrate over phi 
 def Fnudphi_Thick(thet, r, nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
-	return  intg.quad(Fnuint_Thick, 0.,2.*np.pi, args=(thet, r, nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	return  intg.quad(Fnuint_Thick, 0.,2.*ma.pi, args=(thet, r, nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	
 # then int over theta
 def Fnudphidth_Thick(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
-	return intg.quad(Fnudphi_Thick, 0., np.pi, args=(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
+	return intg.quad(Fnudphi_Thick, 0., ma.pi, args=(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 
 # then int over theta
 def Fnu_Thick(nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
