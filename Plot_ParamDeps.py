@@ -140,12 +140,12 @@ if (Thin):
 		argI2 = np.array(argI2)
 		argI3 = np.array(argI3)
 
-		FsrcI1 = np.empty(Nt)
-		FsrcI2 = np.empty(Nt)
-		FsrcI3 = np.empty(Nt)
-		FI1 = np.empty(Nt)
-		FI2 = np.empty(Nt)
-		FI3 = np.empty(Nt)
+		# FsrcI1 = np.empty(Nt)
+		# FsrcI2 = np.empty(Nt)
+		# FsrcI3 = np.empty(Nt)
+		# FI1 = np.empty(Nt)
+		# FI2 = np.empty(Nt)
+		# FI3 = np.empty(Nt)
 
 		rem = Rde
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
@@ -179,8 +179,9 @@ if (Thin):
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+I_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/Shell_"+I_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Shell_nrm%g_"%nrm+I_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
-
+		Savename = "plots/Shell_nrm%g_"%nrm+I_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 
 	####-------END Inclination-------####
 
@@ -198,12 +199,12 @@ if (Thin):
 		argR2 = [Lav, betst, Inc1, Ombn, alph, n0, Rin2, pp, thetTst, JJt, aeff, nu0, nne]
 		argR3 = [Lav, betst, Inc1, Ombn, alph, n0, Rin3, pp, thetTst, JJt, aeff, nu0, nne]
 
-		FsrcI1 = np.empty(Nt)
-		FsrcI2 = np.empty(Nt)
-		FsrcI3 = np.empty(Nt)
-		FI1 = np.empty(Nt)
-		FI2 = np.empty(Nt)
-		FI3 = np.empty(Nt)
+		# FsrcI1 = np.empty(Nt)
+		# FsrcI2 = np.empty(Nt)
+		# FsrcI3 = np.empty(Nt)
+		# FI1 = np.empty(Nt)
+		# FI2 = np.empty(Nt)
+		# FI3 = np.empty(Nt)
 
 		rem = Rde
 		#for i in range (0, Nt):
@@ -232,8 +233,9 @@ if (Thin):
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Shell_nrm%g_"%nrm+R_name+"_Om%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Ombn, JJt, thetTst, Rrout, pp, n0))
-
+		Savename = "plots/Shell_nrm%g_"%nrm+R_name+"_Om%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Ombn, JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 
 	####-------END Rdust-------####
 
@@ -255,12 +257,12 @@ if (Thin):
 		argO2 = [Lav, betst, Inc1, Om2, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
 		argO3 = [Lav, betst, Inc1, Om3, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
 
-		FsrcI1 = np.empty(Nt)
-		FsrcI2 = np.empty(Nt)
-		FsrcI3 = np.empty(Nt)
-		FI1 = np.empty(Nt)
-		FI2 = np.empty(Nt)
-		FI3 = np.empty(Nt)
+		# FsrcI1 = np.empty(Nt)
+		# FsrcI2 = np.empty(Nt)
+		# FsrcI3 = np.empty(Nt)
+		# FI1 = np.empty(Nt)
+		# FI2 = np.empty(Nt)
+		# FI3 = np.empty(Nt)
 
 		rem = Rde
 		#for i in range (0, Nt):
@@ -290,8 +292,9 @@ if (Thin):
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+Om_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Shell_nrm%g_"%nrm+Om_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
-
+		Savename = "plots/Shell_nrm%g_"%nrm+Om_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 	####-------END Ombin-------####
 
 
@@ -307,12 +310,12 @@ if (Thin):
 		argb2 = [Lav, bet2, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
 		argb3 = [Lav, bet3, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, JJt, aeff, nu0, nne]
 
-		FsrcI1 = np.empty(Nt)
-		FsrcI2 = np.empty(Nt)
-		FsrcI3 = np.empty(Nt)
-		FI1 = np.empty(Nt)
-		FI2 = np.empty(Nt)
-		FI3 = np.empty(Nt)
+		# FsrcI1 = np.empty(Nt)
+		# FsrcI2 = np.empty(Nt)
+		# FsrcI3 = np.empty(Nt)
+		# FI1 = np.empty(Nt)
+		# FI2 = np.empty(Nt)
+		# FI3 = np.empty(Nt)
 
 		rem = Rde
 		#for i in range (0, Nt):
@@ -346,8 +349,9 @@ if (Thin):
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+bet_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+bet_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Shell_nrm%g_"%nrm+bet_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0))
-
+		Savename = "plots/Shell_nrm%g_"%nrm+bet_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 
 	####-------END beta -------####
 
@@ -399,9 +403,9 @@ if (Thin):
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+J_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+J_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Shell_nrm%g_"%nrm+J_name+"_Rin%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, thetTst, Rrout, pp, n0))
-
-
+		Savename = "plots/Shell_nrm%g_"%nrm+J_name+"_Rin%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 	####-------END JJ -------####
 
 
@@ -449,7 +453,9 @@ if (Thin):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Shell_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0))
+		Savename = "plots/Shell_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 		####-------END TT-------####
 
 
@@ -510,7 +516,9 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
+		Savename = "plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)	
 	####-------END THICK INC-------####
 
 	####-------Rdust-------####
@@ -542,8 +550,8 @@ if (Thick):
 		#for i in range (0, Nt):
 		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Om1, alph)/FVbndRel)
 		FI1    = -2.5*np.log10(Fobs_Thick(numn, numx, tt1, Dst, Rrout, argR1, RHS_table, T_table)/FW1Rel)
-		FI2    = -2.5*np.log10(Fobs_Thick(numn, numx, tt2, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
-		FI3    = -2.5*np.log10(Fobs_Thick(numn, numx, tt3, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
+		FI2    = -2.5*np.log10(Fobs_Thick(numn, numx, tt1, Dst, Rrout, argR2, RHS_table, T_table)/FW1Rel)
+		FI3    = -2.5*np.log10(Fobs_Thick(numn, numx, tt1, Dst, Rrout, argR3, RHS_table, T_table)/FW1Rel)
 
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
@@ -564,7 +572,9 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+R_name+"_Om1_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
+		Savename = "plots/Thick_nrm%g_"%nrm+R_name+"_Om1_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 	####-------END Rdust-------####
 
 	####-------Ombin-------####
@@ -614,7 +624,9 @@ if (Thick):
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+Om_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
+		Savename = "plots/Thick_nrm%g_"%nrm+Om_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 	####-------END Ombin-------####
 
 	####-------JJ-------####
@@ -664,7 +676,9 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+J_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+J_name+"_thetT%g_Rout%g_p%g_n0%g.png" %(thetTst, Rrout, pp, n0))
+		Savename = "plots/Thick_nrm%g_"%nrm+J_name+"_thetT%g_Rout%g_p%g_n0%g.png" %(thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 	####-------END JJ-------####
 
 	####-------TT-------####
@@ -710,7 +724,9 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0))
+		Savename = "plots/Thick_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 		####-------END TT-------####
 
 
@@ -758,7 +774,9 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+pp_name+"_J%g_thetT%g_Rout%g_n0%g.png" %(JJt, thetTst, Rrout, n0))
+		Savename = "plots/Thick_nrm%g_"%nrm+pp_name+"_J%g_thetT%g_Rout%g_n0%g.png" %(JJt, thetTst, Rrout, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 		####-------END TT-------####
 
 
@@ -805,7 +823,9 @@ if (Thick):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_nrm%g_"%nrm+Ro_name+"_J%g_thetT%g_p%g_n0%g.png" %(JJt, thetTst, pp, n0))
+		Savename = "plots/Thick_nrm%g_"%nrm+Ro_name+"_J%g_thetT%g_p%g_n0%g.png" %(JJt, thetTst, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 		####-------END pp-------####
 
 	####------v n0-------####
@@ -893,7 +913,10 @@ if (Plot_v_R):
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
-		plt.savefig("plots/Thick_varynu_diffRout_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0))
+		
+		Savename = "plots/Thick_varynu_diffRout_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
+		Savename.replace('.', 'p')
+		plt.savefig(Savename)
 		####-------END v n0-------####
 
 
