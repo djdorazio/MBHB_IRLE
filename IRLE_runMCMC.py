@@ -34,11 +34,11 @@ pltThick = False
 
 
 ## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
-emcee_Fit = False# use emcee to fit
+emcee_Fit = True# use emcee to fit
 ## multiprocessing
 NThread = 48
 #
-fmin_Fit = True   # use simple fmin to fit
+fmin_Fit = False   # use simple fmin to fit
 
 W1fit = False  ### fit only W1fit, Thick or Shell
 W2fit = False  ### fit only W1fit, Thick or Shell
@@ -914,7 +914,7 @@ if (emcee_Fit):
 			else:
 				param_names = [r'cos($J$)',r'cos($\theta_T$)',r'$r_1$',r'$r_2$', r'$R_{in}$', r'$n_0$']
 				ndim = 6
-				nwalkers = ndim*2
+				nwalkers = ndim*8
 				Shell_File = "_fitbothW1W2_rem1_rem2"
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
 			# else:
@@ -955,7 +955,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 2
+		clen = 1024
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
