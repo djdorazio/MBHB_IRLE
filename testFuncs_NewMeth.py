@@ -43,7 +43,7 @@ Dst = 1.4*10**9*pc2cm
 Rrout = 85.0*Rde
 
 md = 10**(-14)
-n0 = 1e-4#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 1e-9#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 
 
@@ -70,7 +70,7 @@ nnu = np.linspace(0.01, 2.,       Nt)*numicron
 
 ##TABULATE T's and RHSs
 print "Creating look up tables"
-NT = 100
+NT = 1000
 RHS_table = np.zeros(NT)
 T_table = np.linspace(1., 2000., NT)
 for i in range(NT):
@@ -119,7 +119,7 @@ Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 print "Plotting stuff"
 
 
-Nx = 20
+Nx = 100
 xx = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
 zz = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
 
@@ -138,6 +138,9 @@ for i in range(0, Nx):
 		#ytst = ( Rde*Rde - (xx[i]*xx[i] + zz[j]*zz[j]) )**(0.5)
  		tauT[j][i] = np.log10(tauObs(2.*numicron, xx[i], ytst, zz[j], 10.*Rde, aeff, 3.e-6, Rde, 2., thtst, Jtst, numicron, 1.))
  		nd[j][i] =  np.log10(nDust(xx[i], ytst, zz[j], 3.e-6, Rde, 2.0, thtst, Jtst))
+
+
+
 
 plt.figure()
 plt.subplot(211)
@@ -226,31 +229,36 @@ print t2-t1
 
 
 t1=time.clock()
-chk0=Fnuint_Shell(0.0, ma.pi/2., W1mn, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)
+chk0=Fnuint_Shell(0.0, ma.pi/2., W1mn, Rde,1.0, Dst, Rrout, Targs, RHS_table, T_table)
 t2=time.clock()
-print t2-t1
+td = t2-t1
+print "Fnuint_Shell time = %g" %td
 
-t3=time.clock()
-chk1=Fnudphi_Shell(ma.pi/2, W1mn, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)
-t4=time.clock()
-print t4-t3
+t1=time.clock()
+chk1=Fnudphi_Shell(ma.pi/2, W1mn, Rde,0.0, Dst, Rrout, Targs, RHS_table, T_table)
+t2=time.clock()
+td = t2-t1
+print "Fnudphi_Shell time = %g" %td
 
-t5=time.clock()
-chk2=Fnu_Shell(W1mn, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)
-t6=time.clock()
-print t6-t5
-
-
-t7=time.clock()
-chk3=-2.5*np.log10(Fobs_Shell(W1mn,W1mx, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
-t8=time.clock()
-print t8-t7
+t1=time.clock()
+chk2=Fnu_Shell(W1mn, Rde,0.0, Dst, Rrout, Targs, RHS_table, T_table)
+t2=time.clock()
+td = t2-t1
+print "Fnu_Shell time = %g" %td
 
 
-t9=time.clock()
+t1=time.clock()
+chk3=-2.5*np.log10(Fobs_Shell(W1mn,W1mx, Rde,[0.,1.], Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
+t2=time.clock()
+td = (t2-t1)/2.
+print "Fobs_Shell timw= %g" %td
+
+
+t1=time.clock()
 chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
-t10=time.clock()
-print t10-t9
+t2=time.clock()
+td = (t2-t1)/2.
+print "Fobs_Thick timw= %g" %td
 
 
 

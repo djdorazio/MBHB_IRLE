@@ -71,14 +71,29 @@ def QvBv(nu, T, nu0, nn):
 
 # Torical dust profile DD CHECKED 4/12/16
 def nDust(x,y,z, n0, Rd, p, thetT, JJ):
-	nprof = 0.0
+	#nprof = 0.0
 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r
 	r  = (x*x + y*y + z*z)**(0.5)
+	#r = np.array(r)
 	throt = np.arctan2( (xrot*xrot + y*y)**(0.5), zrot)   ##arctan of arg1/arg2 arg1 always positive so btwn 0, pi
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
-		nprof = n0*(Rd/r)**(p)
+	throt = np.array(throt)
+
+	# nprof = 0.0			
+	# if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+	# 		nprof = n0*(Rd/r)**(p)
+	
+	if (type(r) is np.ndarray):
+		nprof = 0.0	* r
+		for i in range(len(r)):
+			if (r[i]>=Rd and throt[i]>=thetT and throt[i]<=(ma.pi - thetT)):
+				nprof[i] = n0*(Rd/r[i])**(p)
+	else:
+		nprof = 0.0			
+		if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+			nprof = n0*(Rd/r)**(p)
+	
 
 	return nprof
 
@@ -152,8 +167,8 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
 	Tprof = 1.*t/t  ##T=1 is very small
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
 
+	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
 	###-----------------###
 	### COMPUTE Fsrc    ###
 	###-----------------###
@@ -187,30 +202,14 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 	###-----------------###
 	### Compute taudust ###
 	###-----------------###
-		#xrot = x*np.cos(JJ) + z*np.sin(JJ)
-		#zrot = z*np.cos(JJ) - x*np.sin(JJ)
-		#throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-		## GET RID OF THIS IF STATEMENT! (did becuase first one catches it)
-		
 		Qbar=1. ##for now
 		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-		# ^NO NEED TO USE HEAVISIDE WHEN r>=RD always
-		#epsi = 0.0
-		#istar=[]
-		#Tprof=[]
-		#for i in range(len(t)):
-		#	istar.append(np.where(Fsrc[i] * np.exp(-tauDust) > RHStable + epsi)[0].max())
-		#	Tprof.append(Ttable[istar])
-
 		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
 		if (Fsrc * np.exp(-tauDust) > RHStable[len(RHStable)-1] or Fsrc * np.exp(-tauDust) <= RHStable[0]):
 			Tprof = 1.
 		else:
 			istar = np.where(Fsrc * np.exp(-tauDust) <= RHStable )[0].min()
 			Tprof = Ttable[istar]
-
-
-		#Tprof = (0.25 * Fsrc/sigSB * np.exp(-tauDust) )**(0.25)
 
 	return Tprof
 
@@ -220,6 +219,134 @@ def TDust(t,r,thet,phi,args, RHStable, Ttable):
 
 
 
+
+
+def TDust_tst(t,r,thet,phi,args, RHStable, Ttable):
+	#thetT = args[8] 
+	#JJ = args[9] 
+	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	x = r*np.sin(thet)*np.cos(phi)
+	y = r*np.sin(thet)*np.sin(phi)
+	z = r*np.cos(thet)
+	
+	xrot = x*np.cos(JJ) + z*np.sin(JJ)
+	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
+
+	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
+	Tprof = 1.*t/t  ##T=1 is very small
+
+
+	if (type(x) is np.ndarray):
+		for i in range(len(x)):
+			if (r[i]>=Rd and throt[i]>=thetT and throt[i]<=(ma.pi - thetT)):
+			###-----------------###
+			### COMPUTE Fsrc    ###
+			###-----------------###
+				#Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
+				#starting point of secindary at t=0
+				phis = -ma.pi/2.
+				thetas = ma.pi/2.
+
+
+				Vxorb = np.cos(incl) *np.sin(phis + Ombin*t) * np.sin(thetas)
+				Vyorb = -np.cos(phis + Ombin*t) * np.sin(thetas)
+				Vzorb = -np.sin(incl)* np.sin(phis + Ombin*t) * np.sin(thetas)
+
+			#Unit Position of observer on dust shell in dust shell coords
+				xobs = np.sin(thet)*np.cos(phi)
+				yobs = np.sin(thet)*np.sin(phi)
+				zobs = np.cos(thet)
+
+			#Line of sight velocity anywhere in dust shell (vorb.rhatobs)	
+				FracLOS = Vxorb*xobs + Vyorb*yobs + Vzorb*zobs
+
+			#Doppler factor 
+				Gams = (1. - bets*bets)**(-0.5)
+				Dop = 1./(Gams*(1. - bets*FracLOS))
+
+			# return flux at observer coordinates r, phi, theta (in dust or at earth)
+				Fsrc = Lavg/(4.*ma.pi*r[i]*r[i])*(Dop)**(3. - alphnu)
+
+
+
+			###-----------------###
+			### Compute taudust ###
+			###-----------------###
+				Qbar=1. ##for now
+				tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r[i])**(p-1.))
+				### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+				if (Fsrc * np.exp(-tauDust) > RHStable[len(RHStable)-1] or Fsrc * np.exp(-tauDust) <= RHStable[0]):
+					Tprof = 1.
+				else:
+					istar = np.where(Fsrc * np.exp(-tauDust) <= RHStable )[0].min()
+					Tprof = Ttable[istar]
+
+	else:
+		if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+		###-----------------###
+		### COMPUTE Fsrc    ###
+		###-----------------###
+			#Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
+			#starting point of secindary at t=0
+			phis = -ma.pi/2.
+			thetas = ma.pi/2.
+
+
+			Vxorb = np.cos(incl) *np.sin(phis + Ombin*t) * np.sin(thetas)
+			Vyorb = -np.cos(phis + Ombin*t) * np.sin(thetas)
+			Vzorb = -np.sin(incl)* np.sin(phis + Ombin*t) * np.sin(thetas)
+
+		#Unit Position of observer on dust shell in dust shell coords
+			xobs = np.sin(thet)*np.cos(phi)
+			yobs = np.sin(thet)*np.sin(phi)
+			zobs = np.cos(thet)
+
+		#Line of sight velocity anywhere in dust shell (vorb.rhatobs)	
+			FracLOS = Vxorb*xobs + Vyorb*yobs + Vzorb*zobs
+
+		#Doppler factor 
+			Gams = (1. - bets*bets)**(-0.5)
+			Dop = 1./(Gams*(1. - bets*FracLOS))
+
+		# return flux at observer coordinates r, phi, theta (in dust or at earth)
+			Fsrc = Lavg/(4.*ma.pi*r*r)*(Dop)**(3. - alphnu)
+
+
+
+		###-----------------###
+		### Compute taudust ###
+		###-----------------###
+			Qbar=1. ##for now
+			tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+			### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+			if (Fsrc * np.exp(-tauDust) > RHStable[len(RHStable)-1] or Fsrc * np.exp(-tauDust) <= RHStable[0]):
+				Tprof = 1.
+			else:
+				istar = np.where(Fsrc * np.exp(-tauDust) <= RHStable )[0].min()
+				Tprof = Ttable[istar]
+
+	return Tprof
+
+
+
+
+
+
+
+def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
+
+	xe     = (Rout*Rout - (z*z + y*y))**(0.5)
+	
+	xInt = np.linspace(x, xe, 100.)
+	#xInt = np.logspace(x,xe, 100.)
+	yInt = nDust(xInt, y, z, n0, Rd, p, thetT, JJ)
+	
+	return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.simps(yInt, xInt)
+	
+
+	#return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	
 
 
 ## SHELL IS AT r, dust shell starts at Rd
@@ -236,17 +363,11 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	x = r*np.sin(thet)*np.cos(ph)
 	y = r*np.sin(thet)*np.sin(ph)
 	z = r*np.cos(thet)
-	# # doing the integral is faster than lookiup table
-	# #xe     = Rout*( 1. - (Rd/Rout)*(Rd/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
-	xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
-	# # ##don't integrate if no dust along path
-	# # if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
-	# # 	tauObs = 0.0
-	# # elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
-	# # 	tauObs = ma.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	# # else:
-	tauObs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust, x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
+	xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
+
+	#tauobs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust, x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	tauobs = tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	#tauObs = 0.0
 
@@ -254,8 +375,8 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	#	fint = 1.654984027680202e+308
 	#else:
 	#
-	##RECALL r is teh radisu of the smititng shell, Rd is the inner edge of the shell
-	fint = Qv(nu, nu0, nn) * np.exp(-tauObs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)	
+	##RECALL r is the radius of the emititng shell, Rd is the inner edge of the shell
+	fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)	
 	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * n0 * (-(Rd/Rout)**p * Rout + (Rd/r)**p * r)/(-1. + p)
 	##^ last term is integral from r to Rout 
@@ -266,25 +387,9 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	return ma.pi* aeff*aeff/Dist/Dist *fint
 
 
-def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
-	#y=0.0
-	#r    = np.sqrt(x*x + y*y + z*z)
-	#thet = np.arctan2((x*x + y*y)**(0.5), z)
-	#ph   = np.arctan2(y, x)
 
-	xe     = (Rout*Rout - (z*z + y*y))**(0.5)#Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
-	
-	#if (type(x) is float):
-	return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	#return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ))[0]
 
-	#else:
-	#	res=[]
-	#	for i in range(len(x)):
-	#		for j in range(len(z)):
-	#				res.append(ma.pi*aeff*aeff * intg.quad(nDust  ,x[i], xe[i] , args=(y, z[j], n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])	
 
-	#	return np.array(res)
 
 
 def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tauGrid):
@@ -325,8 +430,9 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 	#elif (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x < 0.0):
 	#	tauObs = ma.pi*aeff*aeff * intg.quad(nDust  ,x, 0.0 , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#else:
-	tauObs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-
+	
+	#tauObs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	tauobs = tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	# #epsi = 2.*Rrout/nn
 	# ixl = np.where( x < tauGrid[1])[0].max()
@@ -350,8 +456,12 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 
 # integrate over phi 
 def Fnudphi_Shell(thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable):
-	#if (type(t) is float):
 	return intg.quad(Fnuint_Shell, 0.,2.*ma.pi, args=(thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#xInt = np.linspace(0.,2.*ma.pi, 200)
+	#yInt = Fnuint_Shell(xInt, thet, nu, r, t, Dist, Rout, Aargs, RHStable, Ttable)
+	#return intg.simps(yInt, xInt)
+	
+
 	# else:
 	# 	res=[]
 	# 	i=0
@@ -384,6 +494,7 @@ def Fobs_Shell(numin, numax, r, t, Dist, Rout, Aargs, RHStable, Ttable):
 		res.append(intg.quad(Fnu_Shell, numin, numax, args=(r, t[i], Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo )[0])	
 			#i += 1
 	return np.array(res)
+
 
 
 

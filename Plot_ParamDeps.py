@@ -17,20 +17,20 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = False
-Thin  = True
+Thick = True
+Thin  = False
 Plot_v_R = False
 
 
-Plot_I   = True
+Plot_I   = False
 I_name = "Incs"
-Plot_R   = True
+Plot_R   = False
 R_name = "Rdust"
-Plot_Om  = False
+Plot_Om  = True
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
-Plot_J = True
+Plot_J = False
 J_name = "Js"
 Plot_TT = False
 TT_name = "Theta_Ts"
@@ -66,7 +66,11 @@ thetTst = 1.*np.pi/4.
 JJt =np.pi/2.
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.) ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n10 = 0.1/(ma.pi*Rde*aeff*aeff) * (pp-1.)
+nfac = 10.0
+n0 = nfac*n10 ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+
+
 
 ##BINARY STUFF
 Lav = L0
@@ -158,6 +162,7 @@ if (Thin):
 		nrm = np.mean(FsrcI3) - np.mean(FI3)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
 		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -173,11 +178,12 @@ if (Thin):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 
 		Savename = "plots/Shell_nrm%g_"%nrm+I_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 
 	####-------END Inclination-------####
@@ -205,6 +211,7 @@ if (Thin):
 
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		plt.figure()
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
@@ -218,13 +225,14 @@ if (Thin):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+R_name+"n0_%g.png" %n0)
 		Savename = "plots/Shell_nrm%g_"%nrm+R_name+"_Om%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Ombn, JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 
 	####-------END Rdust-------####
@@ -264,6 +272,7 @@ if (Thin):
 		nrm = np.mean(FsrcI1) - np.mean(FI1) 
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt1/(2*np.pi/Om1), FI1+nrm, color='red', linewidth=2)
 		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -277,13 +286,14 @@ if (Thin):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+Om_name+"n0_%g.png" %n0)
 		Savename = "plots/Shell_nrm%g_"%nrm+Om_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 	####-------END Ombin-------####
 
@@ -319,7 +329,7 @@ if (Thin):
 		nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
-
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
 		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -334,13 +344,14 @@ if (Thin):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+bet_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+bet_name+"n0_%g.png" %n0)
 		Savename = "plots/Shell_nrm%g_"%nrm+bet_name+"_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 
 	####-------END beta -------####
@@ -373,6 +384,7 @@ if (Thin):
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -388,13 +400,14 @@ if (Thin):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+J_name+"n0_%g.png" %n0)
 		#plt.savefig("plots/"+J_name+"n0_%g.png" %n0)
 		Savename = "plots/Shell_nrm%g_"%nrm+J_name+"_Rin%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 	####-------END JJ -------####
 
@@ -426,6 +439,7 @@ if (Thin):
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -439,16 +453,65 @@ if (Thin):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		Savename = "plots/Shell_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 		####-------END TT-------####
 
+		####-------Rout Shell-------####
+	if (Plot_Ro):
+		print "Vary Rout Shells"
+		Inc1 = 0.0
+		JJ = ma.pi/2.
+		Ro1 = 10.*Rde
+		Ro2 = 20.*Rde
+		Ro3 = 100.*Rde
+		#J4 = ma.pi/2. + thetTst
+		argRo1 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, TT1, JJ, aeff, nu0, nne]
+		argRo2 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, TT2, JJ, aeff, nu0, nne]
+		argRo3 = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, TT3, JJ, aeff, nu0, nne]
+		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
+
+
+		#for i in range (0, Nt):
+		FsrcI1 = -2.5*np.log10(Fsrc(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+		FI1 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Ro1, argJ1, RHS_table, T_table)/FW1Rel)
+		FI2 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Ro2, argJ2, RHS_table, T_table)/FW1Rel)
+		FI3 = -2.5*np.log10(Fobs_Shell(numn, numx, Rde, tt, Dst, Ro3, argJ3, RHS_table, T_table)/FW1Rel)
+		#FI4 = -2.5*np.log10(Fobs_Shell(numn, numx, tt, Dst, Rrout, argJ4, RHS_table, T_table)/FW1Rel)
+
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
+		###PLOT###
+		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
+		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
+		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
+
+		IR2=plt.plot(tt/(2*np.pi/Ombn), FI2, color='orange', linewidth=2)
+
+		IR3=plt.plot(tt/(2*np.pi/Ombn), FI3, color='brown', linewidth=2)
+		#IR4=plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
+
+		plt.grid(b=True, which='both')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
+
+		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.ylabel("mag")
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
+
+		#plt.show()
+	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
+		Savename = "plots/Shell_nrm%g_"%nrm+Ro_name+"_J%g_thetT%g_p%g_n0%g.png" %(JJt, thetTst, pp, n0)
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
+		plt.savefig(Savename)
+		####-------END Rout Shell-------####
 
 ###########---------------------------###########
 ###########--------THICK TORUS--------###########
@@ -487,6 +550,7 @@ if (Thick):
 		nrm = np.mean(FsrcI3) - np.mean(FI3)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJ))
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -502,12 +566,13 @@ if (Thick):
 		plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$I=0$','',   r'$I=\pi/4$','',   r'$I=\pi/2$', ''), loc='upper right')
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
 		Savename = "plots/Thick_nrm%g_"%nrm+I_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)	
 	####-------END THICK INC-------####
 
@@ -546,6 +611,7 @@ if (Thick):
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt/(2*np.pi/Om1), FI1+nrm, color='red', linewidth=2)
 		s1=plt.plot(tt1/(2*np.pi/Om1), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -558,12 +624,13 @@ if (Thick):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+R_name+"n0_%g.png" %n0)
 		Savename = "plots/Thick_nrm%g_"%nrm+R_name+"_Om1_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 	####-------END Rdust-------####
 
@@ -597,6 +664,7 @@ if (Thick):
 		nrm = np.mean(FsrcI1) - np.mean(FI1) 
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt1/(2*np.pi/Om1), FI1+nrm, color='red', linewidth=2)
 		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -610,12 +678,13 @@ if (Thick):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 		#plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/"+Om_name+"n0_%g.png" %n0)
 		Savename = "plots/Thick_nrm%g_"%nrm+Om_name+"_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 	####-------END Ombin-------####
 
@@ -647,6 +716,7 @@ if (Thick):
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -662,12 +732,13 @@ if (Thick):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+J_name+"n0_%g.png" %n0)
 		Savename = "plots/Thick_nrm%g_"%nrm+J_name+"_thetT%g_Rout%g_p%g_n0%g.png" %(thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 	####-------END JJ-------####
 
@@ -697,6 +768,7 @@ if (Thick):
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -710,12 +782,13 @@ if (Thick):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		Savename = "plots/Thick_nrm%g_"%nrm+TT_name+"_J%g_Rout%g_p%g_n0%g.png" %(JJt, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 		####-------END TT-------####
 
@@ -760,12 +833,13 @@ if (Thick):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		Savename = "plots/Thick_nrm%g_"%nrm+pp_name+"_J%g_thetT%g_Rout%g_n0%g.png" %(JJt, thetTst, Rrout, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 		####-------END TT-------####
 
@@ -796,6 +870,7 @@ if (Thick):
 		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(tt/(2*np.pi/Ombn), FI1+nrm, color='red', linewidth=2)
 		s1=plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -809,12 +884,13 @@ if (Thick):
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
-		plt.xlim(0.0, 2.0)
+		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		Savename = "plots/Thick_nrm%g_"%nrm+Ro_name+"_J%g_thetT%g_p%g_n0%g.png" %(JJt, thetTst, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 		####-------END pp-------####
 
@@ -881,6 +957,7 @@ if (Plot_v_R):
 		#nrm = np.mean(FsrcI1) - np.mean(FI1)
 		###PLOT###
 		plt.figure()
+		plt.title(r"$n_0 = %g n_T$" %nfac)
 		IR1 = plt.plot(nu_arr, FI1, color='orange', linewidth=2)
 		IR2 = plt.plot(nu_arr, FI2, color='red', linewidth=2)
 		IR3 = plt.plot(nu_arr, FI3, color='brown', linewidth=2)
@@ -905,7 +982,8 @@ if (Plot_v_R):
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		
 		Savename = "plots/Thick_varynu_diffRout_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(JJt, thetTst, Rrout, pp, n0)
-		Savename.replace('.', 'p')
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 		####-------END v n0-------####
 
