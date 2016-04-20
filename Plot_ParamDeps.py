@@ -26,7 +26,7 @@ Plot_I   = False
 I_name = "Incs"
 Plot_R   = False
 R_name = "Rdust"
-Plot_Om  = True
+Plot_Om  = False
 Om_name = "Ombins"
 Plot_bet = False
 bet_name = "betas"
@@ -38,7 +38,7 @@ Plot_pp = False
 pp_name = "_ps"
 Plot_Ro = False
 Ro_name = "_Routs"
-Plot_n0 = False
+Plot_n0 = True
 
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
@@ -900,10 +900,10 @@ if (Thick):
 		JJ = ma.pi/2.
 		Ro1 = 10.*Rde
 		#J4 = ma.pi/2. + thetTst
-		n0_arr = np.linspace(0.1*n0, 100.0*n0, Nt)
+		n0_arr = np.logspace(-1, 2.0, Nt)
 		arg = []
 		for i in range(Nt):
-			arg.append([Lav, 0.0, Inc1, Ombn, alph, n0_arr[i], Rde, pp, thetTst, JJ, aeff, nu0, nne])
+			arg.append([Lav, 0.0, Inc1, Ombn, alph, 10**(n0_arr[i]) *n10, Rde, pp, thetTst, JJ, aeff, nu0, nne])
 		#argJ4 = [Lav, betst, Inc1, Ombn, alph, n0, Rin1, pp, thetTst, J4, aeff, nu0, nne]
 
 
@@ -922,13 +922,18 @@ if (Thick):
 		plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0] ], (r'$F_{\rm{Bol}}$', r'$R_{\rm{out}}=10 R_{\rm{d}}$',  r'$R_{\rm{out}}=20 R_{\rm{d}}$', r'$R_{\rm{out}}=100 R_{\rm{d}}$'), loc='upper right')
 
-		plt.xlabel(r"$N_{\rm{orb}}$")
+		plt.xlabel(r"$n_0/n_T$")
 		plt.ylabel(r"$\left<\rm{mag}\right>$")
-		plt.xlim(0.1, 10.0)
+		plt.xlim(0.1, 100.0)
 
 		#plt.show()
 	#	plt.savefig("/Users/dorazio/Desktop/Current_Projects/MBHB_LightEchoes/python/Plot_ParamDep/Thick"+TT_name+"n0_%g.png" %n0)
 		plt.savefig("plots/Thick_varyn0_in units_of_n0_%g.png" %n0)
+
+		Savename = "plots/Thick_varyn0_in units_of_n0_Rin%g_J%g_thetT%g_Rout%g_p%g_n0%g.png" %(Rde, JJt, thetTst, Rrout, pp, n0)
+		Savename = Savename.replace('.', 'p')
+		Savename = Savename.replace('ppng', '.png')
+		plt.savefig(Savename)
 		####-------END v n0-------####
 
 	####------v R-------####
