@@ -342,10 +342,10 @@ def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
 	#xInt = np.logspace(x,xe, 100.)
 	yInt = nDust(xInt, y, z, n0, Rd, p, thetT, JJ)
 	
-	return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.simps(yInt, xInt)
+	#return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.simps(yInt, xInt)
 	
 
-	#return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	
 
 
@@ -375,10 +375,13 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	#	fint = 1.654984027680202e+308
 	#else:
 	#
+	#Qbar = 1.
+	Surf_nd = 1./(ma.pi * aeff*aeff)#Rde/(p-1.) * ()**(1.-p)
 	##RECALL r is the radius of the emititng shell, Rd is the inner edge of the shell
 	fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*TDust(tem,r, thet, ph, args, RHStable, Ttable))  ) - 1.)	
 	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.e**(  h*nu/(kb*TDust(tem,Rd, thet, ph, args, RHStable, Ttable))  ) - 1.)
-	fint = fint* r*r* np.sin(thet) * n0 * (-(Rd/Rout)**p * Rout + (Rd/r)**p * r)/(-1. + p)
+	fint = fint* r*r* np.sin(thet) * Surf_nd
+	#* n0 * (-(Rd/Rout)**p * Rout + (Rd/r)**p * r)/(-1. + p)
 	##^ last term is integral from r to Rout 
 	#* n0*Rd/(p-1.) 
 	##^last term is the surface density if integrating from rr to Rout for Rout>>Rd

@@ -17,28 +17,28 @@ from IR_LightEchoes_NewMeth import *
 
 
 ###OPTIONS
-Thick = True
-Thin  = False
+Thick = False
+Thin  = True
 Plot_v_R = False
 
 
-Plot_I   = False
-I_name = "Incs"
-Plot_R   = False
-R_name = "Rdust"
-Plot_Om  = False
-Om_name = "Ombins"
-Plot_bet = False
-bet_name = "betas"
-Plot_J = False
-J_name = "Js"
-Plot_TT = False
-TT_name = "Theta_Ts"
-Plot_pp = False
-pp_name = "_ps"
-Plot_Ro = False
-Ro_name = "_Routs"
-Plot_n0 = True
+Plot_I   = True
+I_name = "Incs_Snd"
+Plot_R   = True
+R_name = "Rdust_Snd"
+Plot_Om  = True
+Om_name = "Ombins_Snd"
+Plot_bet = True
+bet_name = "betas_Snd"
+Plot_J = True
+J_name = "Js_Snd"
+Plot_TT = True
+TT_name = "Theta_Ts_Snd"
+Plot_pp = True
+pp_name = "_ps_Snd"
+Plot_Ro = True
+Ro_name = "_Routs_Snd"
+Plot_n0 = False
 
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
@@ -66,7 +66,7 @@ thetTst = 1.*np.pi/4.
 JJt =np.pi/2.
 aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
-n10 = 0.1/(ma.pi*Rde*aeff*aeff) * (pp-1.)
+n10 = 1.0/(ma.pi*Rde*aeff*aeff) * (pp-1.)
 nfac = 10.0
 n0 = nfac*n10 ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
