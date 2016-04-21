@@ -26,7 +26,7 @@ from IR_LightEchoes_NewMeth import *
 ## JUST PLOT DONT FIT
 NoFit = False   ## jsut plot - turn on one of the plt... options below
 pltShell = False
-rem_is_Rin = False ### fit for rem and Rin in shell model??
+rem_is_Rin = True ### fit for rem and Rin in shell model??
 #
 pltboth  = False
 pltThick = False
@@ -36,7 +36,7 @@ pltThick = False
 ## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
 emcee_Fit = True# use emcee to fit
 ## multiprocessing
-NThread = 48
+NThread = 4
 #
 fmin_Fit = False   # use simple fmin to fit
 
@@ -112,7 +112,7 @@ aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 
 
 Dst = 1.4*10**9*pc2cm
-Rrout = 100.0*Rde
+Rrout = 1.0*Rde
 
 md = 10**(-14)
 Mdust = 6.*10**5
@@ -895,7 +895,7 @@ if (emcee_Fit):
 		# else:
 		if (ShellFit):
 			ndim = 4
-			nwalkers = ndim*12
+			nwalkers = ndim*2
 			param_names = [r'sin($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 			if (W2fit):
 				Shell_File = "W2_Shell_xefix"
@@ -908,6 +908,8 @@ if (emcee_Fit):
 		if (fit_both):
 			ShW1_p0 = np.array(Shboth_p0_0)
 			if (rem_is_Rin):
+				ndim = 4
+				nwalkers = ndim*2
 				Shell_File = "_fitbothW1W2_rem_is_Rin"
 				param_names = [r'sin($J$)',r'cos($\theta_T$)', r'$R_in$', r'$n_0$']
 				ShW1_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ShBothPosterior, threads=NThread, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg, rem_is_Rin))
@@ -955,7 +957,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 1024
+		clen = 256
 		ShW1_pos,_,_ = ShW1_sampler.run_mcmc(ShW1_walker_p0 , clen)
 
 
