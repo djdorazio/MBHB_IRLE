@@ -333,20 +333,38 @@ def TDust_tst(t,r,thet,phi,args, RHStable, Ttable):
 
 
 
-
 def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
-
 	xe     = (Rout*Rout - (z*z + y*y))**(0.5)
-	
-	xInt = np.linspace(x, xe, 100.)
+## SIMPSON
+	#xInt = np.linspace(x, xe, 100.)
 	#xInt = np.logspace(x,xe, 100.)
-	yInt = nDust(xInt, y, z, n0, Rd, p, thetT, JJ)
-	
-	#return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.simps(yInt, xInt)
-	
+	#yInt = nDust(xInt, y, z, n0, Rd, p, thetT, JJ)
+	#return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.simps(yInt, xInt)	
 
+## GAUSSIAN QUAD
 	return ma.pi*aeff*aeff * Qv(nu, nu0, nn) * intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	
+
+
+def tauObs_Shell(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
+	Rout = Rd
+	xe     = (Rout*Rout - (z*z + y*y))**(0.5)
+	#xin    = (Rd*Rd - (z*z + y*y))**(0.5)
+	#if (x > xe):
+	#	print "ERROR in xe"
+	#	import sys
+	#	sys.exit(0)
+
+##INNER SHELL
+	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and (z*z + y*y) <= Rd*Rd):
+		tau = 0.000000001#nDust(xe,y,z, n0, Rd, p, thetT, JJ)
+	else:
+		tau = 100000000.0
+	
+	return tau
+
+
+
 
 
 ## SHELL IS AT r, dust shell starts at Rd
@@ -367,7 +385,10 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
 
 	#tauobs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust, x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	tauobs = tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+	#tauobs = tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+	tauobs = tauObs_Shell(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+
+	###
 
 	#tauObs = 0.0
 

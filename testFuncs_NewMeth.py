@@ -34,16 +34,16 @@ alph = 1.1
 
 Rde = RdPG
 pp = 2.0
-thetTst = 1.*np.pi/3
-JJt =4.*np.pi/8
+thetTst = 1.*np.pi/4
+JJt =-np.pi/8
 aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 
 
 Dst = 1.4*10**9*pc2cm
-Rrout = 85.0*Rde
+Rrout = 1.0*Rde
 
 md = 10**(-14)
-n0 = 1e-9#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 1.0#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 
 
@@ -119,9 +119,9 @@ Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 print "Plotting stuff"
 
 
-Nx = 100
-xx = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
-zz = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
+Nx = 400
+xx = np.linspace(-2.1*Rde, 2.1*Rde, Nx)
+zz = np.linspace(-2.1*Rde, 2.1*Rde, Nx)
 
 #xx = Rde* np.sin(th) * np.cos(ph)
 #zz = Rde* np.cos(th)
@@ -129,15 +129,15 @@ zz = np.linspace(-1.1*Rde, 1.1*Rde, Nx)
 
 ytst = 0*Rde
 
-thtst = ma.pi/4
-Jtst = -ma.pi/4
+
 tauT = np.zeros([Nx,Nx])
 nd = np.zeros([Nx,Nx])
 for i in range(0, Nx):
 	for j in range(0, Nx):
 		#ytst = ( Rde*Rde - (xx[i]*xx[i] + zz[j]*zz[j]) )**(0.5)
- 		tauT[j][i] = np.log10(tauObs(2.*numicron, xx[i], ytst, zz[j], 10.*Rde, aeff, 3.e-6, Rde, 2., thtst, Jtst, numicron, 1.))
- 		nd[j][i] =  np.log10(nDust(xx[i], ytst, zz[j], 3.e-6, Rde, 2.0, thtst, Jtst))
+		#tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+ 		tauT[j][i] = tauObs_Shell(2.*numicron, xx[i], ytst, zz[j], Rrout, aeff, n0, Rde, 2., thetTst, JJt, numicron, 1.)
+ 		nd[j][i] =  np.log10(nDust(xx[i], ytst, zz[j], n0, Rde, 2.0, thetTst, JJt))
 
 
 
