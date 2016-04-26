@@ -357,7 +357,7 @@ def tauObs_Shell(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
 
 ##INNER SHELL
 	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and (z*z + y*y) <= Rd*Rd):
-		tau = 0.000000001#nDust(xe,y,z, n0, Rd, p, thetT, JJ)
+		tau = 0.00000000#nDust(xe,y,z, n0, Rd, p, thetT, JJ)
 	else:
 		tau = 100000000.0
 	
@@ -370,6 +370,8 @@ def tauObs_Shell(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
 ## SHELL IS AT r, dust shell starts at Rd
 def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+
+	r=Rd
 ###----------------------------###
 ### SETUP COORDS TO INTEGRATE  ###
 ###----------------------------###
@@ -382,7 +384,7 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 	y = r*np.sin(thet)*np.sin(ph)
 	z = r*np.cos(thet)
 
-	xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
+	#xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
 
 	#tauobs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust, x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#tauobs = tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
@@ -418,6 +420,8 @@ def Fnuint_Shell(ph, thet, nu, r, t, Dist, Rout, args, RHStable, Ttable):
 
 def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tauGrid):
 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	## where UV penetrates out to (tau_UV=1)
+	Rout = Rd*(  1. - (p - 1.)/(n0*ma.pi*aeff*aeff*Rd)  )**(1./(1. - p)) + 0.01*Rd
 	# Lavg = args[0]
 	# bets = args[1]
 	# incl = args[2]
@@ -447,7 +451,11 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 ###----------------------------###
 	## doing the integral is faster than lloking it up this way
 	#xe     = Rout*( 1. - (r/Rout)*(r/Rout) * (  np.cos(thet)*np.cos(thet)  +  np.sin(thet)*np.sin(ph) * np.sin(thet)*np.sin(ph)  )  )**(0.5)
-	xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
+	
+
+	#xe = (Rout*Rout  -  (z*z + y*y))**(0.5)
+	
+
 	#don't integrate if no dust along path
 	#if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) == 0.0 and x >= 0.0):
 	#	tauObs = 0.0
@@ -456,7 +464,10 @@ def Fnuint_Thick(ph, thet, r, nu, t, Dist, Rout, args, RHStable, Ttable): #, tau
 	#else:
 
 	#tauObs = ma.pi*aeff*aeff *Qv(nu, nu0, nn)* intg.quad(nDust  ,x, xe , args=(y, z, n0, Rd, p, thetT, JJ) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	tauobs = tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+	
+
+	###ASSUME OPTICALLY THICK FOR EXTENDED TORUS MODEL
+	tauobs = 0.0#tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	# #epsi = 2.*Rrout/nn
 	# ixl = np.where( x < tauGrid[1])[0].max()
@@ -574,7 +585,7 @@ def magPoint_Thick(params, t, THEargs, RHStable, Ttable):
 	#beta, cosJJ, Rin, thetT, n0 = params
 	sinJJ, cosTT, Rin, pp, n0 = params
 	Rin = Rin * 2.73213149e+18
-	n0 = n0 * 1.4032428247438431e-09
+	n0 = n0 * (pp-1.)/(ma.pi * aeff*aeff * Rde)   # must be greater than one
 	t = t * 86400.
 	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
 	thetT = np.arccos(cosTT)
@@ -602,11 +613,23 @@ def Fnudphidth_Thick(r, nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
 
 # then int over theta
 def Fnu_Thick(nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
+	
+	n0 = Aargs[5]
 	Rd = Aargs[6]
+	p  = Aargs[7]
+	aeff = Aargs[10]
+	
+	Rout = Rd*(  1. - (p - 1.)/(n0*ma.pi*aeff*aeff*Rd)  )**(1./(1. - p)) + 0.01*Rd
+
 	return intg.quad(Fnudphidth_Thick, Rd, Rout, args=(nu, t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1 )[0]
 
 def Fnu_Thick_mult(nu, t, Dist, Rout, Aargs, RHStable, Ttable):#,tauGrid):
+	n0 = Aargs[5]
 	Rd = Aargs[6]
+	p  = Aargs[7]
+	aeff = Aargs[10]
+	
+	Rout = Rd*(  1. - (p - 1.)/(n0*ma.pi*aeff*aeff*Rd)  )**(1./(1. - p)) + 0.01*Rd
 	res=[]
 	for i in range (len(nu)):
 		res.append(intg.quad(Fnudphidth_Thick, Rd, Rout, args=(nu[i], t, Dist, Rout, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])

@@ -34,15 +34,15 @@ pltThick = False
 
 
 ## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
-emcee_Fit = True# use emcee to fit
+emcee_Fit = False# use emcee to fit
 ## multiprocessing
-NThread = 4
+NThread = 48
 #
-fmin_Fit = False   # use simple fmin to fit
+fmin_Fit = True   # use simple fmin to fit
 
-W1fit = False  ### fit only W1fit, Thick or Shell
+W1fit = True  ### fit only W1fit, Thick or Shell
 W2fit = False  ### fit only W1fit, Thick or Shell
-fit_both = True  ### fit using chi2 for both W1 and W2 - SHELL ONLY - 4 or 6 params depends on rem_is_Rin
+fit_both = False  ### fit using chi2 for both W1 and W2 - SHELL ONLY - 4 or 6 params depends on rem_is_Rin
 				### if rem_is_Rin is FALSE, then 6 params [sinJ, cosT, rem1, rem2, Rin, n0] where rems are
 				### where emission for W1 and W2 comes from and Rin is the sublimation radius rem>Rin
 if (fit_both):
@@ -57,7 +57,7 @@ No_Prd = True       ## fix the period at 1884/(1+z) ~ 1474 for fitting
 
 
 ShellFit = False #-> make false if fitboth is on - this fits for W1 and W2 independnetly and in addition to fitboth
-ThickFit = False # Fits W1 or W2 as selected above for THick model
+ThickFit = True # Fits W1 or W2 as selected above for THick model
 
 mpi_it = False  #defunct
 
@@ -108,7 +108,7 @@ Rde = RdPG
 pp = 2.0
 thetTst = 1.*np.pi/4
 JJt =4.*np.pi/8
-aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
+aeff = 0.16*10**(-4) #(1 micrometer wavelength /(2pi) )
 
 
 Dst = 1.4*10**9*pc2cm
@@ -175,11 +175,11 @@ if (fit_both):
 		#ShW1_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[2], Shboth_p0_0[4], Shboth_p0_0[5]]
 		#ShW2_p0_0 = [Shboth_p0_0[0], Shboth_p0_0[1], Shboth_p0_0[3], Shboth_p0_0[4], Shboth_p0_0[5]]
 if (ThickFit):
-	#p0 = [cosJ, costheta_T, Rin, p, n0]
+	#p0 = [cosJ, costheta_T, Rin, p, (n0>1)]
 	#ShW1_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
 	#ShW2_p0_0  = [ 0.0016,  0.7, 2.0,  1.0]
-	ShW1_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  0.1114]
-	ShW2_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  0.1114]  # W2 fit
+	ShW1_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  1.1]
+	ShW2_p0_0  = [ 0.0019,  0.9995, 1.8443, 1.2371,  1.1]  # W2 fit
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout,  aeff, nu0, nne, betst] 
 if (NoFit):
@@ -1398,7 +1398,7 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, max(ttopt))
 #plt.ylim(10.5, 11.5)
-#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 		#plt.show()
 plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")

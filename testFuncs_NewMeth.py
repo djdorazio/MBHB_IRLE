@@ -34,7 +34,7 @@ alph = 1.1
 
 Rde = RdPG
 pp = 2.0
-thetTst = 1.*np.pi/4
+thetTst = 0.*np.pi/4
 JJt =-np.pi/8
 aeff = 0.1*10**(-4) #(0.1 micrometer is an average ISM dust grain size)
 
@@ -43,7 +43,7 @@ Dst = 1.4*10**9*pc2cm
 Rrout = 1.0*Rde
 
 md = 10**(-14)
-n0 = 1.0#6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
+n0 = 1.2/(ma.pi * aeff*aeff * Rde)
 
 
 
@@ -119,9 +119,9 @@ Targs = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
 print "Plotting stuff"
 
 
-Nx = 400
-xx = np.linspace(-2.1*Rde, 2.1*Rde, Nx)
-zz = np.linspace(-2.1*Rde, 2.1*Rde, Nx)
+Nx = 100
+xx = np.linspace(-1.*Rde, 1.*Rde, Nx)
+zz = np.linspace(-1.*Rde, 1.*Rde, Nx)
 
 #xx = Rde* np.sin(th) * np.cos(ph)
 #zz = Rde* np.cos(th)
@@ -255,7 +255,7 @@ print "Fobs_Shell timw= %g" %td
 
 
 t1=time.clock()
-chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, [0.,1.], Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
+chk4=-2.5*np.log10(Fobs_Thick(W1mn,W1mx, [1.,2.], Dst, Rrout, Targs, RHS_table, T_table)/FW1Rel)
 t2=time.clock()
 td = (t2-t1)/2.
 print "Fobs_Thick timw= %g" %td
