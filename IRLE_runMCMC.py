@@ -135,7 +135,7 @@ beta0 = betst
 cosJJ0 = ma.cos(JJt)
 Rin0 = RdPG
 #nDust0 = Mdust*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
-n0 = 10.0/(ma.pi*Rde*aeff*aeff) * (pp-1.)
+n0 = 1.1/(ma.pi*Rde*aeff*aeff) * (pp-1.)
 
 
 # p0 = [Amg, Prd, phs, mag0]
