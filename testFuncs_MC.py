@@ -174,15 +174,16 @@ print "start timing"
 
 
 t1=time.clock()
+chk1 = -2.5*np.log10(F_ShTorOptThick_Dop_QuadInt(W1mn, W1mx, [0.0,1.0], Dst, Dop_args, RHS_table, T_table)/FW1Rel)
 #chk1=-2.5*np.log10(Thick_Dop_MCInt(NMC, W1mn, W1mx, 0.0, Dst, Dop_args, RHS_table, T_table)/FW1Rel)
 #chk1 = Thick_Dop_MCInt(NMC, W1mn, W1mx, 0.0, Dst, Dop_args, RHS_table, T_table)
 t2=time.clock()
 td = (t2-t1)/2.
-print "Fobs_Thick MCint time = %g" %td
+print "Fobs_ShellTor_OptThick MCint time = %g" %td
 #print "Fobs_Thick MCint Value = %g" %chk1
 
 t1=time.clock()
-chk2=-2.5*np.log10(F_Thick_Dop_QuadInt(W1mn, W1mx, 0.0, Dst, Dop_args, RHS_table, T_table)/FW1Rel)
+chk2=0.0#-2.5*np.log10(F_Thick_Dop_QuadInt(W1mn, W1mx, 0.0, Dst, Dop_args, RHS_table, T_table)/FW1Rel)
 #chk2 = F_Thick_Dop_QuadInt(W1mn, W1mx, 0.0, Dst, Dop_args, RHS_table, T_table)
 t2=time.clock()
 td = (t2-t1)/2.

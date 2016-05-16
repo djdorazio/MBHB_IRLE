@@ -398,6 +398,48 @@ def Fnuint_Thick_Iso(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, tauGr
 ###Doppler CASES    
 ####################################################
 ## flux from beaming binary as seen by observer at r, theta, phi (centered on binary barycenter)
+def Fsrc_Dop_PG(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu):
+#Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
+#starting point of secindary at t=0
+
+	## best fit to PG 1302 optical
+	#[fraction of lum in optical, beta, phase, inclination in radians, obs period in days]
+	Fsrc_p_opt = [ 5.98144879e-02,   6.12468791e-02,   6.55067929e-01,  -3.28334799e-04, 1.87091995e+03]
+
+	Ombin = 2.*ma.pi/(Fsrc_p_opt[4]*24.*3600.)* (1.+0.2784)
+	t = t-Fsrc_p_opt[2]*2.*ma.pi/Ombin
+
+	bets = Fsrc_p_opt[1]
+	incl = Fsrc_p_opt[2]
+
+
+	phis = -ma.pi/2
+	thetas = ma.pi/2
+
+	#Make in phase with PG 1302 data (in seconds) # 0.34 from best fit to data
+	#t = (t - 3600.*24.*1884./(1.+0.2784) * 0.34049274)
+
+	Vxorb = np.cos(incl) *np.sin(phis + Ombin*t) * np.sin(thetas)
+	Vyorb = -np.cos(phis + Ombin*t) * np.sin(thetas)
+	Vzorb = -np.sin(incl)* np.sin(phis + Ombin*t) * np.sin(thetas)
+
+#Unit Position of observer on dust shell in dust shell coords
+	xobs = np.sin(thet)*np.cos(phi)
+	yobs = np.sin(thet)*np.sin(phi)
+	zobs = np.cos(thet)
+
+#Line of sight velocity anywhere in dust shell (vorb.rhatobs)	
+	FracLOS = Vxorb*xobs + Vyorb*yobs + Vzorb*zobs
+
+#Doppler factor 
+	Gams = (1. - bets*bets)**(-0.5)
+	Dop = 1./(Gams*(1. - bets*FracLOS))
+
+# return flux at observer coordinates r, phi, theta (in dust or at earth)
+	return Lavg/(4.*ma.pi*r*r)*(Dop)**(3. - alphnu)
+
+
+
 def Fsrc_Dop(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu):
 #Rot by Inc around y axis, Rotation around Bin ang momentum axis by Ombin*t 
 #starting point of secindary at t=0
@@ -571,6 +613,81 @@ def TDust_Dop(t,r,thet,phi, args, RHStable, Ttable):
 	return Td
 
 
+
+
+def TDust_Dop_PG(t,r,thet,phi, args, RHStable, Ttable):
+	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	x = r*np.sin(thet)*np.cos(phi)
+	y = r*np.sin(thet)*np.sin(phi)
+	z = r*np.cos(thet)
+	
+	xrot = x*np.cos(JJ) + z*np.sin(JJ)
+	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+	
+
+	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
+	
+
+	Td = 1.*r/r ##T=1 is very small
+	# if (type(r) is np.ndarray):
+	# 	for i in range(len(r)):
+	# 		if ( r[i]>=Rd and  throt[i]>=thetT and  throt[i]<=(ma.pi - thetT)):
+	# 			###-----------------###
+	# 			### COMPUTE Fsrc    ###
+	# 			###-----------------###
+	# 			Fsrc = Fsrc_Dop(t, r[i], thet[i], phi[i], Lavg, bets, incl, Ombin, alphnu)
+	# 			###-----------------###
+	# 			### Compute taudust ###
+	# 			###-----------------###
+	# 			Qbar=1. ##for now
+	# 			tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r[i])**(p-1.))
+	# 			### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+	# 			LHS = Fsrc * np.exp(-tauDust)
+	# 			if (type(Fsrc) is np.ndarray):
+	# 				if (len(Fsrc) > len(RHStable)):
+	# 					LHS = sgn.resample(LHS, len(RHStable))
+	# 				elif (len(Fsrc) < len(RHStable)):
+	# 					RHStable = sgn.resample(RHStable, len(Fsrc))
+	# 			RHS_mx = RHStable[len(RHStable)-1]
+	# 			RHS_mn = RHStable[0]
+
+	# 			#Td = np.piecewise(r, [LHS > RHS_mx, LHS <= RHS_mn], [lambda LHS:1.0, lambda LHS:Ttable[np.where(LHS <= RHStable )[0].min()]])
+	# 			#if (LHS > RHS_mx, LHS <= RHS_mn):
+	# 			#	Td = 1.
+	# 			#else:
+	# 			istar = np.where( LHS <= RHStable )[0].min()
+	# 			Td[i] = Ttable[istar]
+	# else:
+	if ( r>=Rd and  throt>=thetT and  throt<=(ma.pi - thetT)):
+		###-----------------###
+		### COMPUTE Fsrc    ###
+		###-----------------###
+		Fsrc = Fsrc_Dop_PG(t, r, thet, phi, Lavg, bets, incl, Ombin, alphnu)
+		###-----------------###
+		### Compute taudust ###
+		###-----------------###
+		Qbar=1. ##for now
+		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+		LHS = Fsrc * np.exp(-tauDust)
+		# if (type(Fsrc) is np.ndarray):
+		# 	if (len(Fsrc) > len(RHStable)):
+		# 		LHS = sgn.resample(LHS, len(RHStable))
+		# 	elif (len(Fsrc) < len(RHStable)):
+		# 		RHStable = sgn.resample(RHStable, len(Fsrc))
+		RHS_mx = RHStable[len(RHStable)-1]
+		RHS_mn = RHStable[0]
+
+		#Td = np.piecewise(r, [LHS > RHS_mx, LHS <= RHS_mn], [lambda LHS:1.0, lambda LHS:Ttable[np.where(LHS <= RHStable )[0].min()]])
+		if (LHS > RHS_mx or LHS <= RHS_mn):
+			Td = 1.
+		else:
+			istar = np.where( LHS <= RHStable )[0].min()
+			Td = Ttable[istar]
+
+	return Td	
+
+
 #TDust_Dop = np.vectorize(TDust_Dop, excluded=(4,5,6), cache=True)#excluded=("args", "RHStable", "Ttable"))
 
 
@@ -632,6 +749,35 @@ def Fnuint_Shell_OptThin_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	return ma.pi* aeff*aeff/Dist/Dist *fint
 
 
+def Fnuint_Shell_OptThin_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
+	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+
+###----------------------------###
+### SETUP COORDS TO INTEGRATE  ###
+###----------------------------###
+## retarded time - time light emitted form dust
+	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+###----------------------------###
+### compute los tau (tauObs) (effective for shell model)   ###
+###----------------------------###
+	#x = Rd*np.sin(thet)*np.cos(ph)
+	#y = Rd*np.sin(thet)*np.sin(ph)
+	#z = Rd*np.cos(thet)
+
+	
+	# Tdust for doppler source
+	Tdust = TDust_Dop_PG(tem,Rd, thet, ph, args, RHStable, Ttable)
+	# surface density in optically thick limit
+	Surf_nd = 1./(ma.pi * aeff*aeff)
+	# Rd is the inner edge of the shell
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
+	
+
+	# pi for uniform emitting dust grain
+	return ma.pi* aeff*aeff/Dist/Dist *fint
+
+
 ## Fnu for doppler beaming case, optically thick shell torus
 def Fnuint_Shell_OptThick_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
@@ -649,14 +795,48 @@ def Fnuint_Shell_OptThick_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	z = Rd*np.cos(thet)
 
 	#In optically thick case blocck light which hits interverning dust
-	tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+	#tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	# Tdust for doppler source
 	Tdust = TDust_Dop(tem, Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
 	Surf_nd = 1./(ma.pi * aeff*aeff)
 	# Rd is the inner edge of the shell
-	fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	#fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
+	
+
+	# pi for uniform emitting dust grain
+	return ma.pi* aeff*aeff/Dist/Dist *fint
+
+
+
+def Fnuint_Shell_OptThick_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
+	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+
+###----------------------------###
+### SETUP COORDS TO INTEGRATE  ###
+###----------------------------###
+## retarded time - time light emitted form dust
+	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+###----------------------------###
+### compute los tau (tauObs) (effective for shell model)   ###
+###----------------------------###
+	x = Rd*np.sin(thet)*np.cos(ph)
+	y = Rd*np.sin(thet)*np.sin(ph)
+	z = Rd*np.cos(thet)
+
+	#In optically thick case blocck light which hits interverning dust
+	#tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+
+	# Tdust for doppler source
+	Tdust = TDust_Dop_PG(tem, Rd, thet, ph, args, RHStable, Ttable)
+	# surface density in optically thick limit
+	Surf_nd = 1./(ma.pi * aeff*aeff)
+	# Rd is the inner edge of the shell
+	#fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
 	
 
@@ -687,6 +867,37 @@ def Fnuint_Thick_Dop(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, tauGr
 
 	# Tdust for doppler source
 	Tdust = TDust_Dop(tem, r, thet, ph, args, RHStable, Ttable)
+
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
+	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
+	#fint = fint * nDust(x,y,z, n0, Rd, p, thetT, JJ)
+
+
+	return ma.pi* aeff*aeff/Dist/Dist *fint
+
+
+
+
+def Fnuint_Thick_Dop_PG(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, tauGrid):
+	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	## where UV penetrates out to (tau_UV=1)
+	Rout = Rd*(  1. - (p - 1.)/(n0*ma.pi*aeff*aeff*Rd)  )**(1./(1. - p)) + 0.01*Rd
+
+
+
+###----------------------------###
+### SETUP COORDS TO INTEGRATE  ###
+###----------------------------###
+	x = r*np.sin(thet)*np.cos(ph)
+	y = r*np.sin(thet)*np.sin(ph)
+	z = r*np.cos(thet)
+## retarded time - time light emitted form dust
+	tem = t - r/c*(1. - np.sin(thet)*np.cos(ph))
+
+
+
+	# Tdust for doppler source
+	Tdust = TDust_Dop_PG(tem, r, thet, ph, args, RHStable, Ttable)
 
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
@@ -884,8 +1095,25 @@ def Fnu_ShTorOptThick_Dop_QuadInt(nu, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(FThnu_ShTorOptThick_Dop_QuadInt, 0., ma.pi, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
 
 def F_ShTorOptThick_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
-	return intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+	#return intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+	 res=[]
+	 for i in range(len(t)):
+	 	res.append(intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0] )	
+	 return np.array(res)
 
+###
+def FThnu_ShTorOptThick_Dop_QuadInt_PG(thet, nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(Fnuint_Shell_OptThick_Dop_PG, 0.,2.*ma.pi, args=(thet, nu, t, Dist, Aargs, RHStable, Ttable) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,full_output=fo  )[0]
+		
+def Fnu_ShTorOptThick_Dop_QuadInt_PG(nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(FThnu_ShTorOptThick_Dop_QuadInt_PG, 0., ma.pi, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+
+def F_ShTorOptThick_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
+	#return intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+	 res=[]
+	 for i in range(len(t)):
+	 	res.append(intg.quad(Fnu_ShTorOptThick_Dop_QuadInt_PG, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0] )	
+	 return np.array(res) 
 
 
 
@@ -914,6 +1142,47 @@ def F_Thick_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	# for i in range(len(t)):
 	# 	res = intg.quad(FRnu_Thick_Dop_QuadInt, numin, numax, args=(nu, t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	# return np.array(res)
+
+
+def FThRnu_Thick_Dop_QuadInt_PG(thet, r, nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(Fnuint_Thick_Dop_PG, 0.,2.*ma.pi, args=(thet, r, nu, t, Dist, Aargs, RHStable, Ttable) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+def FRnu_Thick_Dop_QuadInt_PG(r, nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(FThRnu_Thick_Dop_QuadInt_PG, 0., ma.pi, args=(r, nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+def Fnu_Thick_Dop_QuadInt_PG(nu, t, Dist, Aargs, RHStable, Ttable):
+	#Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	n0 = Aargs[5]
+	Rd = Aargs[6]
+	p  = Aargs[7]
+	aeff = Aargs[10]
+	Rtau1 = Rd*(  1. - (p - 1.)/(n0*ma.pi*aeff*aeff*Rd)  )**(1./(1. - p)) + 0.01*Rd
+	return intg.quad(FRnu_Thick_Dop_QuadInt_PG, Rd, Rtau1, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+def F_Thick_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
+	#return intg.quad(Fnu_Thick_Dop_QuadInt_PG, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#
+	res=[]
+	for i in range(len(t)):
+		res.append( intg.quad(Fnu_Thick_Dop_QuadInt_PG, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0] )
+	return np.array(res)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
