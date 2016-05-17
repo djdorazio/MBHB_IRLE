@@ -232,7 +232,8 @@ W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 
 ##opt thin geo thick
-p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
+#p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
+p_thin = = [6.83121563e-01,   8.88186589e-01,   6.97427899e+00,   1.09843750e+03]
 
 
 ################################
@@ -240,7 +241,7 @@ p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
 ### PLOT
 ################################
 ################################
-Nt=2
+Nt=20
 
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 

@@ -248,8 +248,8 @@ if (same_rem):
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 	## optimize with fmin
 	OpThick_TorShell_p_opt  = sc.optimize.fmin(OpThick_TorShell_Err2,    OpThick_TorShell_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
-	pw1 = OpThick_TorShell_p_opt
-	pw2 = OpThick_TorShell_p_opt
+	pW1 = OpThick_TorShell_p_opt
+	pW2 = OpThick_TorShell_p_opt
 	ps = OpThick_TorShell_p_opt
 
 ######################################
@@ -272,19 +272,20 @@ if (diff_rem):
 
 
 if (Opt_Thin):
-	Shell_File = "OptThn_TorusThick_J_ThT_Rin_n0_p_"
+	Shell_File = "OptThn_TorusThick_J_ThT_Rin_n0_"
 	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_{in}$', r'$n_0$']
 	## starting point
 	#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
 	#OpThin_TorThick_p0 = [-0.06475812,   0.90372837,  2.39385413, 10.0]
-	OpThin_TorThick_p0 = [0.7311,  0.80859092,  7.28146583, 1000.]
+	#OpThin_TorThick_p0 = [0.7311,  0.80859092,  7.28146583, 1000.]
+	OpThin_TorThick_p0 = [6.83121563e-01,   8.88186589e-01,   6.97427899e+00,   1.09843750e+03]
 	## args of non chanigng parameters to pass
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	## optimize with fmin
 	OpThin_TorThick_p_opt  = sc.optimize.fmin(OpThin_TorThick_Err2,    OpThin_TorThick_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
-	pw1 = OpThin_TorThick_p_opt
-	pw2 = OpThin_TorThick_p_opt
+	pW1 = OpThin_TorThick_p_opt
+	pW2 = OpThin_TorThick_p_opt
 	ps = OpThin_TorThick_p_opt
 
 
@@ -373,12 +374,13 @@ W1av   = plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='blac
 W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
 
 
-#W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(OpThick_TorShell_p_opt, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-#W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(OpThick_TorShell_p_opt, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+if (diff_rem or same_rem):
+	W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+if (Opt_Thin):
+	W1shell = plt.plot(ttopt, magPoint_OpThin_TorThick(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
-#if (diff_rem):
-W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 
 
