@@ -224,15 +224,15 @@ Shell_File = "Testing"
 param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$']
 ## starting point
 #p_tst = [sinJJ,  cosTT,  2.0]
-pW1 = [0.05311*7,     0.90859092/2.,  2.28146583 ]
-pW2 = [0.05311*7,     0.90859092/2., 10.75429423]
+pW1 = [0.05311,     0.90859092,  2.28146583 ]
+pW2 = [0.05311,     0.90859092, 10.75429423]
 
 
 W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
 
-
-
+##opt thin geo thick
+p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
 
 
 ################################
@@ -240,7 +240,7 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 ### PLOT
 ################################
 ################################
-Nt=20
+Nt=2
 
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
@@ -275,8 +275,12 @@ W1av   = plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='blac
 W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
 
 
-W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+#W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+#W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+
+
+W1shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 
 

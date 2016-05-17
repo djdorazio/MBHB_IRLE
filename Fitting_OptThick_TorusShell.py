@@ -276,10 +276,11 @@ if (Opt_Thin):
 	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_{in}$', r'$n_0$']
 	## starting point
 	#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
-	OpThin_TorThick_p0 = [-0.06475812,   0.90372837,  2.39385413, 10.0]
+	#OpThin_TorThick_p0 = [-0.06475812,   0.90372837,  2.39385413, 10.0]
+	OpThin_TorThick_p0 = [0.7311,  0.80859092,  7.28146583, 1000.]
 	## args of non chanigng parameters to pass
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, Rrout,  pp, aeff, nu0, nne, betst] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, Rrout,  pp, aeff, nu0, nne, betst] 
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
 	## optimize with fmin
 	OpThin_TorThick_p_opt  = sc.optimize.fmin(OpThin_TorThick_Err2,    OpThin_TorThick_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
 	pw1 = OpThin_TorThick_p_opt

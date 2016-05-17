@@ -64,7 +64,7 @@ def magPoint_OpThin_TorThick(params, t, THEargs, RHStable, Ttable):
 	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
 	thetT = np.arccos(cosTT)
 	
-	FRel, numin, numax, Dist, Lav, Ombn, alph, Rout,  pp, aeff, nu0, nne, beta = THEargs
+	FRel, numin, numax, Dist, Lav, Ombn, alph, pp, Rout, aeff, nu0, nne, beta = THEargs
 	IncFit = np.arccos(0.067/beta)
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
