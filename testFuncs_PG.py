@@ -20,8 +20,8 @@ from ErrFuncs_IRLE import *
 ### Define Constants
 ################################
 ################################
-nne = 1.
-nu0 = numicron
+nne = 1.0
+nu0 = numicron/1.5
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
 zPG1302 = 0.2784
@@ -36,10 +36,10 @@ OmPG = 2.*ma.pi/(1.87091995e+03*24.*3600.) * (1.+zPG1302)
 
 ## TEST VALUES
 Lav = L0
-betst = 0.08
+betst = 0.1
 Inc = ma.acos(0.067/betst)#0.*np.pi/4.
 Ombn = OmPG
-alph = -10.0
+alph = -3.0
 
 Rde = RdPG
 pp = 2.0
@@ -233,7 +233,8 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 
 ##opt thin geo thick
 #p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
-p_thin = = [6.83121563e-01,   8.88186589e-01,   6.97427899e+00,   1.09843750e+03]
+#p_thin = [6.83121563e-01,   8.88186589e-01,   6.97427899e+00,   1.09843750e+03]
+p_thin = [6.47137734e-01,   9.47883340e-01,   6.74388886e+00,   1.23476562e+03]
 
 
 ################################
@@ -241,7 +242,7 @@ p_thin = = [6.83121563e-01,   8.88186589e-01,   6.97427899e+00,   1.09843750e+03
 ### PLOT
 ################################
 ################################
-Nt=20
+Nt=40
 
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
