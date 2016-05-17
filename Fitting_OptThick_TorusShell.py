@@ -243,7 +243,7 @@ if (fit_dust):
 	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$']
 	## starting point
 	#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
-	OpThick_TorShell_dust_p0 = [-0.99954288,  0.87820586,  4.95841099, nne, nu0]
+	OpThick_TorShell_dust_p0 = [-5.81648541e-01,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
 	## args of non chanigng parameters to pass
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 

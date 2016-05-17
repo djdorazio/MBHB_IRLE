@@ -14,7 +14,15 @@ from ErrFuncs_IRLE import *
 
 
 
-
+################################
+###############################
+### OPTIONS
+################################
+################################
+same_rem = False
+fit_dust = True
+diff_rem = False
+Opt_Thin = False
 
 ###############################
 ### Define Constants
@@ -36,10 +44,10 @@ OmPG = 2.*ma.pi/(1.87091995e+03*24.*3600.) * (1.+zPG1302)
 
 ## TEST VALUES
 Lav = L0
-betst = 0.1
+betst = 0.08
 Inc = ma.acos(0.067/betst)#0.*np.pi/4.
 Ombn = OmPG
-alph = -3.0
+alph = -2.0
 
 Rde = RdPG
 pp = 2.0
@@ -199,7 +207,7 @@ W2_avsg = np.array(W2_avsg)
 #Set up look up tables
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
-NT = 10000
+NT = 1000
 RHS_table = np.zeros(NT)
 T_table = np.linspace(1., 2000., NT)
 for i in range(NT):
@@ -224,7 +232,7 @@ Shell_File = "Testing"
 param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$']
 ## starting point
 #p_tst = [sinJJ,  cosTT,  2.0]
-pW1 = [0.05311,     0.90859092,  2.28146583 ]
+pW1 = [0.05311,     0.90859092,  2.28146583]
 pW2 = [0.05311,     0.90859092, 10.75429423]
 
 
@@ -234,7 +242,15 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 ##opt thin geo thick
 #p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
 #p_thin = [6.83121563e-01,   8.88186589e-01,   6.97427899e+00,   1.09843750e+03]
-p_thin = [6.47137734e-01,   9.47883340e-01,   6.74388886e+00,   1.23476562e+03]
+#p_thin = [6.47137734e-01,   9.47883340e-01,   6.74388886e+00,   1.23476562e+03]
+p_thin = [6.47137734e-01,   9.95277507e-01,   6.74388886e+00,   1.13e+03]
+
+
+if (fit_dust):
+	p_Shell_dust = [-5.81648541e-01,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
+	#p_Shell_dust = [0.9,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst]
 
 
 ################################
@@ -242,7 +258,7 @@ p_thin = [6.47137734e-01,   9.47883340e-01,   6.74388886e+00,   1.23476562e+03]
 ### PLOT
 ################################
 ################################
-Nt=40
+Nt=20
 
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
@@ -277,12 +293,19 @@ W1av   = plt.errorbar(t_avg, W1_avg, yerr=W1_avsg, linestyle="none", color='blac
 W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='black', alpha=1., elinewidth=1.5)
 
 
-#W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-#W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
+if (diff_rem or same_rem):
+	W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
-W1shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+if (Opt_Thin):
+	W1shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+
+if (fit_dust):
+	W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+
 
 
 
@@ -294,7 +317,7 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, max(ttopt))
 #plt.ylim(10.5, 11.5)
-#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 plt.show()
 #plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")
