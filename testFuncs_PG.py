@@ -20,9 +20,10 @@ from ErrFuncs_IRLE import *
 ################################
 ################################
 same_rem = False
-fit_dust = True
+fit_dust = False
+shell_thin = False
 diff_rem = False
-Opt_Thin = False
+Opt_Thin = True
 
 ###############################
 ### Define Constants
@@ -207,7 +208,7 @@ W2_avsg = np.array(W2_avsg)
 #Set up look up tables
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
-NT = 1000
+NT = 10000
 RHS_table = np.zeros(NT)
 T_table = np.linspace(1., 2000., NT)
 for i in range(NT):
@@ -243,11 +244,30 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 #p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
 #p_thin = [6.83121563e-01,   8.88186589e-01,   6.97427899e+00,   1.09843750e+03]
 #p_thin = [6.47137734e-01,   9.47883340e-01,   6.74388886e+00,   1.23476562e+03]
-p_thin = [6.47137734e-01,   9.95277507e-01,   6.74388886e+00,   1.13e+03]
+#201
+#p_thin = [6.54398567e-01,   9.56329809e-01,   6.79004020e+00,   1.22185026e+03]
+#183
+#p_thin = [6.80382336e-01,   9.58009767e-01,   6.82075299e+00,   1.26497734e+03]
+
+#from yeti
+#W1: cos($J$): 0.6554
+#W1: cos($\theta_T$): 0.9532
+#W1: $R_{in}$: 6.7869
+#W1: $n_0$: 1235.6873  
+#chi2 = 
+p_thin = [0.6554,   0.9532,   6.7869,   1235.6873]
+
+
+
+
 
 
 if (fit_dust):
-	p_Shell_dust = [-5.81648541e-01,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
+	#p_Shell_dust = [-5.69581648e-01,   6.25236770e-01,   7.60443550e+00,   3.84022274e-01, 4.50861670e+14]
+	p_Shell_dust = [0.7,   6.25236770e-01,   6.60443550e+00,   0.1, 4.50861670e+14]
+
+	p_Shell_dust_thin = [-7.69581648e-01,   6.25236770e-01,   7.60443550e+00,   3.84022274e-01, 4.50861670e+14]
+
 	#p_Shell_dust = [0.9,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst]
@@ -258,7 +278,7 @@ if (fit_dust):
 ### PLOT
 ################################
 ################################
-Nt=20
+Nt=40
 
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
@@ -303,11 +323,13 @@ if (Opt_Thin):
 	W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 if (fit_dust):
-	W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-
-
-
+	if (shell_thin):
+		W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell_dustP(p_Shell_dust_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell_dustP(p_Shell_dust_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	else:
+		W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	
 
 plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], s2[0], IR2[0], s3[0], IR3[0]  ], (r'$i=0$','',   r'$i=\pi/4$','',   r'$i=\pi/2$', ''), loc='upper right')

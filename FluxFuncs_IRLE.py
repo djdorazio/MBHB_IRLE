@@ -272,7 +272,7 @@ def Fnuint_Ring_Iso(ph, nu, t, Dist, args, RHStable, Ttable):
 	args[7] = 0.0 #set thea_T = 0 for Ring
 	Tdust = TDust_Iso(tem, Rd, Th_ring, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	l_d = 1./(2.*aeff)
+	l_d = (2.*aeff)*(2.*aeff)/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint =  2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(Th_ring) * l_d #*Qv(nu, nu0, nn) * 
@@ -296,7 +296,7 @@ def Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Iso(tem, Rd, thet, ph,  args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 1./(ma.pi * aeff*aeff)
+	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
@@ -328,7 +328,7 @@ def Fnuint_Shell_OptThick_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Iso(tem, Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 1./(ma.pi * aeff*aeff)
+	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
@@ -710,7 +710,7 @@ def Fnuint_Ring_Dop(ph, nu, t, Dist, args, RHStable, Ttable):
 	args[8] = 0.0 #set thea_T = 0 for Ring/Sphere
 	Tdust = TDust_Dop(tem, Rd, Th_ring, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	l_d = 1./(2.*aeff)
+	l_d = (2.*aeff)*(2.*aeff)/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint =  2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(Th_ring) * l_d #*Qv(nu, nu0, nn) * 
@@ -739,7 +739,7 @@ def Fnuint_Shell_OptThin_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Dop(tem,Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 1./(ma.pi * aeff*aeff)
+	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
@@ -768,7 +768,7 @@ def Fnuint_Shell_OptThin_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Dop_PG(tem,Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 1./(ma.pi * aeff*aeff)
+	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
@@ -795,15 +795,15 @@ def Fnuint_Shell_OptThick_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	z = Rd*np.cos(thet)
 
 	#In optically thick case blocck light which hits interverning dust
-	#tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+	tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	# Tdust for doppler source
 	Tdust = TDust_Dop(tem, Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 1./(ma.pi * aeff*aeff)
+	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
-	#fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
-	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
 	
 
@@ -828,15 +828,15 @@ def Fnuint_Shell_OptThick_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	z = Rd*np.cos(thet)
 
 	#In optically thick case blocck light which hits interverning dust
-	#tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
+	tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	# Tdust for doppler source
 	Tdust = TDust_Dop_PG(tem, Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 1./(ma.pi * aeff*aeff)
+	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
-	#fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
-	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = Qv(nu, nu0, nn) * np.exp(-tauobs) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
 	
 
@@ -1065,6 +1065,18 @@ def F_Sphere_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 
 
 
+def FThnu_Sphere_Dop_QuadInt_PG(thet, nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(Fnuint_Shell_OptThin_Dop_PG, 0.,2.*ma.pi, args=(thet, nu, t, Dist, Aargs, RHStable, Ttable) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,full_output=fo  )[0]
+		
+def Fnu_Sphere_Dop_QuadInt_PG(nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(FThnu_Sphere_Dop_QuadInt_PG, 0., ma.pi, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+
+def F_Sphere_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
+	Aargs[8] = 0.0 #set thea_T = 0 for Ring/Sphere
+	return intg.quad(Fnu_Sphere_Dop_QuadInt_PG, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+
+
+
 
 #########
 ###RING
@@ -1083,6 +1095,12 @@ def F_Ring_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 #########
 def F_ShTorOptThin_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(Fnu_Sphere_Dop_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+
+def F_ShTorOptThin_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
+	res=[]
+	for i in range(len(t)):
+		res.append(intg.quad(Fnu_Sphere_Dop_QuadInt_PG, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0])
+	return np.array(res)
 
 
 #########
