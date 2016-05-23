@@ -201,8 +201,11 @@ def Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0):
 	#return Lavg/(4.*ma.pi*r*r)* ( 1. + Amp*np.sin(Ombin*(t - t0))  )
 	return Lavg/(4.*ma.pi*r*r)* ( 1. + Amp*np.sin(Ombin*t - t0)  )  #make t0 pahse not time
 
-
-
+def Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0):
+	Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
+	Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
+	t0   = Fsrc_ISO_p0[2] * 2.*ma.pi/Ombn
+	return Lavg/(4.*ma.pi*r*r)* ( 1. + Fsrc_ISO_p0[1]*np.sin(Ombn*t - t0)  )
 
 
 
@@ -225,6 +228,51 @@ def TDust_Iso(t,r,thet, ph, args, RHStable, Ttable):
 		###-----------------###
 
 		Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
+
+
+		###-----------------###
+		### Compute taudust ###
+		###-----------------###
+		Qbar=1. 
+		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+		LHS = Fsrc * np.exp(-tauDust)
+		# if (type(Fsrc) is np.ndarray):
+		# 	if (len(Fsrc) > len(RHStable)):
+		# 		LHS = sgn.resample(LHS, len(RHStable))
+		# 	elif (len(Fsrc) < len(RHStable)):
+		# 		RHStable = sgn.resample(RHStable, len(Fsrc))
+		RHS_mx = RHStable[len(RHStable)-1]
+		RHS_mn = RHStable[0]
+
+		if (LHS > RHS_mx or LHS <= RHS_mn):
+			Td = 1.
+		else:
+			istar = np.where( LHS <= RHStable )[0].min()
+			Td = Ttable[istar]
+
+	return Td
+
+
+def TDust_Iso_PG(t,r,thet, ph, args, RHStable, Ttable):
+	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	x = r*np.sin(thet)*np.cos(ph)
+	y = r*np.sin(thet)*np.sin(ph)
+	z = r*np.cos(thet)
+	
+	xrot = x*np.cos(JJ) + z*np.sin(JJ)
+	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
+
+	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
+	Td = 1.*r/r  ##T=1 is very small
+
+	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+		###-----------------###
+		### COMPUTE Fsrc    ###
+		###-----------------###
+
+		Fsrc = Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0)
 
 
 		###-----------------###
@@ -359,6 +407,33 @@ def Fnuint_Thick_Iso(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, tauGr
 
 	# Tdust for doppler source
 	Tdust = TDust_Iso(tem, r, thet, ph, args, RHStable, Ttable)
+
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
+	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
+
+
+	return ma.pi* aeff*aeff/Dist/Dist *fint
+
+
+def Fnuint_Thick_Iso_PG(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, tauGrid):
+	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	## where UV penetrates out to (tau_UV=1)
+	Rout = Rd*(  1. - (p - 1.)/(n0*ma.pi*aeff*aeff*Rd)  )**(1./(1. - p)) + 0.01*Rd
+
+
+###----------------------------###
+### SETUP COORDS TO INTEGRATE  ###
+###----------------------------###
+	x = r*np.sin(thet)*np.cos(ph)
+	y = r*np.sin(thet)*np.sin(ph)
+	z = r*np.cos(thet)
+## retarded time - time light emitted form dust
+	tem = t - r/c*(1. - np.sin(thet)*np.cos(ph))
+
+
+
+	# Tdust for doppler source
+	Tdust = TDust_Iso_PG(tem, r, thet, ph, args, RHStable, Ttable)
 
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
@@ -1022,7 +1097,7 @@ def F_ShTorOptThick_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 ###THICK
 #########
 def FThRnu_Thick_Iso_QuadInt(thet, r, nu, t, Dist, Aargs, RHStable, Ttable):
-	return intg.quad(Fnuint_Thick_Iso, 0.,2.*ma.pi, args=(thet, r, nu, t, Dist, args, RHStable, Ttable) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	return intg.quad(Fnuint_Thick_Iso, 0.,2.*ma.pi, args=(thet, r, nu, t, Dist, Aargs, RHStable, Ttable) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 
 def FRnu_Thick_Iso_QuadInt(r, nu, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(FThRnu_Thick_Iso_QuadInt, 0., ma.pi, args=(r, nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
@@ -1038,6 +1113,48 @@ def Fnu_Thick_Iso_QuadInt(nu, t, Dist, Aargs, RHStable, Ttable):
 
 def F_Thick_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(Fnu_Thick_Iso_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+
+
+##################
+###THICK - PG1302
+##################
+def FThRnu_Thick_Iso_QuadInt_PG(thet, r, nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(Fnuint_Thick_Iso_PG, 0.,2.*ma.pi, args=(thet, r, nu, t, Dist, Aargs, RHStable, Ttable) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+def FRnu_Thick_Iso_QuadInt_PG(r, nu, t, Dist, Aargs, RHStable, Ttable):
+	return intg.quad(FThRnu_Thick_Iso_QuadInt_PG, 0., ma.pi, args=(r, nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+def Fnu_Thick_Iso_QuadInt_PG(nu, t, Dist, Aargs, RHStable, Ttable):
+	#Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	n0 = Aargs[4]
+	Rd = Aargs[5]
+	p  = Aargs[6]
+	aeff = Aargs[9]
+	Rtau1 = Rd*(  1. - (p - 1.)/(n0*ma.pi*aeff*aeff*Rd)  )**(1./(1. - p)) + 0.01*Rd
+	return intg.quad(FRnu_Thick_Iso_QuadInt_PG, Rd, Rtau1, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+
+def F_Thick_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
+	res=[]
+	for i in range(len(t)):
+		res.append(intg.quad(Fnu_Thick_Iso_QuadInt_PG, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0])
+	return np.array(res)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

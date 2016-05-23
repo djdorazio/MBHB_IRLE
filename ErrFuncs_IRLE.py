@@ -28,8 +28,24 @@ def Fsrc_Err2(p, t, y, dy, Args):
 
 
 
+def Fsrc_ISO_Err2(p, t, y, dy, Args):
+	print "EVAL", p
+	#Lfac, bets, phs, incl = p
+	Lfac, Amp, phs, Pday = p
 
-\
+	#FVbndRel, Lav, bets, Ombn, Dst = Args
+	FVbndRel, Lav, Dst = Args
+
+	if (Amp<=0):
+		return inf
+	else:
+	#incl = np.arccos(0.067/bets)
+		Ombn =	2.*ma.pi/(Pday*24.*3600.) * (1.+0.2784)
+		t0 = phs * 2.*ma.pi/Ombn
+
+		chi = (y - -2.5*np.log10(Fsrc_Iso((t*3600.*24.-t0), Dst, Lfac*Lav, Amp, Ombn, t0)/FVbndRel) )/ dy
+		return sum(chi*chi)
+
 
 ##Optically Thick Torus Shell - Doppler Model
 def magPoint_OpThick_TorShell(params, t, THEargs, RHStable, Ttable):
@@ -126,7 +142,7 @@ def magPoint_OpThin_TorThick(params, t, THEargs, RHStable, Ttable):
 	return -2.5*np.log10(F_Thick_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel)
 
 
-
+          
 
 
 
@@ -201,6 +217,39 @@ def OpThin_TorThick_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2
 	return sumChi2
 
 
+	##Optically Thick Torus Shell - Doppler Model
+def ISO_magPoint_OpThin_TorThick(params, t, THEargs, RHStable, Ttable):
+
+	sinJJ, cosTT, Rin, n0 = params
+
+	Rin = Rin * 2.73213149e+18
+	n0 = n0*1.e-10
+	t = t * 86400.
+	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
+	thetT = np.arccos(cosTT)
+	
+	FRel, numin, numax, Dist, Lav, Ombn, pp, aeff, nu0, nne, Amp, t0 = THEargs
+
+
+	#Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+			#Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+	Aargs  = [Lav, Amp, Ombn, t0, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+
+	return -2.5*np.log10(F_Thick_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel)
+
+              
+
+def ISO_OpThin_TorThick_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+	print "EVAL", p
+	t1=time.clock()
+	#p0 = [sinJ, cosT, Rin]
+	chi1 = ( y1 - ISO_magPoint_OpThin_TorThick(p, t, THEargs1, RHStable, Ttable) ) / dy1
+	chi2 = ( y2 - ISO_magPoint_OpThin_TorThick(p, t, THEargs2, RHStable, Ttable) ) / dy2
+	sumChi2 = sum(chi1*chi1) + sum(chi2*chi2)
+	print(sumChi2 )
+	t2=time.clock()
+	print(t2-t1)
+	return sumChi2
 
 
 
