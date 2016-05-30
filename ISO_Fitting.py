@@ -31,7 +31,7 @@ from ErrFuncs_IRLE import *
 Fit_src = False
 
 ### Fit a geometrrically (2aeff) thin, optically IR thick model where all emission comes from Rin, don't fit for dust
-same_rem = False
+same_rem = True
 
 ## Same as "same_rem" model but fit for dust params = nn, nu0 -> aeff
 fit_dust = False
@@ -42,7 +42,7 @@ shell_thin = False
 diff_rem = False
 
 ### Fit a geometrically Thick (where tau->1), optically IR thin model with parameters [sinJ, cosT, Rin, n0], don't fit for dust
-Opt_Thin = True
+Opt_Thin = False
 
 
 
@@ -66,16 +66,16 @@ OmPG = 2.*ma.pi/(1.87091995e+03*24.*3600.) * (1.+zPG1302)
 
 ## TEST VALUES
 Lav = L0
-betst = 0.08
+betst = 0.068
 Inc = ma.acos(0.067/betst)#0.*np.pi/4.
 Ombn = OmPG
-alph = -3.0
+alph = -2.0
 
 Rde = RdPG
 pp = 2.0
 thetTst = 1.*np.pi/4
 JJt =1.*np.pi/4.
-aeff = 0.16*10**(-4) #(1 micrometer wavelength /(2pi) )
+aeff = (c/nu0)/(2.*ma.pi)
 
 
 Dst = 1.4*10**9*pc2cm
@@ -270,20 +270,26 @@ if (fit_dust):
 
 	if (shell_thin):
 		Shell_File = "ISO_OptIRTHIN_Dust_Fit_TorusShell_J_ThT_Rin_nn_n0_"
-		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$nn$' , r'$nu_0$']
+		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$',r'Amp', r'$k$' , r'$nu_0$']
 		## starting point
 		#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
-		OpThin_TorShell_dust_p0 = [-5.81648541e-01,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
+		#OpThin_TorShell_dust_p0 = [-5.81648541e-01,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
 		#chi2 278 below
-		OpThin_TorShell_dust_p0 =  [-6.60098675e-01,   4.57835525e-01,   8.67955344e+00,   5.12336423e-01, 3.35224080e+14]
+		OpThin_TorShell_dust_p0 =  [-6.60098675e-01,   4.57835525e-01,   8.67955344e+00,   0.36, 5.12336423e-01, 3.35224080e+14]
 		## args of non chanigng parameters to pass
-		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
-		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
+		Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
+		Ombn =	0.0#2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
+		t0   = 0.0#Fsrc_ISO_p0[2] * 2.*ma.pi/Ombn
+		#Amp  = Fsrc_ISO_p0[1]
+
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff,    t0] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff,    t0] 
 		## optimize with fmin
-		OpThin_TorShell_p_opt  = sc.optimize.fmin(OpThin_TorShell_dustP_Err2,    OpThin_TorShell_dust_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
+		OpThin_TorShell_p_opt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2,    OpThin_TorShell_dust_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
 		pW1 = OpThin_TorShell_p_opt
 		pW2 = OpThin_TorShell_p_opt
 		ps = OpThin_TorShell_p_opt
+
 
 	else:
 		Shell_File = "ISO_OptIRTHICK_Dust_Fit_TorusShell_J_ThT_Rin_nn_n0_"
@@ -306,19 +312,29 @@ if (same_rem):
 	cosTT = ma.cos(thetTst)
 	Rin = 1.0 # in units of RdPG
 
-	Shell_File = "ISO_OptThin_TorusShell_J_ThT_Rin_"
-	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$']
-	## starting point
-	#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
-	OpThick_TorShell_p0 = [-0.99954288,  0.87820586,  4.95841099]
+	Shell_File = "ISO_OptThin_TorusShell_J_ThT_Rin_Amp_"
+	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', 'Amp']
+	#OpThin_TorShell_p0 =  [-6.60098675e-01,   4.57835525e-01,   8.67955344e+00,   0.36]
+
+	#chi2 = 248.99
+	OpThin_TorShell_p0 =  [-0.94618978  0.89881674  9.95837689  0.09445663]
+
 	## args of non chanigng parameters to pass
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
+	Ombn =	0.0#2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
+	t0   = 0.0#Fsrc_ISO_p0[2] * 2.*ma.pi/Ombn
+	#Amp  = Fsrc_ISO_p0[1]
+
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff, nu0, nne,   t0] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne,   t0] 
 	## optimize with fmin
-	OpThick_TorShell_p_opt  = sc.optimize.fmin(OpThick_TorShell_Err2,    OpThick_TorShell_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
-	pW1 = OpThick_TorShell_p_opt
-	pW2 = OpThick_TorShell_p_opt
-	ps = OpThick_TorShell_p_opt
+	OpThin_TorShell_p_opt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2,    OpThin_TorShell_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
+	pW1 = OpThin_TorShell_p_opt
+	pW2 = OpThin_TorShell_p_opt
+	ps = OpThin_TorShell_p_opt
+
+
+
 
 ######################################
 ### FIT FOR W1 and W2 at different Rin
@@ -341,22 +357,23 @@ if (diff_rem):
 
 if (Opt_Thin):
 	Shell_File = "ISO_OptThn_TorusThick_J_ThT_Rin_n0_"
-	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_{in}$', r'$n_0$']
+	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_{in}$', r'$n_0$', r'$A$']
 	## starting point
 	#182.3 below
 	#OpThin_TorThick_p0 = [6.72054830e-01,   9.59726315e-01,   6.84491017e+00,   1.24892755e+03]
 	# yeti, chi2 = 
-	ISO_OpThin_TorThick_p0 = [6.88170000e-01,   9.53200000e-01,   6.78690000e+00,   1.23568730e+03]
-	
-
+	#ISO_OpThin_TorThick_p0 = [6.79489126e-01,   9.84816675e-01,   6.78328479e+00,   1.20359057e+03, 0.35]
+	#chi2 174 -[6.71240296e-01   9.68638091e-01   6.84514215e+00   1.26185273e+03, 3.83701459e-01]
+	#chi2 = 140
+	ISO_OpThin_TorThick_p0 = [6.63012874e-01,   9.52632866e-01,   6.93571877e+00,   1.25865725e+03, 3.47533200e-01]
 
 	Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
-	Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
-	t0   = Fsrc_ISO_p0[2] * 2.*ma.pi/Ombn
-	Amp  = Fsrc_ISO_p0[1]
+	Ombn =	0.0#2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
+	t0   = 0.0#Fsrc_ISO_p0[2] * 2.*ma.pi/Ombn
+	#Amp  = Fsrc_ISO_p0[1]
 
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, Amp, t0] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, Amp, t0] 
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff, nu0, nne,    t0] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne,    t0] 
 	## optimize with fmin
 	ISO_OpThin_TorThick_p_opt  = sc.optimize.fmin(ISO_OpThin_TorThick_Err2,    ISO_OpThin_TorThick_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
 	pW1 = ISO_OpThin_TorThick_p_opt
@@ -424,7 +441,7 @@ Nt=40
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 
-
+Fsrc_p_opt = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
 Ombn =	2.*ma.pi/(Fsrc_p_opt[3]*24.*3600.) * (1.+0.2784)
 t0   = Fsrc_p_opt[2] * 2.*ma.pi/Ombn
 opti = -2.5*np.log10(Fsrc_Iso((ttopt*3600.*24.-t0), Dst, Fsrc_p_opt[0]*Lav, Fsrc_p_opt[1], Ombn, t0)/FVbndRel) 
@@ -456,8 +473,12 @@ if (Opt_Thin):
 	W1shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorThick(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 	W2shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorThick(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 if (fit_dust):
-	W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	if (shell_thin):
+		W1shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorThin(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorThin(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	else:
+		W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 
 

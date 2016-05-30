@@ -18,13 +18,13 @@ from FluxFuncs_IRLE import *
 
 ###OPTIONS###OPTIONS
 FISO = True
-FDOP = True
+FDOP = False
 Sphere = True
-Ring = True
+Ring = False
 
 
 Plot_R   = True
-Plot_J = True
+Plot_J   = False
 Plot_I   = False
 
 
@@ -125,7 +125,7 @@ tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
 ## INTEGRATION LIMTS FOR ALL nu
 Nnumn = 0.00001
-Nnumx = 100.0
+Nnumx = 10.0
 numn = Nnumn*numicron
 numx = Nnumx*numicron
 
@@ -151,7 +151,7 @@ if (FISO):
 			R1 = Rde
 			R2 = 1.25*Rde
 			R3 = 1.33*Rde
-			Omfac = 10.
+			Omfac = 0.0001 
 			Ombn = Ombn*Omfac
 			tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
@@ -163,19 +163,25 @@ if (FISO):
 			FI2 = np.zeros(Nt)
 			FI3 = np.zeros(Nt)
 
-			FsrcI1 = -2.5*np.log10(Fsrc_Iso(tt, Dst, Lav, Amp, Ombn, t0)/FVbndRel)
+			#FsrcI1 = -2.5*np.log10(Fsrc_Iso(tt, Dst, Lav, Amp, Ombn, t0)/FW1Rel)#/FVbndRel)
+			FsrcI1 = Fsrc_Iso(tt, Dst, Lav, Amp, Ombn, t0)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
 								#F_Ring_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable)
 			for i in range(Nt):
-				FI1[i] = -2.5*np.log10(F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg1, RHS_table, T_table)/FW1Rel)
-				FI2[i] = -2.5*np.log10(F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg2, RHS_table, T_table)/FW1Rel)
-				FI3[i] = -2.5*np.log10(F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg3, RHS_table, T_table)/FW1Rel)
+				#FI1[i] = -2.5*np.log10(F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg1, RHS_table, T_table)/FW1Rel)
+				#FI2[i] = -2.5*np.log10(F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg2, RHS_table, T_table)/FW1Rel)
+				#FI3[i] = -2.5*np.log10(F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg3, RHS_table, T_table)/FW1Rel)
+				
+				FI1[i] = F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg1, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
+				FI2[i] = F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
+				FI3[i] = F_Sphere_Iso_QuadInt(numn, numx, tt[i], Dst, arg3, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
 
-			nrm = np.mean(FsrcI1) - np.mean(FI1)
+
+			nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 
 			###PLOT###
 			plt.figure()
 			#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
-			plt.title(r"Sphere, $F^{\rm{src}}_{\rm{iso}}$, $\Omega = %i \times 2\pi c / R_d$" %Omfac)
+			plt.title(r"Sphere, $F^{\rm{src}}_{\rm{iso}}$, $\Omega = %g \times 2\pi c / R_d$" %Omfac)
 
 			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -192,13 +198,13 @@ if (FISO):
 			plt.xlabel(r"$N_{\rm{orb}}$")
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
-			plt.ylim(plt.ylim(11.7, 12.5)[::-1])
+			#plt.ylim(plt.ylim(11.7, 12.5)[::-1])
 
-			Savename = "plots/Iso_and_Dop/Sphere/FISO_Sphere_nrm%g_"%nrm+"Om%g_VaryRin_numin%g_numx%g.png" %(Omfac, Nnumn, Nnumx)
+			Savename = "plots/Iso_and_Dop/Sphere/NoLightTrvTme_NOQv_FISO_Sphere_nrm%g_"%nrm+"Om%g_VaryRin_numin%g_numx%g.png" %(Omfac, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
 			Savename = Savename.replace('ppng', '.png')
-			plt.savefig(Savename)
-
+			#plt.savefig(Savename)
+			plt.show()
 			####-------END Rin-------####
 
 
@@ -254,7 +260,7 @@ if (FISO):
 			plt.xlabel(r"$N_{\rm{orb}}$")
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
-			plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+			#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
 
 			Savename = "plots/Iso_and_Dop/Ring/FISO_Ring_nrm%g_"%nrm+"_J%g_VaryRin_numin%g_numx%g.png" %(JJt, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')

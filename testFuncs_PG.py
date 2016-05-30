@@ -21,9 +21,11 @@ from ErrFuncs_IRLE import *
 ################################
 same_rem = False
 fit_dust = False
-shell_thin = False
+sphere = False
+shell_thin = True
 diff_rem = False
-Opt_Thin = True
+Opt_Thin = False
+ISO_Opt_Thin = True
 
 ###############################
 ### Define Constants
@@ -52,8 +54,8 @@ alph = -2.0
 
 Rde = RdPG
 pp = 2.0
-thetTst = 0.*np.pi/4
-JJt =1.*np.pi/4.
+thetTst = 1.*np.pi/4
+JJt =0.*np.pi/4.
 aeff = (c/nu0)/(2.*ma.pi)
 #0.16*10**(-4) #(1 micrometer wavelength /(2pi) )
 
@@ -208,7 +210,7 @@ W2_avsg = np.array(W2_avsg)
 #Set up look up tables
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
-NT = 10000
+NT = 2000
 RHS_table = np.zeros(NT)
 T_table = np.linspace(1., 2000., NT)
 for i in range(NT):
@@ -237,8 +239,8 @@ pW1 = [0.05311,     0.90859092,  2.28146583]
 pW2 = [0.05311,     0.90859092, 10.75429423]
 
 
-W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn,       pp, Rrout,  aeff, nu0, nne, betst] 
+W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,       pp, Rrout,  aeff, nu0, nne, betst] 
 
 ##opt thin geo thick
 #p_thin = [0.7311,  0.80859092,  7.28146583, 1000.]
@@ -254,9 +256,33 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, 
 #W1: cos($\theta_T$): 0.9532
 #W1: $R_{in}$: 6.7869
 #W1: $n_0$: 1235.6873  
-#chi2 = 
-p_thin = [0.6554,   0.9532,   6.7869,   1235.6873]
+#chi2 = 179.4
+#p_thin = [0.6554,   0.9532,   6.7869,   1235.6873]
+#p_thin = [6.67178736e-01,   9.60163265e-01,   6.86057714e+00,   1.25607251e+03, -2.0]
+#Rtau3, chi2 181.4
+p_thin = [6.61450706e-01,   9.74877433e-01,   6.87604867e+00,   1.23037154e+03, -2.07014003e+00]
 
+if (ISO_Opt_Thin):
+	Shell_File = "ISO_Testing"
+	#p_thin = [ 6.92991432e-01,   9.88143979e-01,   6.78171409e+00,   1.18913782e+03, 0.35]
+	#p_thin = [6.74900508e-01,   9.65773289e-01,   6.85825646e+00,   1.27107992e+03, 3.77808984e-01]
+	#p_thin = [6.95376649e-01,   9.87880914e-01,   6.85745271e+00,   1.19037481e+03, 3.56496679e-01]
+	#chi2 140
+	ISO_OpThin_TorThick_p0 = [6.63012874e-01,   9.52632866e-01,   6.93571877e+00,   1.25865725e+03, 3.47533200e-01]
+
+	Ombn =	2.*ma.pi/(1871.*24.*3600.) * (1.+0.2784)
+	t0   = 0.0#p_thin[2] * 2.*ma.pi/Ombn  - these are set in Fsrc_ISO_PG
+	Amp  = 0.0#p_thin[1]
+
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+
+
+	if (shell_thin):
+		#chi2 = 248.99
+		Shell_File = "Best_Fit_chi2_249_ISO_OptThin_GeoThin"
+		OpThin_TorShell_p =  [-0.94618978,  0.89881674,  9.95837689,  0.09445663]
+	
 
 
 
@@ -267,6 +293,8 @@ if (fit_dust):
 	p_Shell_dust = [0.7,   6.25236770e-01,   6.60443550e+00,   0.1, 4.50861670e+14]
 
 	p_Shell_dust_thin = [-7.69581648e-01,   6.25236770e-01,   7.60443550e+00,   3.84022274e-01, 4.50861670e+14]
+
+	p_Sphere_dust = [  8.75955613e+00,   6.61475101e-01,   7.63970893e+14]
 
 	#p_Shell_dust = [0.9,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
@@ -284,7 +312,8 @@ ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 #Fsrc_Args = [FVbndRel, Lav, betst, OmPG, Dst]
 Fsrc_Args = [FVbndRel, Lav, Dst]
-Fsrc_p_opt = [ 5.98144879e-02,   6.12468791e-02,   6.55067929e-01,  -3.28334799e-04, 1.87091995e+03]#]1.89037933e+03]
+fminFsrc_p0 = [ 5.98144879e-02,   6.12468791e-02,   6.55067929e-01,  -3.28334799e-04, 1.87091995e+03]
+Fsrc_p_opt = [ 5.98144879e-02,   0.068,   6.55067929e-01,  -3.28334799e-04, 1.87091995e+03]#]1.89037933e+03]
 
 #Fsrc_p_opt  = sc.optimize.fmin(Fsrc_Err2,    fminFsrc_p0, args=(tsrt, Lumsrt, sigLsrt, Fsrc_Args), full_output=1, disp=False)[0]
 OmFit = 2.*ma.pi/(Fsrc_p_opt[4]*24.*3600.)* (1.+0.2784)
@@ -315,18 +344,39 @@ W2av   = plt.errorbar(t_avg, W2_avg+0.5, yerr=W2_avsg, linestyle="none", color='
 
 
 if (diff_rem or same_rem):
+	print "Dont Fit Dust"
 	W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 if (Opt_Thin):
+	print "PLOT DOP Geo Thick OPT-THIN"
 	W1shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 	W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
-if (fit_dust):
+if (ISO_Opt_Thin):
 	if (shell_thin):
+		print "PLOT ISO Geo Thin OPT-THIN"
+		W1shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorShell(OpThin_TorShell_p, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorShell(OpThin_TorShell_p , (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	else:
+		print "PLOT ISO Geo Thick OPT-THIN"
+		W1shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	
+
+if (fit_dust):
+	if (sphere):
+		print "PLOT fit dust Shell OPT-THIN"
+		W1shell = plt.plot(ttopt, magPoint_Sphere_dustP(p_Sphere_dust, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_Sphere_dustP(p_Sphere_dust, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+
+	if (shell_thin):
+		print "PLOT fit dust Shell OPT-THIN"
 		W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell_dustP(p_Shell_dust_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell_dustP(p_Shell_dust_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-	else:
+
+	if (shell_thick):
+		print "PLOT fit dust Shell OPT-THICK"
 		W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(p_Shell_dust, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 	
@@ -339,7 +389,7 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, max(ttopt))
 #plt.ylim(10.5, 11.5)
-plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 plt.show()
 #plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")

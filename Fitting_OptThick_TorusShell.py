@@ -29,18 +29,21 @@ from ErrFuncs_IRLE import *
 ################################
 ################################
 ### Fit a geometrrically (2aeff) thin, optically IR thick model where all emission comes from Rin, don't fit for dust
-same_rem = False
+same_rem = True
 
 ## Same as "same_rem" model but fit for dust params = nn, nu0 -> aeff
 fit_dust = False
 ## do the same as fit_dust but allow optically thin to IR
 shell_thin = False
+sphere = False
 
 ## Same as "same_rem" model but allow two diff emission radii for W1 and W2
 diff_rem = False
 
 ### Fit a geometrrically Thick (where tau->1), optically IR thin model with parameters [sinJ, cosT, Rin, n0], don't fit for dust
 Opt_Thin = True
+
+
 
 
 
@@ -64,16 +67,16 @@ OmPG = 2.*ma.pi/(1.87091995e+03*24.*3600.) * (1.+zPG1302)
 
 ## TEST VALUES
 Lav = L0
-betst = 0.08
+betst = 0.068
 Inc = ma.acos(0.067/betst)#0.*np.pi/4.
 Ombn = OmPG
-alph = -3.0
+alph = -2.0
 
 Rde = RdPG
 pp = 2.0
 thetTst = 1.*np.pi/4
 JJt =1.*np.pi/4.
-aeff = 0.16*10**(-4) #(1 micrometer wavelength /(2pi) )
+aeff = (c/nu0)/(2.*ma.pi) #(1 micrometer wavelength /(2pi) )
 
 
 Dst = 1.4*10**9*pc2cm
@@ -250,12 +253,27 @@ if (fit_dust):
 	cosTT = ma.cos(thetTst)
 	Rin = 1.0 # in units of RdPG
 
-	if (shell_thin):
+	if (sphere):
+		Shell_File = "Sphere_Dust_Fit_Rin_nn_n0_"
+		param_names = [ r'$Rin$', r'$nn$' , r'$nu_0$']
+		## starting point
+		Sphere_dust_p0 = [  8.75955613e+00,   6.61475101e-01,   7.63970893e+14]
+
+		## args of non chanigng parameters to pass
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  betst] 
+		## optimize with fmin
+		Sphere_p_opt  = sc.optimize.fmin(Sphere_dustP_Err2,    Sphere_dust_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
+		pW1 = Sphere_p_opt
+		pW2 = Sphere_p_opt
+		ps = Sphere_p_opt
+
+	elif (shell_thin):
 		Shell_File = "OptIRTHIN_Dust_Fit_TorusShell_J_ThT_Rin_nn_n0_"
 		param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$nn$' , r'$nu_0$']
 		## starting point
 		#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
-		OpThin_TorShell_dust_p0 = [-5.81648541e-01,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
+		#OpThin_TorShell_dust_p0 = [-5.81648541e-01,   0.7,   9.28085681e+00,   3.62563978e-01, 4.12632801e+14]
 		#chi2 278 below
 		OpThin_TorShell_dust_p0 =  [-6.60098675e-01,   4.57835525e-01,   8.67955344e+00,   5.12336423e-01, 3.35224080e+14]
 		## args of non chanigng parameters to pass
@@ -289,18 +307,18 @@ if (same_rem):
 	Rin = 1.0 # in units of RdPG
 
 	Shell_File = "OptThin_TorusShell_J_ThT_Rin_"
-	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$']
+	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$\alpha$']
 	## starting point
 	#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
-	OpThick_TorShell_p0 = [-0.99954288,  0.87820586,  4.95841099]
+	OpThin_TorShell_p0 = [-0.99954288,  0.87820586,  4.95841099, -2.0]
 	## args of non chanigng parameters to pass
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout,  aeff, nu0, nne, betst] 
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn,      pp, Rrout,   nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,      pp, Rrout,   nu0, nne, betst] 
 	## optimize with fmin
-	OpThick_TorShell_p_opt  = sc.optimize.fmin(OpThick_TorShell_Err2,    OpThick_TorShell_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
-	pW1 = OpThick_TorShell_p_opt
-	pW2 = OpThick_TorShell_p_opt
-	ps = OpThick_TorShell_p_opt
+	OpThin_TorShell_p_opt  = sc.optimize.fmin(OpThin_TorShell_Err2,    OpThin_TorShell_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
+	pW1 = OpThin_TorShell_p_opt
+	pW2 = OpThin_TorShell_p_opt
+	ps = OpThin_TorShell_p_opt
 
 ######################################
 ### FIT FOR W1 and W2 at different Rin
@@ -323,17 +341,18 @@ if (diff_rem):
 
 if (Opt_Thin):
 	Shell_File = "OptThn_TorusThick_J_ThT_Rin_n0_"
-	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_{in}$', r'$n_0$']
+	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$R_{in}$', r'$n_0$', r'$\alpha$']
 	## starting point
 	#182.3 below
 	#OpThin_TorThick_p0 = [6.72054830e-01,   9.59726315e-01,   6.84491017e+00,   1.24892755e+03]
 	# yeti, chi2 = 
-	OpThin_TorThick_p0 = [0.6554,   0.9532,   6.7869,   1235.6873]
+	#OpThin_TorThick_p0 = [0.6554,   0.9532,   6.7869,   1235.6873, -2.0]
+	OpThin_TorThick_p0 = [6.61450706e-01,   9.74877433e-01,   6.87604867e+00,   1.23037154e+03, -2.07014003e+00]
 
 
 	## args of non chanigng parameters to pass
-	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
-	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, alph, pp, Rrout, aeff, nu0, nne, betst] 
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn,       pp, Rrout, aeff, nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,       pp, Rrout, aeff, nu0, nne, betst] 
 	## optimize with fmin
 	OpThin_TorThick_p_opt  = sc.optimize.fmin(OpThin_TorThick_Err2,    OpThin_TorThick_p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False,ftol=0.1)[0]
 	pW1 = OpThin_TorThick_p_opt

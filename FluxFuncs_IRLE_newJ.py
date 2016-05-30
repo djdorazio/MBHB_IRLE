@@ -66,58 +66,10 @@ def QvBv(nu, T, nu0, nn):
 #QvBv = np.vectorize(QvBv)
 
 
-# Torical dust profile
-def nDust(x,y,z, n0, Rd, p, thetT, JJ):
-	#nprof = 0.0
-	xrot = x*np.cos(JJ) + z*np.sin(JJ)
-	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r
-	r  = (x*x + y*y + z*z)**(0.5)
 
-	throt = np.arctan2( (xrot*xrot + y*y)**(0.5), zrot)   ##arctan of arg1/arg2 arg1 always positive so btwn 0, pi
-	throt = np.array(throt)
-
-	
-	# if (type(r) is np.ndarray):
-	# 	nprof = 0.0	* r
-	# 	for i in range(len(r)):
-	# 		if (r[i]>=Rd and throt[i]>=thetT and throt[i]<=(ma.pi - thetT)):
-	# 			nprof[i] = n0*(Rd/r[i])**(p)
-	# else:
-	nprof = 0.0			
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
-		nprof = n0*(Rd/r)**(p)
-	
-
-	return nprof
-
-#nDust = np.vectorize(nDust, excluded = (3,4,5,6,7), cache=True)
-
-
-
-# Torical dust profile
+# dust profile
 def nprof(r, n0, Rd, p):
 	return n0*(Rd/r)**(p)
-
-def nDust_pcwse(x,y,z, n0, Rd, p, thetT, JJ):
-	xrot = x*np.cos(JJ) + z*np.sin(JJ)
-	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	r  = (x*x + y*y + z*z)**(0.5)
-
-	throt = np.arctan2( (xrot*xrot + y*y)**(0.5), zrot)   ##arctan of arg1/arg2 arg1 always positive so btwn 0, pi
-
-
-	#nprof = n0*(Rd/r)**(p)
-	#BoxCar = Heaviside[throt - thetT] - Heaviside[throt - (ma.pi - thetT)]
-	#return nprof * Heaviside[r-Rd] * BoxCar
-
-	#nd = np.piecewise(r, [r < Rd, r >= Rd], [lambda r:0.0, lambda r:n0*(Rd/r)**(p)])
-	nd = np.piecewise(throt, [throt>=(np.pi - thetT), throt<=(np.pi - thetT)], [lambda throt:0.0, lambda throt:n0])
-	nd = np.piecewise(throt, [throt<thetT, throt>=thetT], [lambda throt:0.0, lambda throt:nd])
-
-#or throt>=(np.pi - thetT)
-#and throt<=(np.pi - thetT)
-	return nd
 
 
 
@@ -127,11 +79,7 @@ def nDust_pcwse(x,y,z, n0, Rd, p, thetT, JJ):
 ## equation to tabulate RHS and T
 def T_RHS(Td, nu0, nn):
 	# 4 for difference in cross sectional area and surface area, pi for isotropic flux from Grain
-	RHS = 4.*ma.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	#RHS = 4.* ma.pi* (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, 0.) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	#RHS = 4.*  (intg.quad(Bv  ,0.0 ,1000.*numicron, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	#RHS = sigSB * Td*Td*Td*Td * 4.
-	#return np.log10(RHS)
+	RHS = 4.*ma.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])
 	return RHS
 
 
@@ -161,19 +109,12 @@ def tauObs(nu, x, y, z, Rout, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
 
 def tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn):
 	Rout = Rd
-	##xe is the x value on the near side of the dust torus
-	#xe     = (Rout*Rout - (z*z + y*y))**(0.5)
+
 	xe = (x*x)**0.5 
 
-	#xin    = (Rd*Rd - (z*z + y*y))**(0.5)
-	#if (x > xe):
-	#	print "ERROR in xe"
-	#	import sys
-	#	sys.exit(0)
-
-##INNER SHELL
+	##INNER SHELL
 	# if ndust is zero on the near side of the dust, then tau=0
-	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) <= 0.0000000001):#(z*z + y*y) <= Rd*Rd):
+	if (nDust(xe,y,z, n0, Rd, p, thetT, JJ) <= 0.0000000001 and x<=0.0):#(z*z + y*y) <= Rd*Rd):
 		tau = 0.00000000#nDust(xe,y,z, n0, Rd, p, thetT, JJ)
 	else:
 		tau = 1000.0
@@ -213,154 +154,85 @@ def Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0):
 
 def TDust_Iso(t,r,thet, ph, args, RHStable, Ttable):
 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
-	x = r*np.sin(thet)*np.cos(ph)
-	y = r*np.sin(thet)*np.sin(ph)
-	z = r*np.cos(thet)
-	
-	xrot = x*np.cos(JJ) + z*np.sin(JJ)
-	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
-
-	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Td = 1.*r/r  ##T=1 is very small
-
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
-		###-----------------###
-		### COMPUTE Fsrc    ###
-		###-----------------###
-
-		Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
+	###-----------------###
+	### COMPUTE Fsrc    ###
+	###-----------------###
+	Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
 
 
-		###-----------------###
-		### Compute taudust ###
-		###-----------------###
-		Qbar=1. 
-		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
-		LHS = Fsrc * np.exp(-tauDust)
-		# if (type(Fsrc) is np.ndarray):
-		# 	if (len(Fsrc) > len(RHStable)):
-		# 		LHS = sgn.resample(LHS, len(RHStable))
-		# 	elif (len(Fsrc) < len(RHStable)):
-		# 		RHStable = sgn.resample(RHStable, len(Fsrc))
-		RHS_mx = RHStable[len(RHStable)-1]
-		RHS_mn = RHStable[0]
+	###-----------------###
+	### Compute taudust ###
+	###-----------------###
+	Qbar=1. 
+	tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
 
-		if (LHS > RHS_mx or LHS <= RHS_mn):
-			Td = 1.
-		else:
-			istar = np.where( LHS <= RHStable )[0].min()
-			Td = Ttable[istar]
+	### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+	LHS = Fsrc * np.exp(-tauDust)
+	RHS_mx = RHStable[len(RHStable)-1]
+	RHS_mn = RHStable[0]
+
+	if (LHS > RHS_mx or LHS <= RHS_mn):
+		Td = 1.
+	else:
+		istar = np.where( LHS <= RHStable )[0].min()
+		Td = Ttable[istar]
 
 	return Td
 
 def TDust_Iso_Anl(t,r,thet, ph, args, RHStable, Ttable):
 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
-	x = r*np.sin(thet)*np.cos(ph)
-	y = r*np.sin(thet)*np.sin(ph)
-	z = r*np.cos(thet)
-	
-	xrot = x*np.cos(JJ) + z*np.sin(JJ)
-	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
 
-	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Td = 1.*r/r  ##T=1 is very small
-
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
-		###-----------------###
-		### COMPUTE Fsrc    ###
-		###-----------------###
-
-		Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
+	###-----------------###
+	### COMPUTE Fsrc    ###
+	###-----------------###
+	Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
 
 
-		###-----------------###
-		### Compute taudust ###
-		###-----------------###
-		Qbar=1. 
-		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
-		LHS = Fsrc * np.exp(-tauDust)
-		Td = (LHS/(4.*sigSB))**(1./4.)
+	###-----------------###
+	### Compute taudust ###
+	###-----------------###
+	Qbar=1. 
+	tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+	### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+	LHS = Fsrc * np.exp(-tauDust)
+	Td = (LHS/(4.*sigSB))**(1./4.)
 
 	return Td
 
 def TDust_Iso_PG(t,r,thet, ph, args, RHStable, Ttable):
 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
-	x = r*np.sin(thet)*np.cos(ph)
-	y = r*np.sin(thet)*np.sin(ph)
-	z = r*np.cos(thet)
-	
-	xrot = x*np.cos(JJ) + z*np.sin(JJ)
-	zrot = z*np.cos(JJ) - x*np.sin(JJ)
-	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
-
-	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Td = 1.*r/r  ##T=1 is very small
-
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
-		###-----------------###
-		### COMPUTE Fsrc    ###
-		###-----------------###
-
-		Fsrc = Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0)
+	###-----------------###
+	### COMPUTE Fsrc    ###
+	###-----------------###
+	Fsrc = Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0)
 
 
-		###-----------------###
-		### Compute taudust ###
-		###-----------------###
-		Qbar=1. 
-		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
-		LHS = Fsrc * np.exp(-tauDust)
-		# if (type(Fsrc) is np.ndarray):
-		# 	if (len(Fsrc) > len(RHStable)):
-		# 		LHS = sgn.resample(LHS, len(RHStable))
-		# 	elif (len(Fsrc) < len(RHStable)):
-		# 		RHStable = sgn.resample(RHStable, len(Fsrc))
-		RHS_mx = RHStable[len(RHStable)-1]
-		RHS_mn = RHStable[0]
+	###-----------------###
+	### Compute taudust ###
+	###-----------------###
+	Qbar=1. 
+	tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+	### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+	LHS = Fsrc * np.exp(-tauDust)
+	# if (type(Fsrc) is np.ndarray):
+	# 	if (len(Fsrc) > len(RHStable)):
+	# 		LHS = sgn.resample(LHS, len(RHStable))
+	# 	elif (len(Fsrc) < len(RHStable)):
+	# 		RHStable = sgn.resample(RHStable, len(Fsrc))
+	RHS_mx = RHStable[len(RHStable)-1]
+	RHS_mn = RHStable[0]
 
-		if (LHS > RHS_mx or LHS <= RHS_mn):
-			Td = 1.
-		else:
-			istar = np.where( LHS <= RHStable )[0].min()
-			Td = Ttable[istar]
+	if (LHS > RHS_mx or LHS <= RHS_mn):
+		Td = 1.
+	else:
+		istar = np.where( LHS <= RHStable )[0].min()
+		Td = Ttable[istar]
 
 	return Td
 	
 
 
-## SHELL TORUS OPTHIN Fnu for doppler beaming case, optically thick shell torus
-def Fnuint_Ring_Iso(ph, nu, t, Dist, args, RHStable, Ttable):
-	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 
-###----------------------------###
-### SETUP COORDS TO INTEGRATE  ###
-###----------------------------###
-## Coordinates of the dust Ring
-	yy = np.sign(np.cos(ph))  * ( np.cos(JJ)*np.cos(JJ) +  np.tan(ph)*np.tan(ph) )**(0.5) 
-	xx = -np.sin(JJ)
-	Th_ring = np.arctan2( yy, xx ) - np.pi/2. * (np.sign(np.cos(ph)) - 1.)
-	#Th_ring = ma.pi/2.
-## retarded time - time light emitted from dust
-	tem = t - Rd/c*( 1. - np.sin(Th_ring)*np.cos(ph) ) 
-
-	
-	# Tdust for ISO source
-	args[7] = 0.0 #set thea_T = 0 for Ring
-	Tdust = TDust_Iso(tem, Rd, Th_ring, ph, args, RHStable, Ttable)
-	# surface density in optically thick limit
-	l_d = (2.*aeff)*(2.*aeff)/(4./3. * ma.pi * aeff*aeff*aeff)
-	# Rd is the inner edge of the shell
-	fint =  Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
-	fint = fint* Rd*Rd* np.sin(Th_ring) * l_d 
-	
-
-	# pi for uniform emitting dust grain
-	return ma.pi* aeff*aeff/Dist/Dist *fint
 
 
 ### This is the spherical shell case for theta_T = 0
@@ -372,7 +244,8 @@ def Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 ### SETUP COORDS TO INTEGRATE  ###
 ###----------------------------###
 ## retarded time - time light emitted form dust
-	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+	#tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+	tem = t - Rd/c*(1. - ( np.sin(thet)*np.cos(ph)*np.cos(JJ)  +  np.cos(thet)*np.sin(JJ) ) )
 
 	# Tdust for doppler source
 	Tdust = TDust_Iso(tem, Rd, thet, ph,  args, RHStable, Ttable)
@@ -381,33 +254,8 @@ def Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# surface density in optically thick limit
 	Surf_nd = 1./(ma.pi*aeff*aeff)#2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff) # 
 	# Rd is the inner edge of the shell
-	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
-	#fint =  2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
-	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
-	
-
-	# pi for uniform emitting dust grain
-	return ma.pi* aeff*aeff/Dist/Dist *fint
-
-
-def Fnuint_Shell_OptThin_Iso_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
-	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
-
-###----------------------------###
-### SETUP COORDS TO INTEGRATE  ###
-###----------------------------###
-## retarded time - time light emitted form dust
-	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
-
-	# Tdust for doppler source
-	Tdust = TDust_Iso_PG(tem, Rd, thet, ph,  args, RHStable, Ttable)
-	#Tdust = TDust_Iso_Anl(tem, Rd, thet, ph,  args, RHStable, Ttable)
-
-	# surface density in optically thick limit
-	Surf_nd = 1./(ma.pi*aeff*aeff)#2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff) # 
-	# Rd is the inner edge of the shell
-	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
-	#fint =  2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
+	#fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint =  2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
 	
 
@@ -423,7 +271,9 @@ def Fnuint_Shell_OptThick_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 ### SETUP COORDS TO INTEGRATE  ###
 ###----------------------------###
 ## retarded time - time light emitted form dust
-	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+	#tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+	tem = t - Rd/c*(1. - ( np.sin(thet)*np.cos(ph)*np.cos(JJ)  +  np.cos(thet)*np.sin(JJ) ) )
+
 ###----------------------------###
 ### compute los tau (tauObs) (effective for shell model)   ###
 ###----------------------------###
@@ -1173,20 +1023,6 @@ def F_Sphere_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 
 
 
-def FThnu_Sphere_Iso_QuadInt_PG(thet, nu, t, Dist, Aargs, RHStable, Ttable):
-	return intg.quad(Fnuint_Shell_OptThin_Iso_PG, 0.,2.*ma.pi, args=(thet, nu, t, Dist, Aargs, RHStable, Ttable) , epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,full_output=fo  )[0]
-
-def Fnu_Sphere_Iso_QuadInt_PG(nu, t, Dist, Aargs, RHStable, Ttable):
-	return intg.quad(FThnu_Sphere_Iso_QuadInt_PG, 0., ma.pi, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
-
-def F_Sphere_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
-	#Aargs[7] = 0.0
-	return intg.quad(Fnu_Sphere_Iso_QuadInt_PG, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
-
-
-
-
-
 #########
 ###RING
 #########
@@ -1207,11 +1043,6 @@ def F_Ring_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 def F_ShTorOptThin_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(Fnu_Sphere_Iso_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
 
-def F_ShTorOptThin_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
-	res=[]
-	for i in range(len(t)):
-		res.append(intg.quad(Fnu_Sphere_Iso_QuadInt_PG, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0])
-	return np.array(res)
 
 
 
