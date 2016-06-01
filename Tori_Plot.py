@@ -20,9 +20,9 @@ from FluxFuncs_IRLE import *
 FISO = True
 FDOP = True
 
-ShTor_OptThin = False
+ShTor_OptThin = True
 ShTor_OptThick = False
-Thick_Tor = True
+Thick_Tor = False
 
 
 
@@ -54,11 +54,11 @@ Ompc = 2.*ma.pi*c/pc2cm/2.
 nne = 1.
 nu0 = numicron
 Rde = RdPG
-Rrout = 10.0*Rde
+Rrout = 1.0*Rde
 pp = 2.0
-thetTst = 1.*ma.pi/8.
-JJt = 0.0#3*ma.pi/4.
-aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
+thetTst = 1.*ma.pi/4.
+JJt = ma.pi/2.
+aeff = (c/nu0)/(2.*ma.pi) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
 md = 10**(-14)
 n10 = 1.0/(ma.pi*Rde*aeff*aeff) * (pp-1.)
 nfac = 1.2
@@ -127,31 +127,33 @@ if (FISO):
 		###########---------------------------###########
 
 		print "Vary J"
+		thetTst = ma.pi/4.
 		JJ1 = 0.0
-		JJ2 = (thetTst - ma.pi/2)/2.
-		JJ3 = (thetTst - ma.pi/2)
-		JJ4 = ma.pi/2
+		#JJ2 = (thetTst - ma.pi/2)/2.
+		#JJ3 = (thetTst - ma.pi/2)
+		JJ2 = ma.pi/4.
+		JJ4 = ma.pi/2.
 
-		#Omfac = 10.
-		#Ombn = Ombn*Omfac
-		#tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
+		Omfac = 1.
+		Ombn = Ombn*Omfac
+		tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
 		arg1 = [Lav, Amp, Ombn, t0, n0, 1.33*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
 		arg2 = [Lav, Amp, Ombn, t0, n0, 1.33*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
-		arg3 = [Lav, Amp, Ombn, t0, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
+		#arg3 = [Lav, Amp, Ombn, t0, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
 		arg4 = [Lav, Amp, Ombn, t0, n0, 1.33*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
 
 		FI1 = np.zeros(Nt)
 		FI2 = np.zeros(Nt)
-		FI3 = np.zeros(Nt)
+		#FI3 = np.zeros(Nt)
 		FI4 = np.zeros(Nt)
 
-		FsrcI1 = -2.5*np.log10(Fsrc_Iso(tt, Dst, Lav, Amp, Ombn, t0)/FVbndRel)
+		FsrcI1 = -2.5*np.log10(Fsrc_Iso(tt, Dst, Lav, Amp, Ombn, t0)/FW1Rel)#/FVbndRel)
 							
 		for i in range(Nt):
 			FI1[i] = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt(numn, numx, tt[i], Dst, arg1, RHS_table, T_table)/FW1Rel)
 			FI2[i] = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt(numn, numx, tt[i], Dst, arg2, RHS_table, T_table)/FW1Rel)
-			FI3[i] = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt(numn, numx, tt[i], Dst, arg3, RHS_table, T_table)/FW1Rel)
+			#FI3[i] = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt(numn, numx, tt[i], Dst, arg3, RHS_table, T_table)/FW1Rel)
 			FI4[i] = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt(numn, numx, tt[i], Dst, arg4, RHS_table, T_table)/FW1Rel)
 
 		# FI1 = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numn, numx, tt, Dst, arg1, RHS_table, T_table)/FW1Rel)
@@ -159,13 +161,13 @@ if (FISO):
 		# FI3 = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numn, numx, tt, Dst, arg3, RHS_table, T_table)/FW1Rel)
 		# FI4 = -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numn, numx, tt, Dst, arg4, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 
 		###PLOT###
 		plt.figure()
 		#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 		NRd = Rde/3.08e18
-		plt.title(r"Shell Torus A"+"\n"+r"$F^{\rm{src}}_{\rm{iso}}$, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
+		plt.title(r"Shell Torus, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
 
 		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -173,13 +175,15 @@ if (FISO):
 
 		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
 
-		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		#IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
+		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/2$'), loc='upper right')
+
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
@@ -358,31 +362,37 @@ if (FDOP):
 	###########---------------------------###########
 	if (ShTor_OptThin):
 		print "Opt Thin - Vary J"
-		JJ1 = 0.0
-		JJ2 = (thetTst - ma.pi/2)/2.
-		JJ3 = (thetTst - ma.pi/2)
-		JJ4 = ma.pi/2
+		# JJ1 = 0.0
+		# JJ2 = (thetTst - ma.pi/2)/2.
+		# JJ3 = (thetTst - ma.pi/2)
+		# JJ4 = ma.pi/2
 
+		thetTst = ma.pi/4.
+		JJ1 = 0.0
+		#JJ2 = (thetTst - ma.pi/2)/2.
+		#JJ3 = (thetTst - ma.pi/2)
+		JJ2 = ma.pi/4.
+		JJ4 = ma.pi/2.
 		#Omfac = 1.
 		#Ombn = Ombn*Omfac
 		#tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
 		arg1 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
 		arg2 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
-		arg3 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
+		#arg3 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
 		arg4 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
 
 		FI1 = np.zeros(Nt)
 		FI2 = np.zeros(Nt)
-		FI3 = np.zeros(Nt)
+		#FI3 = np.zeros(Nt)
 		FI4 = np.zeros(Nt)
 
-		FsrcI1 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)/FVbndRel)
+		FsrcI1 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)/FW1Rel)#/FVbndRel)
 							
 		for i in range(Nt):
 			FI1[i] = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt(numn, numx, tt[i], Dst, arg1, RHS_table, T_table)/FW1Rel)
 			FI2[i] = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt(numn, numx, tt[i], Dst, arg2, RHS_table, T_table)/FW1Rel)
-			FI3[i] = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt(numn, numx, tt[i], Dst, arg3, RHS_table, T_table)/FW1Rel)
+			#FI3[i] = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt(numn, numx, tt[i], Dst, arg3, RHS_table, T_table)/FW1Rel)
 			FI4[i] = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt(numn, numx, tt[i], Dst, arg4, RHS_table, T_table)/FW1Rel)
 
 		# FI1 = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt_PG(numn, numx, tt, Dst, arg1, RHS_table, T_table)/FW1Rel)
@@ -390,13 +400,13 @@ if (FDOP):
 		# FI3 = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt_PG(numn, numx, tt, Dst, arg3, RHS_table, T_table)/FW1Rel)
 		# FI4 = -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt_PG(numn, numx, tt, Dst, arg4, RHS_table, T_table)/FW1Rel)
 
-		nrm = np.mean(FsrcI1) - np.mean(FI1)
+		nrm = 0.0#np.mean(FsrcI1) - np.mean(FI1)
 
 		###PLOT###
 		plt.figure()
 		#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
-		NRd = Rde/3.08e18
-		plt.title(r"Shell Torus A"+"\n"+r"$F^{\rm{src}}_{\rm{Dop}}$, $\theta_T = \pi/8$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
+		#NRd = Rde/3.08e18
+		plt.title(r"Shell Torus, $\theta_T = \pi/4$")#" $\Omega = %i \times 2\pi c / R_d$" %(Omfac))
 
 		s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -404,18 +414,19 @@ if (FDOP):
 
 		IR2 = plt.plot(tt/(2*np.pi/Ombn), FI2+nrm, color='orange', linewidth=2)
 
-		IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
+		#IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='brown', linewidth=2)
 
-		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='yellow', linewidth=2)
+		IR4 = plt.plot(tt/(2*np.pi/Ombn), FI4+nrm, color='brown', linewidth=2)
 
 
 		plt.grid(b=True, which='both')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
+		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
+		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',  r'$J=\pi/4$',  r'$J=\pi/2$'), loc='upper right')
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
-		plt.ylim(plt.ylim(11.8, 12.4)[::-1])
+		#plt.ylim(plt.ylim(11.8, 12.4)[::-1])
 
 		Savename = "plots/Iso_and_Dop/ShTor_Thin/FDop_ShTor_Thin_nrm%g_"%nrm+"_Rin%g_Inc%g_thetaT%g_VaryJ_numin%g_numx%g.png" %(Rde, Inc, thetTst, Nnumn, Nnumx)
 		Savename = Savename.replace('.', 'p')

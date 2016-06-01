@@ -127,7 +127,10 @@ def nDust_pcwse(x,y,z, n0, Rd, p, thetT, JJ):
 ## equation to tabulate RHS and T
 def T_RHS(Td, nu0, nn):
 	# 4 for difference in cross sectional area and surface area, pi for isotropic flux from Grain
-	RHS = 4.*ma.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	#RHS = 4.*ma.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
+	RHS = 4.*ma.pi* intg.quad(QvBv  ,0., 10.*numicron, args=(Td, nu0, nn) )[0] 
+	#
+	#
 	#RHS = 4.* ma.pi* (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, 0.) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#RHS = 4.*  (intg.quad(Bv  ,0.0 ,1000.*numicron, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
 	#RHS = sigSB * Td*Td*Td*Td * 4.
@@ -204,9 +207,9 @@ def Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0):
 	return Lavg/(4.*ma.pi*r*r)* ( 1. + Amp*np.sin(Ombin*t - t0)  )  #make t0 phase not time
 
 def Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0):
-	Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
+	Fsrc_ISO_p0 = [5.99559901e-02,   1.17220299e-01,   4.43302411e+00, 1.88371914e+03]
 	Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
-	t0   = Fsrc_ISO_p0[2] * 2.*ma.pi/Ombn
+	t0   = Fsrc_ISO_p0[2]# * 2.*ma.pi/Ombn
 	return Lavg/(4.*ma.pi*r*r)* ( 1. + Amp*np.sin(Ombn*t - t0)  )
 
 
@@ -918,7 +921,7 @@ def Fnuint_Shell_OptThin_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Dop(tem,Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
+	Surf_nd = 1./(ma.pi*aeff*aeff)# Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
@@ -947,7 +950,7 @@ def Fnuint_Shell_OptThin_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Dop_PG(tem,Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
+	Surf_nd = 1./(ma.pi*aeff*aeff)#Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
@@ -979,7 +982,7 @@ def Fnuint_Shell_OptThick_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Dop(tem, Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
+	Surf_nd = 1./(ma.pi*aeff*aeff)#Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 
 	xe = (x*x)**0.5 
@@ -1018,7 +1021,7 @@ def Fnuint_Shell_OptThick_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Dop_PG(tem, Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
+	Surf_nd = 1./(ma.pi*aeff*aeff)#Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 
 
@@ -1180,7 +1183,7 @@ def Fnu_Sphere_Iso_QuadInt_PG(nu, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(FThnu_Sphere_Iso_QuadInt_PG, 0., ma.pi, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
 
 def F_Sphere_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
-	#Aargs[7] = 0.0
+	Aargs[7] = 0.0
 	return intg.quad(Fnu_Sphere_Iso_QuadInt_PG, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
 
 

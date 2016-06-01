@@ -31,7 +31,7 @@ from ErrFuncs_IRLE import *
 Fit_src = False
 
 ### Fit a geometrrically (2aeff) thin, optically IR thick model where all emission comes from Rin, don't fit for dust
-same_rem = True
+same_rem = False
 
 ## Same as "same_rem" model but fit for dust params = nn, nu0 -> aeff
 fit_dust = False
@@ -42,7 +42,10 @@ shell_thin = False
 diff_rem = False
 
 ### Fit a geometrically Thick (where tau->1), optically IR thin model with parameters [sinJ, cosT, Rin, n0], don't fit for dust
-Opt_Thin = False
+Opt_Thin = True
+
+
+same_rem_thin = False
 
 
 
@@ -307,7 +310,7 @@ if (fit_dust):
 		pW2 = OpThick_TorShell_p_opt
 		ps = OpThick_TorShell_p_opt
 
-if (same_rem):
+if (same_rem_thin):
 	sinJJ = ma.sin(JJt)
 	cosTT = ma.cos(thetTst)
 	Rin = 1.0 # in units of RdPG
@@ -316,8 +319,10 @@ if (same_rem):
 	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', 'Amp']
 	#OpThin_TorShell_p0 =  [-6.60098675e-01,   4.57835525e-01,   8.67955344e+00,   0.36]
 
-	#chi2 = 248.99
-	OpThin_TorShell_p0 =  [-0.94618978  0.89881674  9.95837689  0.09445663]
+	
+	#chi2 = 242
+	OpThin_TorShell_p0 =  [-0.94789069,   0.91328937,  10.23015572,   0.09667759]
+
 
 	## args of non chanigng parameters to pass
 	Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
@@ -365,7 +370,12 @@ if (Opt_Thin):
 	#ISO_OpThin_TorThick_p0 = [6.79489126e-01,   9.84816675e-01,   6.78328479e+00,   1.20359057e+03, 0.35]
 	#chi2 174 -[6.71240296e-01   9.68638091e-01   6.84514215e+00   1.26185273e+03, 3.83701459e-01]
 	#chi2 = 140
-	ISO_OpThin_TorThick_p0 = [6.63012874e-01,   9.52632866e-01,   6.93571877e+00,   1.25865725e+03, 3.47533200e-01]
+	#ISO_OpThin_TorThick_p0 = [6.63012874e-01,   9.52632866e-01,   6.93571877e+00,   1.25865725e+03, 3.47533200e-01]		
+	#chi2 140
+	#ISO_OpThin_TorThick_p0 = [6.84661480e-01,   9.43611434e-01,   6.96853459e+00,   1.21721076e+03, 3.44821368e-01]
+	#chi2 122
+	ISO_OpThin_TorThick_p0 = [6.81276630e-01,   9.39613783e-01,   6.94579449e+00,   1.23506837e+03, 3.43593216e-01]
+
 
 	Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
 	Ombn =	0.0#2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
@@ -479,7 +489,9 @@ if (fit_dust):
 	else:
 		W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-
+if (same_rem_thin):
+	W1shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, ISO_magPoint_OpThin_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 
 

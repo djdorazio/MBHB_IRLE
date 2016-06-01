@@ -42,7 +42,7 @@ def Fsrc_ISO_Err2(p, t, y, dy, Args):
 	else:
 	#incl = np.arccos(0.067/bets)
 		Ombn =	2.*ma.pi/(Pday*24.*3600.) * (1.+0.2784)
-		t0 = phs * 2.*ma.pi/Ombn
+		t0 = phs #* 2.*ma.pi/Ombn
 
 		chi = (y - -2.5*np.log10(Fsrc_Iso((t*3600.*24.-t0), Dst, Lfac*Lav, Amp, Ombn, t0)/FVbndRel) )/ dy
 		return sum(chi*chi)

@@ -22,17 +22,17 @@ from ErrFuncs_IRLE import *
 
 
 
-
+##FIT DUST IS NOT CONSISTENT DO NOT USE
 ################################
 ###############################
 ### OPTIONS
 ################################
 ################################
 ### Fit a geometrrically (2aeff) thin, optically IR thick model where all emission comes from Rin, don't fit for dust
-same_rem = True
+same_rem = False
 
 ## Same as "same_rem" model but fit for dust params = nn, nu0 -> aeff
-fit_dust = False
+fit_dust = False #DONT TURN THIS ON - not consistent
 ## do the same as fit_dust but allow optically thin to IR
 shell_thin = False
 sphere = False
@@ -41,7 +41,11 @@ sphere = False
 diff_rem = False
 
 ### Fit a geometrrically Thick (where tau->1), optically IR thin model with parameters [sinJ, cosT, Rin, n0], don't fit for dust
-Opt_Thin = True
+Opt_Thin = False
+
+
+## optically thin, geom thin torus
+same_rem_thin = True
 
 
 
@@ -301,7 +305,7 @@ if (fit_dust):
 		pW2 = OpThick_TorShell_p_opt
 		ps = OpThick_TorShell_p_opt
 
-if (same_rem):
+if (same_rem_thin):
 	sinJJ = ma.sin(JJt)
 	cosTT = ma.cos(thetTst)
 	Rin = 1.0 # in units of RdPG
@@ -310,7 +314,13 @@ if (same_rem):
 	param_names = [r'cos($J$)',r'cos($\theta_T$)', r'$Rin$', r'$\alpha$']
 	## starting point
 	#OpThick_TorShell_p0 = [sinJJ, cosTT, Rin]
-	OpThin_TorShell_p0 = [-0.99954288,  0.87820586,  4.95841099, -2.0]
+	#OpThin_TorShell_p0 = [-0.99954288,  0.87820586,  4.95841099, -2.0]
+	#chi2 = 443
+	#OpThin_TorShell_p0 = [-0.81232512,  0.86232704,  9.46559023, -1.51432917]
+	
+	#chi2 = 425
+	#OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
+	OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  1.0, -1.3605258]
 	## args of non chanigng parameters to pass
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn,      pp, Rrout,   nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,      pp, Rrout,   nu0, nne, betst] 
@@ -347,7 +357,9 @@ if (Opt_Thin):
 	#OpThin_TorThick_p0 = [6.72054830e-01,   9.59726315e-01,   6.84491017e+00,   1.24892755e+03]
 	# yeti, chi2 = 
 	#OpThin_TorThick_p0 = [0.6554,   0.9532,   6.7869,   1235.6873, -2.0]
-	OpThin_TorThick_p0 = [6.61450706e-01,   9.74877433e-01,   6.87604867e+00,   1.23037154e+03, -2.07014003e+00]
+	#OpThin_TorThick_p0 = [6.61450706e-01,   9.74877433e-01,   6.87604867e+00,   1.23037154e+03, -2.07014003e+00]
+	#chi2 = 215
+	OpThin_TorThick_p0 = [6.02717191e-01   9.81969666e-01   6.93040383e+00   1.28106900e+03, -2.15544015e+00]
 
 
 	## args of non chanigng parameters to pass
@@ -454,6 +466,9 @@ if (Opt_Thin):
 if (fit_dust):
 	W1shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell_dustP(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+if (same_rem_thin):
+	W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell(pW1, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+	W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 
 

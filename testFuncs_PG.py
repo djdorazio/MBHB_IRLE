@@ -22,10 +22,10 @@ from ErrFuncs_IRLE import *
 same_rem = False
 fit_dust = False
 sphere = False
-shell_thin = True
+shell_thin = False
 diff_rem = False
 Opt_Thin = False
-ISO_Opt_Thin = True
+ISO_Opt_Thin = False
 
 ###############################
 ### Define Constants
@@ -262,13 +262,22 @@ W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,       pp, Rrout,  aeff, nu0, nne, 
 #Rtau3, chi2 181.4
 p_thin = [6.61450706e-01,   9.74877433e-01,   6.87604867e+00,   1.23037154e+03, -2.07014003e+00]
 
+if (shell_thin):
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn,       pp, Rrout,   nu0, nne, betst] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,       pp, Rrout,   nu0, nne, betst]
+	OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
+
+
 if (ISO_Opt_Thin):
 	Shell_File = "ISO_Testing"
 	#p_thin = [ 6.92991432e-01,   9.88143979e-01,   6.78171409e+00,   1.18913782e+03, 0.35]
 	#p_thin = [6.74900508e-01,   9.65773289e-01,   6.85825646e+00,   1.27107992e+03, 3.77808984e-01]
 	#p_thin = [6.95376649e-01,   9.87880914e-01,   6.85745271e+00,   1.19037481e+03, 3.56496679e-01]
 	#chi2 140
-	ISO_OpThin_TorThick_p0 = [6.63012874e-01,   9.52632866e-01,   6.93571877e+00,   1.25865725e+03, 3.47533200e-01]
+	#ISO_OpThin_TorThick_p0 = [6.63012874e-01,   9.52632866e-01,   6.93571877e+00,   1.25865725e+03, 3.47533200e-01]
+		#chi2 122
+	p_thin = [[6.81276630e-01,   9.39613783e-01,   6.94579449e+00,   1.23506837e+03, 3.43593216e-01]]
+
 
 	Ombn =	2.*ma.pi/(1871.*24.*3600.) * (1.+0.2784)
 	t0   = 0.0#p_thin[2] * 2.*ma.pi/Ombn  - these are set in Fsrc_ISO_PG
@@ -318,8 +327,19 @@ Fsrc_p_opt = [ 5.98144879e-02,   0.068,   6.55067929e-01,  -3.28334799e-04, 1.87
 #Fsrc_p_opt  = sc.optimize.fmin(Fsrc_Err2,    fminFsrc_p0, args=(tsrt, Lumsrt, sigLsrt, Fsrc_Args), full_output=1, disp=False)[0]
 OmFit = 2.*ma.pi/(Fsrc_p_opt[4]*24.*3600.)* (1.+0.2784)
 
-#opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
-opti = -2.5*np.log10(Fsrc_Dop( ((ttopt*3600.*24)-Fsrc_p_opt[2]*2.*ma.pi/OmFit), Dst, ma.pi/2., 0.0, Fsrc_p_opt[0]*Lav, Fsrc_p_opt[1], Fsrc_p_opt[3], OmFit, 1.1)/FVbndRel)
+
+#opti = -2.5*np.log10(Fsrc_Dop( ((ttopt*3600.*24)-Fsrc_p_opt[2]*2.*ma.pi/OmFit), Dst, ma.pi/2., 0.0, Fsrc_p_opt[0]*Lav, Fsrc_p_opt[1], Fsrc_p_opt[3], OmFit, 1.1)/FVbndRel)
+
+#SET FROM DOP_PG
+#opti = -2.5*np.log10(Fsrc_Dop_PG(ttopt*3600.*24, Dst, ma.pi/2., 0.0, Fsrc_p_opt[0]*Lav, Fsrc_p_opt[1], np.arccos(0.067/Fsrc_p_opt[1]), OmPG, 1.1)/FVbndRel)
+
+#SET FROM ISO PG
+Fsrc_ISO_Args = [FVbndRel, Lav, Dst]
+Fsrc_ISO_p0 = [6.01617808e-02,   1.16281355e-01,   7.99546343e-01, 1.92212470e+03]
+Fsrc_ISO_p_opt  = sc.optimize.fmin(Fsrc_ISO_Err2,    Fsrc_ISO_p0, args=(tsrt, Lumsrt, sigLsrt, Fsrc_Args), full_output=1, disp=False)[0]
+
+Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
+opti = -2.5*np.log10(Fsrc_Iso_PG(ttopt*3600.*24, Dst, Fsrc_p_opt[0]*Lav, Fsrc_ISO_p0[1], 1.0, 1.0)/FVbndRel)
 
 
 ttopt = (ttopt*(1.+zPG1302) - 50000)
@@ -349,9 +369,16 @@ if (diff_rem or same_rem):
 	W2shell = plt.plot(ttopt, magPoint_OpThick_TorShell(pW2, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 if (Opt_Thin):
-	print "PLOT DOP Geo Thick OPT-THIN"
-	W1shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-	W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	if (shell_thin):
+		print "PLOT DOP Geo Thin OPT-THIN"
+		W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell(OpThin_TorShell_p0, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell(OpThin_TorShell_p0, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+	else:
+		print "PLOT DOP Geo Thick OPT-THIN"
+		W1shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+		W2shell = plt.plot(ttopt, magPoint_OpThin_TorThick(p_thin, (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+		
+
 
 if (ISO_Opt_Thin):
 	if (shell_thin):
@@ -389,7 +416,7 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, max(ttopt))
 #plt.ylim(10.5, 11.5)
-#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 plt.show()
 #plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")
