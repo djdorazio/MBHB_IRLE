@@ -17,8 +17,8 @@ import scipy.signal as sgn
 myrel = 1.49e-08#0.001
 myabs = 1.49e-08#0.001
 reclim = 2
-limlst = 1
-maxp1 = 1
+limlst = 2
+maxp1 = 2
 fo = 1
 
 ##GLOBAL PHYSICS CONSTANTS (cgs):

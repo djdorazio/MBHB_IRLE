@@ -18,7 +18,7 @@ from FluxFuncs_IRLE import *
 
 ###OPTIONS###OPTIONS
 #which model
-FISO = True
+FISO = False
 FDOP = True
 Sphere = True
 Ring = False
@@ -112,7 +112,7 @@ FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
 
 ##TABULATE T's and RHSs
 print "Creating look up tables"
-NT = 10000
+NT = 15000
 RHS_table = np.zeros(NT)
 T_table = np.linspace(1., 3000., NT)
 for i in range(NT):
@@ -356,10 +356,10 @@ if (FDOP):
 		###########---------------------------###########
 		if (Plot_R):
 			print "Vary R"
-			R1 = Rde
-			R2 = 4./5.*Rde
-			R3 = 4./3.*Rde
-			Omfac = 1. 
+			R1 = 2.*Rde
+			R2 = 2.*4./5.*Rde
+			R3 = 2.*4./3.*Rde
+			Omfac = 0.5 
 			Ombn = Ombn*Omfac
 
 			tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
@@ -400,14 +400,14 @@ if (FDOP):
 
 
 			plt.grid(b=True, which='both')
-			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$',  r'$R_d = R_0$',   r'$R_d = 1.6R_0$',   r'$R_d = 2.\bar{66}R_0$'), loc='upper right')
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$',  r'$R_d = 2R_0$',   r'$R_d = 1.6R_0$',   r'$R_d = 2.\bar{66}R_0$'), loc='upper right')
 
 			plt.xlabel(r"$N_{\rm{orb}}$")
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			#plt.ylim(plt.ylim(11.7, 12.5)[::-1])
 
-			Savename = "plots/Iso_and_Dop/Sphere/FDop_Sphere_nrm%g_"%nrm+"_J%g_Inc%g_VaryRin_numin%g_numx%g.png" %(JJt, Inc, Nnumn, Nnumx)
+			Savename = "plots/Iso_and_Dop/Sphere/FDop_2R0_Sphere_nrm%g_"%nrm+"_J%g_Inc%g_VaryRin_numin%g_numx%g.png" %(JJt, Inc, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
 			Savename = Savename.replace('ppng', '.png')
 			plt.savefig(Savename)

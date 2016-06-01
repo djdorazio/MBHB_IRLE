@@ -17,10 +17,12 @@ from FluxFuncs_IRLE import *
 
 
 ###OPTIONS###OPTIONS
-ISOvDop = True
+ISOvDop = False
 ISOvDop_varyI = False
 
 ISOvthT = False
+DOPvthT = True
+
 Qv_nu0 = False
 Qv_k = False
 
@@ -158,12 +160,44 @@ def DOP_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 
 
 
+
+def DOP_AIR_o_AUV_NRM(frc, numn, numx, Dst, arg1, RHS_table, T_table):
+	Lav, betst, Inc, Ombn, alph, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne = arg1
+	Ombn = 2. *ma.pi * c/Rd * frc
+	#nne = 0.0
+	#thetTst = 
+	arg2 = [Lav, betst, Inc, Ombn, alph, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne]
+	
+	LUV_mx = Fsrc_Dop(0.5*2*ma.pi/Ombn, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LUV_mn = Fsrc_Dop(0.75*2*ma.pi/Ombn, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	
+	LIR_mx = F_Sphere_Dop_QuadInt(numn, numx, 0.5*2*ma.pi/Ombn, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LIR_mn = F_Sphere_Dop_QuadInt(numn, numx, 0.75*2*ma.pi/Ombn, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	
+	#return np.abs((LIR_mx - LIR_mn)/(LUV_mx - LUV_mn))
+	AIR = np.exp( (LIR_mx - LIR_mn)*0.5/Lav )
+	AUV = np.exp( (LUV_mx - LUV_mn)*0.5/Lav )
+
+	AIR = (LIR_mx - LIR_mn)*0.5/Lav 
+	AUV = (LUV_mx - LUV_mn)*0.5/Lav 
+
+	return AIR/AUV
+
+
+
 frc_PG = Rde/c / (2.*ma.pi/OmPG)
 frc_PGb = frc_PG /ma.sqrt(0.1)
 
 frc_mx = 3.0
 frc_t = np.linspace(0.01, frc_mx, 40.0)
 frc_a = np.linspace(0.01, frc_mx, 100.0)
+
+
+
+
+
+
+
 
 
 if (ISOvDop):
@@ -223,12 +257,14 @@ if (ISOvDop):
 
 
 
+
+
 if (ISOvDop_varyI):
 	nne = 0.0 #no absorption efficiency
 	nu0 = numicron
 
 	thetTst = ma.pi/4.
-	JJt     = ma.pi/2.
+	JJt     = ma.pi/4.
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
 	NT = 15000
@@ -238,7 +274,7 @@ if (ISOvDop_varyI):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
 	Inc1 = 0.0
-	Inc2 = ma.pi/4
+	Inc2 = ma.pi/4.
 	Inc3 = ma.pi/2.1
 
 	arg1_DOP = [Lav, betst, Inc1, Ombn, alph, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
@@ -253,9 +289,9 @@ if (ISOvDop_varyI):
 	DOP2_AIR_over_AUV = np.zeros(len(frc_t))
 	DOP3_AIR_over_AUV = np.zeros(len(frc_t))
 	for i in range(len(frc_t)):
-		DOP1_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
-		DOP2_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg2_DOP, RHS_table, T_table)
-		DOP3_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg3_DOP, RHS_table, T_table)
+		DOP1_AIR_over_AUV[i] = DOP_AIR_o_AUV_NRM(frc_t[i], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		DOP2_AIR_over_AUV[i] = DOP_AIR_o_AUV_NRM(frc_t[i], numn, numx, Dst, arg2_DOP, RHS_table, T_table)
+		DOP3_AIR_over_AUV[i] = DOP_AIR_o_AUV_NRM(frc_t[i], numn, numx, Dst, arg3_DOP, RHS_table, T_table)
 
 	
 	plt.figure()
@@ -270,8 +306,12 @@ if (ISOvDop_varyI):
 	
 
 	plt.legend( [ Anl[0], DOP1, DOP2, DOP3 ], ("Analytic Iso", r"$I=0$ Dop", r"$I=\pi/4$ Dop", r"$I=\pi/2.1$ Dop"), loc='upper right')
+	#plt.legend( [ DOP1, DOP2, DOP3 ], (r"$I=0$ Dop", r"$I=\pi/4$ Dop", r"$I=\pi/2.1$ Dop"), loc='upper right')
+
+
 
 	plt.ylabel(r"$A_{\rm{IR}} / A$")
+	#plt.ylabel(r"$A_{\rm{IR}} / (A_{\rm{IR}} + A)$")
 	plt.xlabel(r"$t_d / P$")
 
 	plt.xlim(0.0,frc_mx)
@@ -281,6 +321,8 @@ if (ISOvDop_varyI):
 	Savename = Savename.replace('.', 'p')
 	Savename = Savename.replace('ppng', '.png')
 	plt.savefig(Savename)
+
+
 
 
 
@@ -359,6 +401,99 @@ if (ISOvthT):
 	Savename = Savename.replace('.', 'p')
 	Savename = Savename.replace('ppng', '.png')
 	plt.savefig(Savename)
+
+
+
+
+
+
+
+
+if (DOPvthT):
+	thT1 = 0.0
+	thT2 = ma.pi/4.
+	thT3 = ma.pi/3.
+
+	JJt  = 1.*ma.pi/2.
+	Inc = 1.*ma.pi/2.1
+
+	nne = 0.0 #no absorption efficiency
+	##TABULATE T's and RHSs
+	print "Creating look up tables"
+	NT = 15000
+	RHS_table = np.zeros(NT)
+	T_table = np.linspace(1., 3000., NT)
+	for i in range(NT):
+		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
+
+	arg1_DOP = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thT1, JJt, aeff, nu0, nne]
+	arg2_DOP = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thT2, JJt, aeff, nu0, nne]
+	arg3_DOP = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thT3, JJt, aeff, nu0, nne]
+
+
+	AA1_anal =  1./(2.*ma.pi*frc_a) * np.sin(2.*ma.pi*frc_a * ma.cos(thT1)) 
+	AA2_anal =  1./(2.*ma.pi*frc_a) * np.sin(2.*ma.pi*frc_a * ma.cos(thT2)) 
+	AA3_anal =  1./(2.*ma.pi*frc_a) * np.sin(2.*ma.pi*frc_a * ma.cos(thT3)) 
+
+	DOP1_AIR_over_AUV = np.zeros(len(frc_t))
+	DOP2_AIR_over_AUV = np.zeros(len(frc_t))
+	DOP3_AIR_over_AUV = np.zeros(len(frc_t))
+
+
+	for i in range(len(frc_t)):
+		DOP1_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		DOP2_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg2_DOP, RHS_table, T_table)
+		DOP3_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg3_DOP, RHS_table, T_table)
+
+
+
+	plt.figure()
+
+	plt.title(r'$J = \pi/2$, $I = \pi/2.1$')
+	Anl1 = plt.plot(frc_a, AA1_anal, color='black')
+	Anl2 = plt.plot(frc_a, AA2_anal, color='blue')
+	Anl3 = plt.plot(frc_a, AA3_anal, color='red')
+	plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='x', color='black')
+	plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='x', color='blue')
+	plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='x', color='red')
+	DOP1 = plt.plot(frc_t, DOP1_AIR_over_AUV, color='black', linestyle="--")
+	DOP2 = plt.plot(frc_t, DOP2_AIR_over_AUV, color='blue', linestyle="--")
+	DOP3 = plt.plot(frc_t, DOP3_AIR_over_AUV, color='red', linestyle="--")
+	
+
+	#plt.axvline(x=frc_PG, color='black', linestyle=':')
+	plt.axvspan(frc_PG, frc_PGb, color='grey', alpha=0.5, lw=0)
+	plt.axhline(y=0, color='black', linestyle='--')
+	
+
+	plt.legend( [ Anl1[0],  DOP1[0], Anl2[0], DOP2[0], Anl3[0], DOP3[0] ], (r'Iso $\theta_T = 0$', 'Dop',  r'Iso $\theta_T = \pi/4$', 'Dop',   r'Iso $\theta_T = \pi/3$', 'Dop'), loc='upper right')
+
+	plt.ylabel(r"$A_{\rm{IR}} / A$")
+	plt.xlabel(r"$t_d / P$")
+
+	
+
+	plt.xlim(0.0,frc_mx)
+	#plt.show()
+
+	Savename = "plots/Iso_and_Dop/Analytics/AIRoAUVDop_J%g_numin%g_numx%g_reclim2.png" %(JJt, Nnumn, Nnumx)
+	Savename = Savename.replace('.', 'p')
+	Savename = Savename.replace('ppng', '.png')
+	plt.savefig(Savename)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if (Qv_k):
