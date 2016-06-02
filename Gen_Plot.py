@@ -111,7 +111,7 @@ def Plot_Shell_Thin_ISO(p, Nt, Shell_File,    W1args, W2args, RHS_table, T_table
 	Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
 	t0   = Fsrc_ISO_p0[2]# * 2.*ma.pi/Ombn
 
-	opti = -2.5*np.log10(Fsrc_Iso_PG(ttopt*3600.*24, Dst, Fsrc_p_opt[0]*Lav, Fsrc_ISO_p0[1], Ombn, t0)/FVbndRel)
+	opti = -2.5*np.log10(Fsrc_Iso_PG(ttopt*3600.*24, Dst, Fsrc_ISO_p0[0]*Lav, Fsrc_ISO_p0[1], Ombn, t0)/FVbndRel)
 
 
 	ttopt = (ttopt*(1.+zPG1302) - 50000)
