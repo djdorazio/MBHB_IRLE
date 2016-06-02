@@ -6,14 +6,14 @@ from scipy import *
 
 import emcee
 
-# import matplotlib
-# matplotlib.use('Agg')
+import matplotlib
+matplotlib.use('Agg')
 
-# matplotlib.rcParams['pdf.fonttype'] = 42
-# matplotlib.rcParams['ps.fonttype'] = 42
-# matplotlib.rcParams['font.family'] = 'sans-serif'
-# #matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
-# import matplotlib.pyplot as plt
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+matplotlib.rcParams['font.family'] = 'sans-serif'
+matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
+import matplotlib.pyplot as plt
 
 # from scipy import optimize
 # from scipy.optimize import fmin
@@ -253,7 +253,7 @@ if (Shell_OptThin):
 	print "SETTING UP OPT-THIN GEO-THIN TORUS SHELL MCMC (!)..."
 	ndim = 4
 	Shell_File = "DOP_GeoThin_OptThin_"
-	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'R_{\rm{d}', '$\bar{\alpha}$']	
+	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$\bar{\alpha}$']	
 	nwalkers = ndim*2
 
 	#Best fit from fmin (Dop_Fitting.py)
@@ -365,11 +365,11 @@ if (Shell_OptThin):
 	target.close
 
 
-
+print "PLOTTING BEST FIT LIGHT CURVES"
 
 from Gen_Plot import *
 if (Shell_OptThin):
-	Plot_Shell_Thin_Dop(p_opt, 20,    tsrt, t_avg, t_MJD,    Lumsrt, W1_avsg, W2_avsg,   sigL, W1_sig, W2_sig)
+	Plot_Shell_Thin_Dop(p_opt, 40,  Shell_File,  W1args, W2args, RHS_table, T_table,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
 
 
 

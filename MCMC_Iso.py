@@ -12,7 +12,7 @@ matplotlib.use('Agg')
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
-#matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
+matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
 from scipy import optimize
@@ -253,7 +253,7 @@ if (Shell_OptThin):
 	print "SETTING UP OPT-THIN GEO-THIN TORUS SHELL MCMC (!)..."
 	ndim = 4
 	Shell_File = "ISO_GeoThin_OptThin_"
-	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'R_{\rm{d}', '$A$']	
+	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$A$']	
 	nwalkers = ndim*2
 
 	#Best fit from fmin (ISO_Fitting.py)
@@ -373,9 +373,10 @@ if (Shell_OptThin):
 	target.close
 
 
-
+print "PLOTTING BEST FIT LIGHT CURVES"
 from Gen_Plot import *
-Plot_Shell_Thin_ISO(p_opt, 20,    tsrt, t_avg, t_MJD,    Lumsrt, W1_avsg, W2_avsg,   sigL, W1_sig, W2_sig)
+if (Shell_OptThin):
+	Plot_Shell_Thin_ISO(p_opt, 20, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
 
 
 

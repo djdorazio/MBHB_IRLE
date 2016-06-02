@@ -1,5 +1,7 @@
 
 import matplotlib
+matplotlib.use('Agg')
+
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
@@ -12,18 +14,37 @@ from ErrFuncs_IRLE import *
 
 
 
-def Plot_Shell_Thin_ISO(p, Nt,    tsrt, t_avg, t_MJD,    Lumsrt, W1_avsg, W2_avsg,   sigL, W1_sig, W2_sig):
+#(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
+zPG1302 = 0.2784
+Lav = 6.78*10**46 * 1.35
+Dst = 1.4*10**9*pc2cm
+
+
+
+
+## Wise band numbers
+W1mx = numicron/2.8
+W1mn = numicron/4.0
+W2mx = numicron/3.9
+W2mn = numicron/5.3
+
+nuVbnd = c/(545*10**(-7))
+FVbndRel = 3.636*10**(-20)*nuVbnd 
+FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
+FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+
+
+
+
+
+def Plot_Shell_Thin_Dop(p, Nt, Shell_File,  W1args, W2args, RHS_table, T_table,    tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg):
 
 	ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 	
-	Fsrc_p_opt = [ 5.98144879e-02,   0.068,   6.55067929e-01,  -3.28334799e-04, 1.87091995e+03]
-
-
-	
+	Fsrc_p_opt = [ 5.98144879e-02,   0.068,   6.55067929e-01,  -3.28334799e-04, 1.87091995e+03]	
 	OmFit = 2.*ma.pi/(Fsrc_p_opt[4]*24.*3600.)* (1.+0.2784)
-
-	SET FROM DOP_PG
+	#SET FROM DOP_PG
 	opti = -2.5*np.log10(Fsrc_Dop_PG(ttopt*3600.*24, Dst, ma.pi/2., 0.0, Fsrc_p_opt[0]*Lav, Fsrc_p_opt[1], np.arccos(0.067/Fsrc_p_opt[1]), OmFit, 1.1)/FVbndRel)
 
 	
@@ -71,41 +92,26 @@ def Plot_Shell_Thin_ISO(p, Nt,    tsrt, t_avg, t_MJD,    Lumsrt, W1_avsg, W2_avs
 	plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")
 	plt.clf()
 
-
-
-
-
-#(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
-zPG1302 = 0.2784
-Lav = 6.78*10**46 * 1.35
-Dst = 1.4*10**9*pc2cm
-
-
-
-
-## Wise band numbers
-W1mx = numicron/2.8
-W1mn = numicron/4.0
-W2mx = numicron/3.9
-W2mn = numicron/5.3
-
-nuVbnd = c/(545*10**(-7))
-FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
-FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+	return
 
 
 
 
 
-def Plot_Shell_Thin_ISO(p, Nt,    tsrt, t_avg, t_MJD,    Lumsrt, W1_avsg, W2_avsg,   sigL, W1_sig, W2_sig):
 
 
-	ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
+
+def Plot_Shell_Thin_ISO(p, Nt, Shell_File,    W1args, W2args, RHS_table, T_table,   tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig ,W1_avsg, W2_avsg):
+
+
+	ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,    Nt)
 
 	
-	Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
-	opti = -2.5*np.log10(Fsrc_Iso_PG(ttopt*3600.*24, Dst, Fsrc_p_opt[0]*Lav, Fsrc_ISO_p0[1], 1.0, 1.0)/FVbndRel)
+	Fsrc_ISO_p0 = [5.99559901e-02,   1.17220299e-01,   4.43302411e+00, 1.88371914e+03]
+	Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
+	t0   = Fsrc_ISO_p0[2]# * 2.*ma.pi/Ombn
+
+	opti = -2.5*np.log10(Fsrc_Iso_PG(ttopt*3600.*24, Dst, Fsrc_p_opt[0]*Lav, Fsrc_ISO_p0[1], Ombn, t0)/FVbndRel)
 
 
 	ttopt = (ttopt*(1.+zPG1302) - 50000)
@@ -119,7 +125,7 @@ def Plot_Shell_Thin_ISO(p, Nt,    tsrt, t_avg, t_MJD,    Lumsrt, W1_avsg, W2_avs
 
 
 	plt.figure()
-		plt.title("Isotropic Source, Torus Shell")
+	plt.title("Isotropic Source, Torus Shell")
 	plt.errorbar(tsrt, Lumsrt-3.0, yerr=sigL, linestyle="none", color = "blue", alpha=0.5) #alpha=0.1
 	Fs = plt.plot(ttopt, opti-3.0, linestyle = '--', color='blue', linewidth=2)
 
@@ -150,3 +156,6 @@ def Plot_Shell_Thin_ISO(p, Nt,    tsrt, t_avg, t_MJD,    Lumsrt, W1_avsg, W2_avs
 	#plt.show()
 	plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")
 	plt.clf()
+
+
+	return
