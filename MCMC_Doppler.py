@@ -30,7 +30,7 @@ from emcee_Funcs import *
 Shell_OptThin = True
 
 ##multiprocessing
-NThread = 4
+NThread = 48
 
 #Temp table resolution
 NTemp = 3000

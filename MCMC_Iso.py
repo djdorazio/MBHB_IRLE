@@ -30,7 +30,7 @@ from emcee_Funcs import *
 Shell_OptThin = True
 
 ##multiprocessing
-NThread = 4
+NThread = 48
 
 #Temp table resolution
 NTemp = 3000
@@ -376,7 +376,7 @@ if (Shell_OptThin):
 print "PLOTTING BEST FIT LIGHT CURVES"
 from Gen_Plot import *
 if (Shell_OptThin):
-	Plot_Shell_Thin_ISO(p_opt, 20, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
+	Plot_Shell_Thin_ISO(p_opt, 20, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
 
 
 
