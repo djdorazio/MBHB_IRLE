@@ -335,7 +335,7 @@ OmFit = 2.*ma.pi/(Fsrc_p_opt[4]*24.*3600.)* (1.+0.2784)
 
 #SET FROM ISO PG
 Fsrc_ISO_Args = [FVbndRel, Lav, Dst]
-Fsrc_ISO_p0 = [6.01617808e-02,   1.16281355e-01,   7.99546343e-01, 1.92212470e+03]
+Fsrc_ISO_p0 = [5.99559901e-02,   1.17220299e-01,   4.43302411e+00, 1.88371914e+03]
 Fsrc_ISO_p_opt  = sc.optimize.fmin(Fsrc_ISO_Err2,    Fsrc_ISO_p0, args=(tsrt, Lumsrt, sigLsrt, Fsrc_Args), full_output=1, disp=False)[0]
 
 Fsrc_ISO_p0 = [0.0597279747, 0.139181205, 0.688098413, 1871.99573]
