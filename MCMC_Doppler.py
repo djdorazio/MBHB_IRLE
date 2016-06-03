@@ -30,10 +30,10 @@ from emcee_Funcs import *
 Shell_OptThin = True
 
 ##multiprocessing
-NThread = 48
+NThread = 4
 
 #Temp table resolution
-NTemp = 3000
+NTemp = 2000
 
 
 
@@ -228,7 +228,7 @@ W2_avsg = np.array(W2_avsg)
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
 RHS_table = np.zeros(NTemp)
-T_table = np.linspace(1., 3000., NTemp)
+T_table = np.linspace(1., 2000., NTemp)
 for i in range(NTemp):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -254,7 +254,7 @@ if (Shell_OptThin):
 	ndim = 4
 	Shell_File = "DOP_GeoThin_OptThin_"
 	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$\bar{\alpha}$']	
-	nwalkers = ndim*2
+	nwalkers = ndim*12
 
 	#Best fit from fmin (Dop_Fitting.py)
 	p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
@@ -270,7 +270,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 2
+	clen = 512
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 

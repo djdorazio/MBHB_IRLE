@@ -33,7 +33,7 @@ Shell_OptThin = True
 NThread = 48
 
 #Temp table resolution
-NTemp = 3000
+NTemp = 2000
 
 
 
@@ -228,7 +228,7 @@ W2_avsg = np.array(W2_avsg)
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
 RHS_table = np.zeros(NTemp)
-T_table = np.linspace(1., 3000., NTemp)
+T_table = np.linspace(1., 2000., NTemp)
 for i in range(NTemp):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -254,7 +254,7 @@ if (Shell_OptThin):
 	ndim = 4
 	Shell_File = "ISO_GeoThin_OptThin_"
 	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$A$']	
-	nwalkers = ndim*2
+	nwalkers = ndim*12
 
 	#Best fit from fmin (ISO_Fitting.py)
 	p0 = [-0.94789069,   0.91328937,  10.23015572,   0.09667759]
@@ -278,7 +278,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 2
+	clen = 512
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 
@@ -376,7 +376,7 @@ if (Shell_OptThin):
 print "PLOTTING BEST FIT LIGHT CURVES"
 from Gen_Plot import *
 if (Shell_OptThin):
-	Plot_Shell_Thin_ISO(p_opt, 20, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
+	Plot_Shell_Thin_ISO(p_opt, 40, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
 
 
 
