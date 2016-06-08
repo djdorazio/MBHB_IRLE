@@ -4,7 +4,8 @@ from ErrFuncs_IRLE import *
 
 ### PRIORS
 def ln_prior(params):
-	sinJJ, cosTT, Rin, alpha = params
+	#sinJJ, cosTT, Rin, alpha = params
+	sinJJ, cosTT, Rin = params
 					
 	if sinJJ < -1 or sinJJ > 1:
 		return -np.inf
@@ -18,25 +19,28 @@ def ln_prior(params):
 	return 0.
 
 
-def ln_Sinprior(p):
-	if (No_Prd):
-		Prd = SinPrd
-		Amp, phs, mag0 = p
-		if Amp < 0.:
-			return -np.inf
+def ln_Sinprior(p, Flat, SinFit, No_Prd):
+	if (Flat):
+		return 0
+	elif (SinFit):
+		if (No_Prd):
+			Prd = 1884./(1+0.2784)
+			Amp, phs, mag0 = p
+			if Amp < 0.:
+				return -np.inf
 
-		if phs < 0.0 or phs > Prd:
-			return -np.inf
-	else:
-		Amp, Prd, phs, mag0 = p	
-		if Amp < 0.:
-			return -np.inf
-					
-		if Prd < 0.:
-			return -np.inf
+			if phs < 0.0 or phs > Prd:
+				return -np.inf
+		else:
+			Amp, Prd, phs, mag0 = p	
+			if Amp < 0.:
+				return -np.inf
+						
+			if Prd < 0.:
+				return -np.inf
 
-		if phs < 0.0 or phs > Prd:
-			return -np.inf
+			if phs < 0.0 or phs > Prd:
+				return -np.inf
 					
 				
 	return 0.
@@ -51,8 +55,28 @@ def ln_ISO_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1
 		
 
 
-def ln_Sinlikelihood(p, t, y, dy):
-			return -(SinErr2(p, t, y, dy)) 
+def sinPoint(params, t,  Flat, SinFit, No_Prd):
+	if (Flat):
+		return params
+	elif (SinFit):
+		if (No_Prd):
+			Prd = 1884./(1.+0.2784)
+			Amp, phs, mag0 = params
+		else:
+			Amp, Prd, phs, mag0 = params
+		#Amp, phs, mag0 = params
+		#Prd=1884.
+	return Amp*np.sin( 2.*ma.pi/Prd*(t - phs) - np.pi/2) + mag0 
+
+def SinErr2(p, t, y, dy, Flat, SinFit, No_Prd):
+	print "EVAL", p
+	chi = (y - sinPoint(p, t, Flat, SinFit, No_Prd) )/ dy
+	chi2 = sum(chi*chi)
+	print(chi2)
+	return chi2
+
+def ln_Sinlikelihood(p, t, y, dy, Flat, SinFit, No_Prd):
+	return -(SinErr2(p, t, y, dy, Flat, SinFit, No_Prd)) 
 
 
 
@@ -81,10 +105,14 @@ def ln_ISO_SHThin_posterior(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1,
 
 
 
-def ln_Sinposterior(p, t, y, dy):
-			ln_p = ln_Sinprior(p)
+def ln_Sinposterior(p, t, y, dy, Flat, SinFit, No_Prd):
+			ln_p = ln_Sinprior(p, Flat, SinFit, No_Prd)
 			if not np.isfinite(ln_p):
 				return -np.inf
 			
-			ln_l = ln_Sinlikelihood(p, t, y, dy)
+			ln_l = ln_Sinlikelihood(p, t, y, dy, Flat, SinFit, No_Prd)
 			return ln_l + ln_p
+
+
+
+

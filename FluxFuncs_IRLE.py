@@ -128,7 +128,7 @@ def nDust_pcwse(x,y,z, n0, Rd, p, thetT, JJ):
 def T_RHS(Td, nu0, nn):
 	# 4 for difference in cross sectional area and surface area, pi for isotropic flux from Grain
 	#RHS = 4.*ma.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	RHS = 4.*ma.pi* intg.quad(QvBv  ,0., 10.*numicron, args=(Td, nu0, nn) )[0] 
+	RHS = 4.*ma.pi* intg.quad(QvBv  ,0., 2.0*numicron, args=(Td, nu0, nn) )[0] 
 	#
 	#
 	#RHS = 4.* ma.pi* (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, 0.) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
@@ -444,7 +444,7 @@ def Fnuint_Shell_OptThick_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	# Tdust for doppler source
 	Tdust = TDust_Iso(tem, Rd, thet, ph, args, RHStable, Ttable)
 	# surface density in optically thick limit
-	Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
+	Surf_nd = 1./ma.pi/aeff/aeff#2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
 
 	xe = (x*x)**0.5 
@@ -1369,11 +1369,11 @@ def Fnu_ShTorOptThick_Dop_QuadInt(nu, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(FThnu_ShTorOptThick_Dop_QuadInt, 0., ma.pi, args=(nu, t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
 
 def F_ShTorOptThick_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
-	#return intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
-	 res=[]
-	 for i in range(len(t)):
-	 	res.append(intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0] )	
-	 return np.array(res)
+	return intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+	# res=[]
+	 #for i in range(len(t)):
+	# 	res.append(intg.quad(Fnu_ShTorOptThick_Dop_QuadInt, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0] )	
+	 #return np.array(res)
 
 ###
 def FThnu_ShTorOptThick_Dop_QuadInt_PG(thet, nu, t, Dist, Aargs, RHStable, Ttable):

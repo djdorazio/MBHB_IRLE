@@ -13,6 +13,7 @@ matplotlib.use('Agg')
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
+matplotlib.rcParams.update({'font.size': 16})
 #matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
@@ -34,13 +35,13 @@ pltThick = False
 
 
 ## WHAT KIND OF FITTING? ALL TURNED OFF IF NOFIT SET ABOVE
-emcee_Fit = False# use emcee to fit
+emcee_Fit = True# use emcee to fit
 ## multiprocessing
-NThread = 48
+NThread = 4
 #
-fmin_Fit = True   # use simple fmin to fit
+fmin_Fit = False   # use simple fmin to fit
 
-W1fit = True  ### fit only W1fit, Thick or Shell
+W1fit = False  ### fit only W1fit, Thick or Shell
 W2fit = False  ### fit only W1fit, Thick or Shell
 fit_both = False  ### fit using chi2 for both W1 and W2 - SHELL ONLY - 4 or 6 params depends on rem_is_Rin
 				### if rem_is_Rin is FALSE, then 6 params [sinJ, cosT, rem1, rem2, Rin, n0] where rems are
@@ -51,13 +52,13 @@ if (fit_both):
 
 
 Fit_Src = False     ## fmin fit for Lfrac, beta, phase, and Inc to fit optical data
-sinFit_Src = False  ## emcee fit a sin curve to optical data
-SinFit = False      ## emcee fit a sin curve to IR data (W1 and W2)
+sinFit_Src = True  ## emcee fit a sin curve to optical data
+SinFit = False    ## emcee fit a sin curve to IR data (W1 and W2)
 No_Prd = True       ## fix the period at 1884/(1+z) ~ 1474 for fitting
 
 
 ShellFit = False #-> make false if fitboth is on - this fits for W1 and W2 independnetly and in addition to fitboth
-ThickFit = True # Fits W1 or W2 as selected above for THick model
+ThickFit = False # Fits W1 or W2 as selected above for THick model
 
 mpi_it = False  #defunct
 
@@ -124,10 +125,12 @@ W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-nuVbnd = c/(545*10**(-7))
+
+
+nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
-FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 ## PARAMS TO FIT - note these are all params which the optical data does not fit for
 #beta0, JJ0, Rin0, nDust0
@@ -721,7 +724,7 @@ if (fmin_Fit):
 		
 			
 
-	target.close
+	target.close()
 
 	filename = "fmin"+Shell_File+"_results.txt"
 	print "Printing Results"
@@ -741,7 +744,7 @@ if (fmin_Fit):
 		
 			
 
-	target.close
+	target.close()
 
 
 
@@ -765,7 +768,7 @@ if (emcee_Fit):
 		
 
 					
-		clen = 2048#4096*2
+		clen = 4096#4096*2
 		Fsrc_pos,_,_ = Fsrc_sampler.run_mcmc(Fsrc_walker_p0 , clen)
 
 		
@@ -830,7 +833,7 @@ if (emcee_Fit):
 		W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
 
 					
-		clen = 2048#4096*2
+		clen = 4096
 		W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 		W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -1071,7 +1074,7 @@ if (emcee_Fit):
 
 			
 
-		target.close
+		target.close()
 
 
 
@@ -1228,8 +1231,56 @@ if (emcee_Fit):
 
 			
 
-		target.close
+		target.close()
 
+
+
+
+
+
+
+		filename = "Sin_results_"+Shell_File+"%iwalkers.txt" %clen
+		print "Printing Results"
+		target = open(filename, 'w')
+		target.truncate()
+
+
+		for i,name in enumerate(param_names):
+			W1_sin_diff_minus = W1_sin_MAP_vals[i] - W1_sin_perc[0,i]
+			W1_sin_diff_plus = W1_sin_perc[1,i] - W1_sin_MAP_vals[i]
+			target.write("W1: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W1_sin_MAP_vals[i], W1_sin_diff_plus, W1_sin_diff_minus, name=name))
+			target.write("\n")
+
+		for i,name in enumerate(param_names):
+			W2_sin_diff_minus = W2_sin_MAP_vals[i] - W2_sin_perc[0,i]
+			W2_sin_diff_plus = W2_sin_perc[1,i] - W2_sin_MAP_vals[i]
+			target.write("W2: {name}: {0:.4f} + {1:.4f} - {2:.4f}".format(W2_sin_MAP_vals[i], W2_sin_diff_plus, W2_sin_diff_minus, name=name))
+			target.write("\n")	
+
+		if (No_Prd):
+			target.write("Period = %4g" %SinPrd)	
+			target.write("\n")		
+		
+		
+		
+		W1_sin_mxprbs = zeros(nwalkers)
+		W2_sin_mxprbs = zeros(nwalkers)
+					
+
+		for i in range(nwalkers):
+			W1_sin_mxprbs[i] = max(W1_sin_lnprobs[i])
+			W2_sin_mxprbs[i] = max(W2_sin_lnprobs[i])
+		
+		chi2_pdf_W1 = -max(W1_sin_mxprbs)/(len(W1_avg) - len(param_names) - 1)
+		chi2_pdf_W2 = -max(W2_sin_mxprbs)/(len(W2_avg) - len(param_names) - 1)
+		target.write("\n")		
+		target.write("Shell W1 reduced chi2 =  %04g" %chi2_pdf_W1)
+		target.write("\n")
+		target.write("Shell W2 reduced chi2 =  %04g" %chi2_pdf_W2)
+
+			
+
+		target.close()
 
 
 
@@ -1303,7 +1354,7 @@ if (emcee_Fit):
 
 			
 
-		target.close
+		target.close()
 
 
 
@@ -1324,6 +1375,7 @@ ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
 #opti = -2.5*np.log10(Fsrc(ttopt*3600.*24, Dst, ma.pi/2., 0.0, Lav, betst, Inc, OmPG, 1.1)/FVbndRel)
 if (Fit_Src):
+	fminFsrc_opt = Fsrc_opt
 	#opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - fminFsrc_opt[2]*2.*ma.pi/OmPG), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], np.arccos(0.067/fminFsrc_opt[1]), OmPG, 1.1)/FVbndRel)
 	opti = -2.5*np.log10(Fsrc((ttopt*3600.*24 - 0.0), Dst, ma.pi/2., 0.0, fminFsrc_opt[0]*Lav, fminFsrc_opt[1], fminFsrc_opt[3], OmPG, 1.1)/FVbndRel)
 #elif (sinFit_Src):

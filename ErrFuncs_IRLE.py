@@ -99,8 +99,10 @@ def magPoint_OpThin_TorShell_dustP(params, t, THEargs, RHStable, Ttable):
 
 def magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 
-	sinJJ, cosTT, Rin, alph = params
+	#sinJJ, cosTT, Rin, alph = params
+	sinJJ, cosTT, Rin = params
 
+	alph = -2.0
 	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calcualtion method
 	Rin = Rin * 2.73213149e+18
 
@@ -354,7 +356,10 @@ def ISO_OpThin_TorThick_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1
 
 def ISO_magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 
-	sinJJ, cosTT, Rin, Amp = params
+	#sinJJ, cosTT, Rin, Amp = params
+	sinJJ, cosTT, Rin = params
+
+	Amp = 0.35
 
 	n0 = 1.0 ## shouldnt matter
 	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):

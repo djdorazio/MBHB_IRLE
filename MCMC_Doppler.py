@@ -13,6 +13,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
 matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
+matplotlib.rcParams.update({'font.size': 16})
 import matplotlib.pyplot as plt
 
 # from scipy import optimize
@@ -30,11 +31,11 @@ from emcee_Funcs import *
 Shell_OptThin = True
 
 ##multiprocessing
-NThread = 4
+NThread = 36
 
 #Temp table resolution
-NTemp = 2000
-
+NTemp = 3000
+Tsub  = 3000.
 
 
 ################################
@@ -80,13 +81,12 @@ W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-nuVbnd = c/(545*10**(-7))
+
+
+nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
-FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
-
-
-
+FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 
 
@@ -228,7 +228,7 @@ W2_avsg = np.array(W2_avsg)
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
 RHS_table = np.zeros(NTemp)
-T_table = np.linspace(1., 2000., NTemp)
+T_table = np.linspace(1., Tsub, NTemp)
 for i in range(NTemp):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -251,13 +251,15 @@ for i in range(NTemp):
 
 if (Shell_OptThin):
 	print "SETTING UP OPT-THIN GEO-THIN TORUS SHELL MCMC (!)..."
-	ndim = 4
-	Shell_File = "DOP_GeoThin_OptThin_"
-	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$\bar{\alpha}$']	
+	Shell_File = "DOP_GeoThin_OptThin_Tsub%g_" %Tsub
+	#param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$\bar{\alpha}$']	
+	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']
+	ndim = len(param_names)	
 	nwalkers = ndim*12
 
 	#Best fit from fmin (Dop_Fitting.py)
-	p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
+	#p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
+	p0 = [0.7,  0.7,  0.5]
 	p0 = np.array(p0)
 	## args of non changing parameters to pass 
 	##Rrout is no longer used
@@ -270,7 +272,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 512
+	clen = 2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 
@@ -362,7 +364,7 @@ if (Shell_OptThin):
 
 		
 
-	target.close
+	target.close()
 
 
 print "PLOTTING BEST FIT LIGHT CURVES"

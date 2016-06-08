@@ -22,9 +22,11 @@ from ErrFuncs_IRLE import *
 same_rem = False
 fit_dust = False
 sphere = False
-shell_thin = False
+
 diff_rem = False
-Opt_Thin = False
+
+Opt_Thin = True
+shell_thin = True
 ISO_Opt_Thin = False
 
 ###############################
@@ -32,7 +34,7 @@ ISO_Opt_Thin = False
 ################################
 ################################
 nne = 1.0
-nu0 = numicron/1.5
+nu0 = numicron/1.0
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
 zPG1302 = 0.2784
@@ -71,10 +73,10 @@ W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-nuVbnd = c/(545*10**(-7))
+nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
-FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 ## PARAMS TO FIT - note these are all params which the optical data does not fit for
 #beta0, JJ0, Rin0, nDust0
@@ -265,7 +267,8 @@ p_thin = [6.61450706e-01,   9.74877433e-01,   6.87604867e+00,   1.23037154e+03, 
 if (shell_thin):
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn,       pp, Rrout,   nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,       pp, Rrout,   nu0, nne, betst]
-	OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
+	#OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
+	OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  0.5, -1.3605258]
 
 
 if (ISO_Opt_Thin):
@@ -315,7 +318,7 @@ if (fit_dust):
 ### PLOT
 ################################
 ################################
-Nt=40
+Nt=2
 
 ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
@@ -416,7 +419,7 @@ plt.ylabel("mag")
 #plt.xlim(52000, 57500)
 plt.xlim(3000, max(ttopt))
 #plt.ylim(10.5, 11.5)
-plt.ylim(plt.ylim(10.5, 12.3)[::-1])
+#plt.ylim(plt.ylim(10.5, 12.3)[::-1])
 
 plt.show()
 #plt.savefig("../emcee_data/"+Shell_File+"BestFit.png")

@@ -42,10 +42,9 @@ shell_thin = False
 diff_rem = False
 
 ### Fit a geometrically Thick (where tau->1), optically IR thin model with parameters [sinJ, cosT, Rin, n0], don't fit for dust
-Opt_Thin = True
+Opt_Thin = False
 
-
-same_rem_thin = False
+same_rem_thin = True
 
 
 
@@ -92,10 +91,11 @@ W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-nuVbnd = c/(545*10**(-7))
+
+nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
-FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+FW1Rel = 3.09540*10**(-21)*(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*(W2mn + W2mx)/2
 
 ## PARAMS TO FIT - note these are all params which the optical data does not fit for
 #beta0, JJ0, Rin0, nDust0
