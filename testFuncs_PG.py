@@ -212,9 +212,9 @@ W2_avsg = np.array(W2_avsg)
 #Set up look up tables
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
-NT = 2000
+NT = 18000
 RHS_table = np.zeros(NT)
-T_table = np.linspace(1., 2000., NT)
+T_table = np.linspace(1., 1800., NT)
 for i in range(NT):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -268,7 +268,8 @@ if (shell_thin):
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn,       pp, Rrout,   nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn,       pp, Rrout,   nu0, nne, betst]
 	#OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
-	OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  0.5, -1.3605258]
+	#OpThin_TorShell_p0 = [-0.85664946,  0.87693384,  0.5, -1.3605258]
+	OpThin_TorShell_p0 = [0.2065, 0.08, 10.3518]
 
 
 if (ISO_Opt_Thin):

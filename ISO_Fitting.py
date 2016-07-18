@@ -92,10 +92,11 @@ W2mx = numicron/3.9
 W2mn = numicron/5.3
 
 
+
 nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-21)*(W1mn + W1mx)/2
-FW2Rel = 1.71787*10**(-21)*(W2mn + W2mx)/2
+FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 ## PARAMS TO FIT - note these are all params which the optical data does not fit for
 #beta0, JJ0, Rin0, nDust0

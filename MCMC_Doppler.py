@@ -31,11 +31,11 @@ from emcee_Funcs import *
 Shell_OptThin = True
 
 ##multiprocessing
-NThread = 36
+NThread = 4
 
 #Temp table resolution
-NTemp = 3000
-Tsub  = 3000.
+NTemp = 36000
+Tsub  = 1800.
 
 
 ################################
@@ -251,15 +251,19 @@ for i in range(NTemp):
 
 if (Shell_OptThin):
 	print "SETTING UP OPT-THIN GEO-THIN TORUS SHELL MCMC (!)..."
-	Shell_File = "DOP_GeoThin_OptThin_Tsub%g_" %Tsub
+	Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_" %(NTemp, Tsub)
 	#param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$\bar{\alpha}$']	
 	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']
 	ndim = len(param_names)	
-	nwalkers = ndim*12
+	nwalkers = ndim*2
 
 	#Best fit from fmin (Dop_Fitting.py)
 	#p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
-	p0 = [0.7,  0.7,  0.5]
+	#p0 = [0.7,  0.7,  0.5]
+	#Best for from 2048 36 MCMC chi2 ~100, but too dim when integrate at better resolution - better resolution aslo gets rid of large amplitude as expected
+	p0 = [0.2065, 0.0735, 10.3518]
+	# make brighter
+	#p0 = [0.2065, 0.2, 10.3518]
 	p0 = np.array(p0)
 	## args of non changing parameters to pass 
 	##Rrout is no longer used
@@ -272,7 +276,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 2048
+	clen = 2#2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 

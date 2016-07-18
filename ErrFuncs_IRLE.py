@@ -7,6 +7,33 @@ import time
 
 
 
+def BB_Err2(p, nu, y, dy):
+	Td, nu0, gam, sqtfR  = p
+	nu0 = nu0 *10**14
+	sqtfR = sqtfR*pc2cm
+	Dst = 1.4*10**9*pc2cm
+	print p
+	## make sure R i consistent with Temp there!
+	#qIR = (1./nu0)**(gam)
+	#R = ma.sqrt(  Lav / (  4.* ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4.+gam) * spc.gamma(4+gam) * spc.zetac(4.+gam) * Td**(4.+gam) ) )
+	
+	if (gam < 0):
+		chi2 = np.inf
+	else:
+		#Rprint = sqtfR/pc2cm
+		#print Rprint
+		pref = np.ones(len(nu))
+		for i in range(len(nu)):
+			pref[i] = min(1., (nu[i]/nu0)**(4.+gam))
+		chi = (y - pref*Bv(nu, Td)* (sqtfR/Dst)**2 )/ dy
+		chi2 = sum(chi*chi)
+	print chi2
+	return chi2
+
+
+
+
+
 
 def Fsrc_Err2(p, t, y, dy, Args):
 	print "EVAL", p

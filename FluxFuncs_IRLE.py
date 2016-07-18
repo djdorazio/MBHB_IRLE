@@ -14,8 +14,8 @@ import scipy.signal as sgn
 #Result Function 2: gives flux integrated over r and nu - given bounds
 
 #### INTEGRATION ERROR TOLS
-myrel = 1.49e-08#0.001
-myabs = 1.49e-08#0.001
+myrel = 1.49e-14#0.001
+myabs = 1.49e-14#0.001
 reclim = 1
 limlst = 1
 maxp1 = 1

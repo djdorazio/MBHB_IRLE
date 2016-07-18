@@ -45,6 +45,27 @@ def ln_Sinprior(p, Flat, SinFit, No_Prd):
 				
 	return 0.
 
+
+
+def ln_BBprior(params):
+	#sinJJ, cosTT, Rin, alpha = params
+	Td, nu0, gam, sqtfR  = params
+					
+	if Td < 0.0:
+		return -np.inf
+
+	if nu0<0:
+		return -np.inf
+						
+	if gam < 0.0 or gam > 2.0:
+		return -np.inf
+
+	if sqtfR < 0.0:
+		return -np.inf
+			
+	return 0.
+
+
 ##LIKLIHOODS
 def ln_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
@@ -80,6 +101,10 @@ def ln_Sinlikelihood(p, t, y, dy, Flat, SinFit, No_Prd):
 
 
 
+def ln_BBlikelihood(p, t, y, dy):
+	return -(BB_Err2(p, t, y, dy)) 
+
+
 
 
 
@@ -111,6 +136,15 @@ def ln_Sinposterior(p, t, y, dy, Flat, SinFit, No_Prd):
 				return -np.inf
 			
 			ln_l = ln_Sinlikelihood(p, t, y, dy, Flat, SinFit, No_Prd)
+			return ln_l + ln_p
+
+
+def ln_BBposterior(p, t, y, dy):
+			ln_p = ln_BBprior(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_BBlikelihood(p, t, y, dy)
 			return ln_l + ln_p
 
 

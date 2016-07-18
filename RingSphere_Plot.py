@@ -18,7 +18,7 @@ from FluxFuncs_IRLE import *
 
 ###OPTIONS###OPTIONS
 #which model
-FISO = False
+FISO = True
 FDOP = True
 Sphere = True
 Ring = False
@@ -97,16 +97,29 @@ Dst = 1.4*10**9*pc2cm
 
 
 
-### WISE BAND + Observational STUFF
+# ### WISE BAND + Observational STUFF
+# W1mx = numicron/2.8
+# W1mn = numicron/4.0
+# W2mx = numicron/3.9
+# W2mn = numicron/5.3
+
+# nuVbnd = c/(545.*10**(-7))
+# FVbndRel = 3.636*10**(-20)*nuVbnd 
+# FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
+# FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+
+## Wise band numbers
 W1mx = numicron/2.8
 W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-nuVbnd = c/(545.*10**(-7))
+
+
+nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
-FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 
 
@@ -126,7 +139,7 @@ tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
 ## INTEGRATION LIMTS FOR ALL nu
 Nnumn = 0.0
-Nnumx = 10.0
+Nnumx = 5.0
 numn = Nnumn*numicron
 numx = Nnumx*numicron
 
@@ -152,11 +165,13 @@ if (FISO):
 		###########---------------------------###########
 		if (Plot_R):
 			print "Vary R"
-			R1 = Rde
-			R2 = 4./5.*Rde
-			R3 = 4./3.*Rde
+			R1 = 1.*Rde
+			R2 = 1.*4./5.*Rde
+			R3 = 1.*4./3.*Rde
 			Omfac = 1.0 
 			Ombn = Ombn*Omfac
+
+
 			tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
 			arg1 = [Lav, Amp, Ombn, t0, n0, R1, pp, thetTst, JJt, aeff, nu0, nne]
@@ -186,7 +201,8 @@ if (FISO):
 			plt.figure()
 			#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 			#plt.title(r"Sphere, $F^{\rm{src}}_{\rm{iso}}$, $\Omega = %g \times 2\pi c / R_d$" %Omfac)
-			plt.title(r"Sphere, $\Omega = 2\pi c / R_0$")
+			#plt.title(r"Sphere, $\Omega = 2\pi c / R_0$")
+			plt.title(r"Isotropic, Sphere, $P =  R_0/c$")
 
 			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -198,7 +214,7 @@ if (FISO):
 
 
 			plt.grid(b=True, which='both')
-			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$R_d = R_0$',   r'$R_d = 0.8R_0$',   r'$R_d = 1.\bar{33}R_0$'), loc='upper right')
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$R_d = R_0$',   r'$R_d = 0.8R_0$',   r'$R_d = 1.\bar{33}R_0$'), loc='upper right', fontsize=14)
 
 			plt.xlabel(r"$N_{\rm{orb}}$")
 			plt.ylabel("mag")
@@ -356,11 +372,13 @@ if (FDOP):
 		###########---------------------------###########
 		if (Plot_R):
 			print "Vary R"
-			R1 = 2.*Rde
-			R2 = 2.*4./5.*Rde
-			R3 = 2.*4./3.*Rde
-			Omfac = 0.5 
+			R1 = 1.*Rde
+			R2 = 1.*4./5.*Rde
+			R3 = 1.*4./3.*Rde
+			Omfac = 1.0 
 			Ombn = Ombn*Omfac
+
+			Inc = 0.0
 
 			tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
@@ -388,7 +406,8 @@ if (FDOP):
 			plt.figure()
 			#plt.title(r"$n_0 = %g n_T$  $J = %g$ rad" %(nfac, JJt))
 			#plt.title(r"Sphere, $F^{\rm{src}}_{\rm{Dop}}$, $J = %g$ rad" r" $I = %g$ rad" %(JJt, Inc))
-			plt.title(r"Sphere, $\Omega = \pi c / R_0$, $I = %g$ rad" %Inc)
+			#plt.title(r"Sphere, $\Omega = 2\pi c / R_0$, $I = %g$" %Inc)
+			plt.title(r"Doppler, Sphere, $P =  R_0/c$, $I = %g$" %Inc)
 
 			s1 = plt.plot(tt/(2*np.pi/Ombn), FsrcI1, linestyle = '--', color='blue', linewidth=2)
 
@@ -400,14 +419,14 @@ if (FDOP):
 
 
 			plt.grid(b=True, which='both')
-			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$',  r'$R_d = 2R_0$',   r'$R_d = 1.6R_0$',   r'$R_d = 2.\bar{66}R_0$'), loc='upper right')
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$',  r'$R_d = R_0$',   r'$R_d = 0.8R_0$',   r'$R_d = 1.\bar{33}R_0$'), loc='upper right', fontsize=14)
 
 			plt.xlabel(r"$N_{\rm{orb}}$")
 			plt.ylabel("mag")
 			plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
 			#plt.ylim(plt.ylim(11.7, 12.5)[::-1])
 
-			Savename = "plots/Iso_and_Dop/Sphere/FDop_2R0_Sphere_nrm%g_"%nrm+"_J%g_Inc%g_VaryRin_numin%g_numx%g.png" %(JJt, Inc, Nnumn, Nnumx)
+			Savename = "plots/Iso_and_Dop/Sphere/FDop_R0_Sphere_nrm%g_"%nrm+"_J%g_Inc%g_VaryRin_numin%g_numx%g.png" %(JJt, Inc, Nnumn, Nnumx)
 			Savename = Savename.replace('.', 'p')
 			Savename = Savename.replace('ppng', '.png')
 			plt.savefig(Savename)
@@ -440,10 +459,15 @@ if (FDOP):
 			FI3 = np.zeros(Nt)
 
 
-			FsrcI1 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
-			FsrcI2 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc2, Ombn, alph)/FVbndRel)
-			FsrcI3 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc3, Ombn, alph)/FVbndRel)
-								
+			#FsrcI1 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FVbndRel)
+			#FsrcI2 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc2, Ombn, alph)/FVbndRel)
+			#FsrcI3 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc3, Ombn, alph)/FVbndRel)
+			
+
+			FsrcI1 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc1, Ombn, alph)/FW1Rel)
+			FsrcI2 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc2, Ombn, alph)/FW1Rel)
+			FsrcI3 = -2.5*np.log10(Fsrc_Dop(tt, Dst, ma.pi/2., 0.0, Lav, betst, Inc3, Ombn, alph)/FW1Rel)
+
 			for i in range(Nt):
 									  #F_Ring_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable)
 				FI1[i] = -2.5*np.log10(F_Sphere_Dop_QuadInt(numn, numx, tt[i], Dst, arg1, RHS_table, T_table)/FW1Rel)
@@ -469,7 +493,7 @@ if (FDOP):
 
 
 			plt.grid(b=True, which='both')
-			plt.legend( [ s1[0],s2[0],s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', '','', r'$I = 0$',   r'$I = \pi/4$',   r'$I = \pi/2$'), loc='upper right')
+			plt.legend( [ s1[0],s2[0],s1[0], IR1[0], IR2[0], IR3[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', '','', r'$I = 0$',   r'$I = \pi/4$',   r'$I = \pi/2$'), loc='upper right', fontsize=14)
 
 			plt.xlabel(r"$N_{\rm{orb}}$")
 			plt.ylabel("mag")
