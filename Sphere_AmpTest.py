@@ -19,12 +19,12 @@ import scipy.integrate as intgt
 
 
 ###OPTIONS###OPTIONS
-IR_Lum = True
+IR_Lum = False
 fmin = False
 MCMC = True
 NThread = 4
 
-ISOvDop = False
+ISOvDop = True
 ISOvDop_MAX = False
 
 Dop_alphs = False
@@ -33,8 +33,8 @@ ISOvDop_varyI = False
 ISOvthT = False
 DOPvthT = False
 
-PG1302_ISO = True
-PG1302_Dop = True
+PG1302_ISO = False
+PG1302_Dop = False
 numRing = False
 
 
@@ -63,7 +63,7 @@ Omb = 1./(1*yr2sec)
 L0 = 6.78*10**46
 MPGmx = 10**9.4*Msun
 Ryr = c*yr2sec
-RdPG = ma.sqrt(0.1)*2.8 *pc2cm
+RdPG = 3.3*pc2cm#ma.sqrt(1.)*2.8 *pc2cm
 OmPG = 2.*ma.pi/(1474*3600*24) #Omb*2.*ma.pi/4.1
 Ombn = OmPG
 #alphnu = 1.1
@@ -108,8 +108,12 @@ W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-W1_mid = (W1mn + W1mx)/2.
-W2_mid = (W2mn + W2mx)/2.
+
+W1_mid = (W1mx + W1mn)/2.
+W2_mid = (W2mx + W2mn)/2.
+
+W3_mid = numicron/12.
+W4_mid = numicron/22.
 
 
 
@@ -142,6 +146,11 @@ numn = Nnumn*numicron
 numx = Nnumx*numicron
 
 
+Tmin = 100.
+Tsub=1800.
+NT = 10000
+
+
 
 Rsub = 0.5 * ma.sqrt(Lav/(10.**(46))) * (1800./1800.)**(2.8)  * pc2cm
 
@@ -151,7 +160,7 @@ frc_PG = Rsub/c / (2.*ma.pi/OmPG) ## sublimation radisu for L = Lav (10^8.7 is M
 #frc_PGb = frc_PG /ma.sqrt(0.1)
 
 frc_mx = 4.0
-frc_t = np.linspace(0.01, frc_mx, 30.0)
+frc_t = np.linspace(0.01, frc_mx, 20.0)
 frc_a = np.linspace(0.01, frc_mx, 100.0)
 
 WeinCst = 2.821439
@@ -191,6 +200,9 @@ def IRLum(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 def ISO_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	Lav, Amp, Ombn, t0, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne = arg1
 	Ombn = 2. *ma.pi * c/Rd * frc
+
+	#Ombn = OmPG
+	#Rd = 2. *ma.pi * c/OmPG * frc
 	t0 = 0.0
 	arg2 = [Lav, Amp, Ombn, t0, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne]
 	LIR_mx = F_Sphere_Iso_QuadInt(numn, numx, 0.25*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
@@ -241,6 +253,10 @@ def ISO_OptThick_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 def DOP_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	Lav, betst, Inc, Ombn, alph, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne = arg1
 	Ombn = 2. *ma.pi * c/Rd * frc
+
+	#Ombn = OmPG
+	#Rd = 2. *ma.pi * c/OmPG * frc
+	
 	#nne = 0.0
 	#thetTst = 
 	arg2 = [Lav, betst, Inc, Ombn, alph, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne]
@@ -397,7 +413,7 @@ if (IR_Lum):
 		import emcee
 		ndim = len(BB_p0)
 		param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\sqrt{\cos{\theta_T}} R_d$"]
-		nwalkers = ndim*32
+		nwalkers = ndim*16#*2
 		BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior, threads=NThread, args=(nus, Flxs, Errs) )
 
 
@@ -405,7 +421,7 @@ if (IR_Lum):
 		BB_p0 = np.array(BB_p0)
 		BB_walker_p0 = np.random.normal(BB_p0, np.abs(BB_p0)*1E-4, size=(nwalkers, ndim))
 
-		clen = 4096*2
+		clen = 4096#*2
 		BB_pos,_,_ = BB_sampler.run_mcmc(BB_walker_p0 , clen)
 
 
@@ -494,12 +510,13 @@ if (IR_Lum):
 		gam = BB_p_opt[2] 
 		sqtfR = BB_p_opt[3] * pc2cm
 
-				### get avg dels
+		### get avg deltas
 		delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
 		delnu0 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * 10**14
 		delk   = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) )
 		delfR2 = 0.5* ( (BB_MAP_vals[3] - BB_perc[0,3]) + (BB_perc[1,3] - BB_MAP_vals[3]) ) * pc2cm
-
+	else:
+		print "Not doing MCMC"
 
 
 	
@@ -601,6 +618,9 @@ if (IR_Lum):
 	plt.scatter(W1_mid/10**14, Fw1* 10.**(26), color='orange', s=40, marker='o')
 	plt.scatter(W2_mid/10**14, Fw2* 10.**(26), color='red', s =40, marker='o')
 
+	plt.axvline(W3_mid/10**14,  color='brown')
+	plt.axvline(W4_mid/10**14,  color='purple')
+
 	plt.plot(nu, pref * Bv(nu*10**14, Td) * (sqtfR/Dst)**2 * 10.**(26), color = 'gray', linewidth = 2)
 
 	plt.xlabel(r'$\nu$ [$10^{14}$ Hz]')
@@ -609,7 +629,9 @@ if (IR_Lum):
 	plt.ylim(0.0,16.0)
 
 	#plt.show()
-	plt.savefig("../emcee_data/BBfit_BestFit_ModBlackBody.png")
+	plt.savefig("../emcee_data/BBfit_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
+
+
 
 
 if (ISOvDop):
@@ -617,12 +639,11 @@ if (ISOvDop):
 	nu0 = numicron
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	Tsub = 1800.
-	NT   = 18000
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(0.01, Tsub, NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
+	print "Look up tables Created"
 
 
 	arg1_ISO = [Lav, Amp, Ombn, t0, n0, Rde, pp, thetTst, JJt, aeff, nu0, nne]
@@ -641,32 +662,32 @@ if (ISOvDop):
 		ISO_AIR_over_AUV[i] = ISO_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
 		DOP_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
 
-	#Dop_mean = np.mean(DOP_AIR_over_AUV)
-	plt.figure()
-	AnlIso = plt.plot(frc_a, Iso_anal, color='black')
-	AnlDop = plt.plot(frc_a, Dop_anal, color='red')
-	#AnlIso = plt.plot(frc_a, LogISO_Anl, color='black')
-	#AnlDop = plt.plot(frc_a, LogDOP_Anl, color='red')
-	ISO = plt.scatter(frc_t, ISO_AIR_over_AUV, marker='x', color='black')
-	DOP = plt.scatter(frc_t, DOP_AIR_over_AUV, marker='*', color='red')
+#Dop_mean = np.mean(DOP_AIR_over_AUV)
+plt.figure()
+AnlIso = plt.plot(frc_a, Iso_anal, color='black')
+AnlDop = plt.plot(frc_a, Dop_anal, color='red')
+#AnlIso = plt.plot(frc_a, LogISO_Anl, color='black')
+#AnlDop = plt.plot(frc_a, LogDOP_Anl, color='red')
+ISO = plt.scatter(frc_t, ISO_AIR_over_AUV, marker='x', color='black')
+DOP = plt.scatter(frc_t, DOP_AIR_over_AUV, marker='*', color='red')
 
-	#plt.axvspan(frc_PG, frc_PGb, color='grey', alpha=0.5, lw=0)
-	plt.axhline(y=0, color='black', linestyle=':')
-	#plt.axhline(y=Dop_mean, color='red', linestyle='--')
+#plt.axvspan(frc_PG, frc_PGb, color='grey', alpha=0.5, lw=0)
+plt.axhline(y=0, color='black', linestyle=':')
+#plt.axhline(y=Dop_mean, color='red', linestyle='--')
 
-	plt.legend( [ AnlIso[0], AnlDop[0], ISO, DOP ], ('Iso. Analytic', 'Dop. Analytic', 'Iso. Numerical',  'Dop. Numerical'), loc='upper right', fontsize=14)
+plt.legend( [ AnlIso[0], AnlDop[0], ISO, DOP ], ('Iso. Analytic', 'Dop. Analytic', 'Iso. Numerical',  'Dop. Numerical'), loc='upper right', fontsize=14)
 
-	plt.ylabel(r"$A_{\rm{IR}} / A$")
-	plt.xlabel(r"$t_d / P$")
+plt.ylabel(r"$A_{\rm{IR}} / A$")
+plt.xlabel(r"$t_d / P$")
 
-	plt.xlim(0.0,frc_mx)
-	plt.ylim(-0.5,1.0)
-	#plt.show()
+plt.xlim(0.0,frc_mx)
+plt.ylim(-0.5,1.0)
+#plt.show()
 
-	Savename = "plots/Iso_and_Dop/Analytics/DopvsISO_AIRoAUV_alpha%g_TsubCut%g_J%g_numin%g_numx%g_reclim50_TRHS2mx.png" %(alph, Tsub, JJt, Nnumn, Nnumx)
-	Savename = Savename.replace('.', 'p')
-	Savename = Savename.replace('ppng', '.png')
-	plt.savefig(Savename)
+Savename = "plots/Iso_and_Dop/Analytics/DopvsISO_AIRoAUV_alpha%g_TsubCut%g_J%g_numin%g_numx%g_reclim2_TRHS2mx.png" %(alph, Tsub, JJt, Nnumn, Nnumx)
+Savename = Savename.replace('.', 'p')
+Savename = Savename.replace('ppng', '.png')
+plt.savefig(Savename)
 
 
 
@@ -676,9 +697,8 @@ if (ISOvDop_MAX):
 	nu0 = numicron
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	NT = 15000
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin,Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -747,7 +767,7 @@ if (PG1302_ISO):
 	#thT3 = ma.pi/3.
 
 	#thT3 = np.arccos(0.0986)
-	thT3 = np.arccos(0.1)
+	thT3 = np.arccos(0.125)
 
 
 	AA1_anal =  1./(2.*ma.pi*frc_a*ma.cos(thT1)) * np.sin(2.*ma.pi*frc_a * ma.cos(thT1)) 
@@ -768,8 +788,11 @@ if (PG1302_ISO):
 
 
 
-	## plto td/P Measured from LIR
-	plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
+	###plot td/P Measured from LIR
+	#plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
+	plt.axvline(x=3.3, color='blue', linestyle='--', linewidth=3 )
+	plt.axvspan(3.3-0.7, 3.3+0.7, color='blue', alpha=0.4, lw=0)
+
 
 	# plot location of Wein peak
 	plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle='--', linewidth=3 )
@@ -826,7 +849,7 @@ if (PG1302_ISO):
 	plt.axhspan(-AW2_mn, -AW2_mx, color='red', alpha=0.4, lw=0)
 
 	
-	plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0] ], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \cos^{-1}{0.1}$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
+	plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0] ], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \cos^{-1}{0.125}$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
 
 
 
@@ -873,10 +896,8 @@ if (PG1302_Dop):
 		arg1_DOP = [Lav, betst, Inc, Ombn, alph, n0, Rde, pp, thT, JJt, aeff, nu0, nne]
 		##TABULATE T's and RHSs
 		print "Creating look up tables"
-		Tsub = 1800.
-		NT   = 18000
 		RHS_table = np.zeros(NT)
-		T_table = np.linspace(0.01, Tsub, NT)
+		T_table = np.linspace(Tmin, Tsub, NT)
 		for i in range(NT):
 			RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -913,8 +934,10 @@ if (PG1302_Dop):
 
 
 	
-	## Measured from LIR
-	plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
+	## plot td/P Measured from LIR
+	#plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
+	plt.axvline(x=3.3, color='blue', linestyle='--', linewidth=3 )
+	plt.axvspan(3.3-0.7, 3.3+0.7, color='blue', alpha=0.4, lw=0)
 
 
 	# plot location of Wein peak
@@ -1038,9 +1061,8 @@ if (Dop_alphs):
 	nu0 = numicron
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	NT = 15000
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -1118,9 +1140,9 @@ if (ISOvDop_varyI):
 	JJt     = 0.*ma.pi/4.
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	NT = 15000
+
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -1209,9 +1231,8 @@ if (ISOvthT):
 	nne = 0.0 #no absorption efficiency
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	NT = 10000
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 2000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -1338,9 +1359,8 @@ if (DOPvthT):
 	nne = 0.0 #no absorption efficiency
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	NT = 15000
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -1475,18 +1495,16 @@ if (Qv_k):
 
 	nn1 = 0.0
 	print "Creating look up tables"
-	NT = 15000
 	RHS_table1 = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table1[i] = T_RHS(T_table[i], nu0, nn1)
 
 
 	nn2 = 1.0 #no absorption efficiency
 	print "Creating look up tables"
-	NT = 15000
 	RHS_table2 = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table2[i] = T_RHS(T_table[i], nu0, nn2)
 
@@ -1494,7 +1512,7 @@ if (Qv_k):
 	print "Creating look up tables"
 	NT = 15000
 	RHS_table3 = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table3[i] = T_RHS(T_table[i], nu0, nn3)
 
@@ -1579,7 +1597,7 @@ if (Qv_nu0):
 
 	print "Creating nu01 look up tables"
 	RHS_table1 = np.zeros(NT)
-	T_table = np.linspace(1., Tsub, NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table1[i] = T_RHS(T_table[i], nu01, kk)
 
@@ -1587,14 +1605,14 @@ if (Qv_nu0):
 	
 	print "Creating nu02 look up tables"
 	RHS_table2 = np.zeros(NT)
-	T_table = np.linspace(1., Tsub, NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table2[i] = T_RHS(T_table[i], nu02, kk)
 
 	
 	print "Creating nu03 look up tables"
 	RHS_table3 = np.zeros(NT)
-	T_table = np.linspace(1., Tsub, NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table3[i] = T_RHS(T_table[i], nu03, kk)
 
@@ -1681,9 +1699,8 @@ if (ThkvThn_ISO):
 	nu0 = numicron
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	NT = 10000
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -1761,9 +1778,9 @@ if (ThkvThn_Dop):
 	nu0 = numicron
 	##TABULATE T's and RHSs
 	print "Creating look up tables"
-	NT = 10000
+
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 3000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -1901,9 +1918,9 @@ if (fit_Dop):
 		return chi2
 
 	print "Creating look up tables"
-	NT = 1000
+
 	RHS_table = np.zeros(NT)
-	T_table = np.linspace(1., 2000., NT)
+	T_table = np.linspace(Tmin, Tsub, NT)
 	for i in range(NT):
 		RHS_table[i] = T_RHS(T_table[i], nu0, 0.0)
 

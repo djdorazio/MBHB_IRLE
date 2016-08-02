@@ -16,9 +16,9 @@ import scipy.signal as sgn
 #### INTEGRATION ERROR TOLS
 myrel = 1.49e-14#0.001
 myabs = 1.49e-14#0.001
-reclim = 1
-limlst = 1
-maxp1 = 1
+reclim = 2
+limlst = 2
+maxp1 = 2
 fo = 1
 
 ##GLOBAL PHYSICS CONSTANTS (cgs):
@@ -62,7 +62,8 @@ def QvBv(nu, T, nu0, nn):
 	# else:
 	# 	ii = np.where(qv > 1.0)[0]
 	# 	qv[ii] = 1.0
-	return 2.*h*nu*nu*nu/(c*c)*1./(np.exp(h*nu/(kb*T)) - 1.) * qv
+	return 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*T    )  ) - 1.) * qv
+	       
 #QvBv = np.vectorize(QvBv)
 
 
@@ -128,7 +129,7 @@ def nDust_pcwse(x,y,z, n0, Rd, p, thetT, JJ):
 def T_RHS(Td, nu0, nn):
 	# 4 for difference in cross sectional area and surface area, pi for isotropic flux from Grain
 	#RHS = 4.*ma.pi*  (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, nn) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]
-	RHS = 4.*ma.pi* intg.quad(QvBv  ,0., 2.0*numicron, args=(Td, nu0, nn) )[0] 
+	RHS = 4.*ma.pi* intg.quad(QvBv  ,0., 3.0*numicron, args=(Td, nu0, nn) )[0] 
 	#
 	#
 	#RHS = 4.* ma.pi* (intg.quad(QvBv  ,0., nu0 , args=(Td, nu0, 0.) )[0] + intg.quad(Bv  ,nu0 ,np.inf, args=(Td) )[0])#, epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0]

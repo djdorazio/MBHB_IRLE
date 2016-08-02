@@ -34,8 +34,9 @@ Shell_OptThin = True
 NThread = 36
 
 #Temp table resolution
-NTemp = 3000
-Tsub = 3000.
+NTemp = 1800
+Tmin = 100.
+Tsub = 1800.
 
 
 
@@ -230,7 +231,7 @@ W2_avsg = np.array(W2_avsg)
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
 RHS_table = np.zeros(NTemp)
-T_table = np.linspace(1., Tsub, NTemp)
+T_table = np.linspace(Tmin, Tsub, NTemp)
 for i in range(NTemp):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -260,7 +261,8 @@ if (Shell_OptThin):
 	nwalkers = ndim*12
 
 	#Best fit with chi2=92 form reclim1 best fit 4048 steps, 48 walkers
-	p0 = [-0.7, 0.7, 0.5]
+	###MEASURED VALUES:
+	p0 = [0.99, 0.125, 4.2]
 	#Best fit from fmin (ISO_Fitting.py)
 	#p0 = [-0.94789069,   0.91328937,  10.23015572,   0.09667759]
 	p0 = np.array(p0)
@@ -283,7 +285,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 2048
+	clen = 1024#2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 

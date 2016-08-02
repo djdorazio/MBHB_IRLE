@@ -3,6 +3,22 @@ from numpy import *
 from ErrFuncs_IRLE import *
 
 ### PRIORS
+# def ln_prior(params):
+# 	#sinJJ, cosTT, Rin, alpha = params
+# 	sinJJ, cosTT, Rin = params
+					
+# 	if sinJJ < -1 or sinJJ > 1:
+# 		return -np.inf
+
+# 	if cosTT < 0 or cosTT > 1:
+# 		return -np.inf
+						
+# 	if Rin <= 0.0:
+# 		return -np.inf
+			
+# 	return 0.
+
+#PRIORS FROM MEASUREMENTS!
 def ln_prior(params):
 	#sinJJ, cosTT, Rin, alpha = params
 	sinJJ, cosTT, Rin = params
@@ -10,10 +26,10 @@ def ln_prior(params):
 	if sinJJ < -1 or sinJJ > 1:
 		return -np.inf
 
-	if cosTT < 0 or cosTT > 1:
+	if cosTT < 0.07 or cosTT > 0.18:
 		return -np.inf
 						
-	if Rin <= 0.0:
+	if Rin > 5.2 or Rin < 3.2 :
 		return -np.inf
 			
 	return 0.
@@ -57,7 +73,7 @@ def ln_BBprior(params):
 	if nu0<0:
 		return -np.inf
 						
-	if gam < 0.0 or gam > 2.0:
+	if gam < 0.0 or gam > 3.0:
 		return -np.inf
 
 	if sqtfR < 0.0:
