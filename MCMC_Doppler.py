@@ -31,10 +31,11 @@ from emcee_Funcs import *
 Shell_OptThin = True
 
 ##multiprocessing
-NThread = 4
+NThread = 36
 
 #Temp table resolution
-NTemp = 36000
+NTemp = 1800
+Tmin = 100.
 Tsub  = 1800.
 
 
@@ -228,7 +229,7 @@ W2_avsg = np.array(W2_avsg)
 ##TABULATE T's and RHSs
 print "Creating Temp look up tables..."
 RHS_table = np.zeros(NTemp)
-T_table = np.linspace(1., Tsub, NTemp)
+T_table = np.linspace(Tmin, Tsub, NTemp)
 for i in range(NTemp):
 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
@@ -261,9 +262,14 @@ if (Shell_OptThin):
 	#p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
 	#p0 = [0.7,  0.7,  0.5]
 	#Best for from 2048 36 MCMC chi2 ~100, but too dim when integrate at better resolution - better resolution aslo gets rid of large amplitude as expected
-	p0 = [0.2065, 0.0735, 10.3518]
+	#p0 = [0.2065, 0.0735, 10.3518]
 	# make brighter
 	#p0 = [0.2065, 0.2, 10.3518]
+
+
+	###MEASURED VALUES:
+	p0 = [0.99, 0.125, 4.2]
+	#
 	p0 = np.array(p0)
 	## args of non changing parameters to pass 
 	##Rrout is no longer used
