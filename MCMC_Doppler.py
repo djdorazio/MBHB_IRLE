@@ -31,7 +31,7 @@ from emcee_Funcs import *
 Shell_OptThin = True
 
 ##multiprocessing
-NThread = 36
+NThread = 4
 
 #Temp table resolution
 NTemp = 1800
@@ -267,8 +267,8 @@ if (Shell_OptThin):
 	#p0 = [0.2065, 0.2, 10.3518]
 
 
-	###MEASURED VALUES:
-	p0 = [0.99, 0.125, 4.2]
+	###MEASURED VALUES (edge on ring):
+	p0 = [0.01, 0.125, 1.75]
 	#
 	p0 = np.array(p0)
 	## args of non changing parameters to pass 

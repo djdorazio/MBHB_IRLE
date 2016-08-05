@@ -29,7 +29,26 @@ def ln_prior(params):
 	if cosTT < 0.07 or cosTT > 0.18:
 		return -np.inf
 						
-	if Rin > 5.2 or Rin < 3.2 :
+	if Rin > 5.2 or Rin < 1.0 :
+		return -np.inf
+			
+	return 0.
+
+
+def ln_prior_TwoRs(params):
+	#sinJJ, cosTT, Rin, alpha = params
+	sinJJ, cosTT, RW1, RW2 = params
+					
+	if sinJJ < -1 or sinJJ > 1:
+		return -np.inf
+
+	if cosTT < 0.07 or cosTT > 0.18:
+		return -np.inf
+						
+	if RW1 > 5.2 or RW2 < 1.0 :
+		return -np.inf
+
+	if RW1 > 5.2 or RW2 < 1.0 :
 		return -np.inf
 			
 	return 0.
@@ -90,7 +109,9 @@ def ln_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2
 def ln_ISO_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(ISO_OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
 		
-
+def ln_ISO_SHThin_likelihood_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			return -(ISO_OpThin_TorShell_Err2_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
+		
 
 def sinPoint(params, t,  Flat, SinFit, No_Prd):
 	if (Flat):
@@ -142,6 +163,15 @@ def ln_ISO_SHThin_posterior(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1,
 				return -np.inf
 			
 			ln_l = ln_ISO_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
+			return ln_l + ln_p
+
+
+def ln_ISO_SHThin_posterior_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			ln_p = ln_prior_TwoRs(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_ISO_SHThin_likelihood_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
 			return ln_l + ln_p
 
 

@@ -7,7 +7,7 @@ matplotlib.rcParams['ps.fonttype'] = 42
 #matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
 
-matplotlib.rcParams.update({'font.size': 16})
+matplotlib.rcParams.update({'font.size': 18})
 
 
 from FluxFuncs_IRLE import *
@@ -24,7 +24,7 @@ fmin = False
 MCMC = True
 NThread = 4
 
-ISOvDop = True
+ISOvDop = False
 ISOvDop_MAX = False
 
 Dop_alphs = False
@@ -33,8 +33,8 @@ ISOvDop_varyI = False
 ISOvthT = False
 DOPvthT = False
 
-PG1302_ISO = False
-PG1302_Dop = False
+PG1302_ISO = True
+PG1302_Dop = True
 numRing = False
 
 
@@ -63,7 +63,7 @@ Omb = 1./(1*yr2sec)
 L0 = 6.78*10**46
 MPGmx = 10**9.4*Msun
 Ryr = c*yr2sec
-RdPG = 3.3*pc2cm#ma.sqrt(1.)*2.8 *pc2cm
+RdPG = 3.0*pc2cm#ma.sqrt(1.)*2.8 *pc2cm
 OmPG = 2.*ma.pi/(1474*3600*24) #Omb*2.*ma.pi/4.1
 Ombn = OmPG
 #alphnu = 1.1
@@ -148,7 +148,7 @@ numx = Nnumx*numicron
 
 Tmin = 100.
 Tsub=1800.
-NT = 10000
+NT = 1800
 
 
 
@@ -159,9 +159,9 @@ frc_PG = Rsub/c / (2.*ma.pi/OmPG) ## sublimation radisu for L = Lav (10^8.7 is M
 #frc_PG = Rde /ma.sqrt(0.1)  * ma.sqrt( 10**(8.7)/(10**(9.0)) )/c / (2.*ma.pi/OmPG) ## sublimation radisu for L = Lav (10^8.7 is Mass for which epsilon = 1)
 #frc_PGb = frc_PG /ma.sqrt(0.1)
 
-frc_mx = 4.0
+frc_mx = 5.0
 frc_t = np.linspace(0.01, frc_mx, 20.0)
-frc_a = np.linspace(0.01, frc_mx, 100.0)
+frc_a = np.linspace(0.01, frc_mx, 1000.0)
 
 WeinCst = 2.821439
 TW1_Wein = 1./ WeinCst * h * W1_mid/kb
@@ -208,6 +208,10 @@ def ISO_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	LIR_mx = F_Sphere_Iso_QuadInt(numn, numx, 0.25*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
 	LIR_mn = F_Sphere_Iso_QuadInt(numn, numx, 0.75*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
 	
+	## INTEGRATE WITH SERIES EXPANSION ()gam = 0 for now
+	#LIR_mx = F_Sphere_Iso_QuadInt_Series( 0.25*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table, numn, numx)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	#LIR_mn = F_Sphere_Iso_QuadInt_Series( 0.75*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table, numn, numx)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
+	
 
 	#LIR_bol = F_Sphere_Iso_QuadInt(0.0, 5.*numicron, 0.5*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
 	#return np.abs(0.5*(LIR_mx - LIR_mn)/(Lav*Amp))
@@ -243,7 +247,7 @@ def ISO_OptThick_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	arg2 = [Lav, Amp, Ombn, t0, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne]
 	LIR_mx = F_ShTorOptThick_Iso_QuadInt(numn, numx, 0.25*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
 	LIR_mn = F_ShTorOptThick_Iso_QuadInt(numn, numx, 0.75*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
-	
+	        
 
 	#LIR_bol = F_Sphere_Iso_QuadInt(0.0, 5.*numicron, 0.5*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
 	#return np.abs(0.5*(LIR_mx - LIR_mn)/(Lav*Amp))
@@ -662,32 +666,32 @@ if (ISOvDop):
 		ISO_AIR_over_AUV[i] = ISO_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
 		DOP_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
 
-#Dop_mean = np.mean(DOP_AIR_over_AUV)
-plt.figure()
-AnlIso = plt.plot(frc_a, Iso_anal, color='black')
-AnlDop = plt.plot(frc_a, Dop_anal, color='red')
-#AnlIso = plt.plot(frc_a, LogISO_Anl, color='black')
-#AnlDop = plt.plot(frc_a, LogDOP_Anl, color='red')
-ISO = plt.scatter(frc_t, ISO_AIR_over_AUV, marker='x', color='black')
-DOP = plt.scatter(frc_t, DOP_AIR_over_AUV, marker='*', color='red')
+	#Dop_mean = np.mean(DOP_AIR_over_AUV)
+	plt.figure()
+	AnlIso = plt.plot(frc_a, Iso_anal, color='black')
+	AnlDop = plt.plot(frc_a, Dop_anal, color='red')
+	#AnlIso = plt.plot(frc_a, LogISO_Anl, color='black')
+	#AnlDop = plt.plot(frc_a, LogDOP_Anl, color='red')
+	ISO = plt.scatter(frc_t, ISO_AIR_over_AUV, marker='x', color='black')
+	DOP = plt.scatter(frc_t, DOP_AIR_over_AUV, marker='*', color='red')
 
-#plt.axvspan(frc_PG, frc_PGb, color='grey', alpha=0.5, lw=0)
-plt.axhline(y=0, color='black', linestyle=':')
-#plt.axhline(y=Dop_mean, color='red', linestyle='--')
+	#plt.axvspan(frc_PG, frc_PGb, color='grey', alpha=0.5, lw=0)
+	plt.axhline(y=0, color='black', linestyle=':')
+	#plt.axhline(y=Dop_mean, color='red', linestyle='--')
 
-plt.legend( [ AnlIso[0], AnlDop[0], ISO, DOP ], ('Iso. Analytic', 'Dop. Analytic', 'Iso. Numerical',  'Dop. Numerical'), loc='upper right', fontsize=14)
+	plt.legend( [ AnlIso[0], AnlDop[0], ISO, DOP ], ('Iso. Analytic', 'Dop. Analytic', 'Iso. Numerical',  'Dop. Numerical'), loc='upper right', fontsize=14)
 
-plt.ylabel(r"$A_{\rm{IR}} / A$")
-plt.xlabel(r"$t_d / P$")
+	plt.ylabel(r"$A_{\rm{IR}} / A$")
+	plt.xlabel(r"$t_d / P$")
 
-plt.xlim(0.0,frc_mx)
-plt.ylim(-0.5,1.0)
-#plt.show()
+	plt.xlim(0.0,frc_mx)
+	plt.ylim(-0.5,1.0)
+	#plt.show()
 
-Savename = "plots/Iso_and_Dop/Analytics/DopvsISO_AIRoAUV_alpha%g_TsubCut%g_J%g_numin%g_numx%g_reclim2_TRHS2mx.png" %(alph, Tsub, JJt, Nnumn, Nnumx)
-Savename = Savename.replace('.', 'p')
-Savename = Savename.replace('ppng', '.png')
-plt.savefig(Savename)
+	Savename = "plots/Iso_and_Dop/Analytics/DopvsISO_AIRoAUV_alpha%g_TsubCut%g_J%g_numin%g_numx%g_reclim2_TRHS3.png" %(alph, Tsub, JJt, Nnumn, Nnumx)
+	Savename = Savename.replace('.', 'p')
+	Savename = Savename.replace('ppng', '.png')
+	plt.savefig(Savename)
 
 
 
@@ -773,33 +777,35 @@ if (PG1302_ISO):
 	AA1_anal =  1./(2.*ma.pi*frc_a*ma.cos(thT1)) * np.sin(2.*ma.pi*frc_a * ma.cos(thT1)) 
 	AA2_anal =  1./(2.*ma.pi*frc_a*ma.cos(thT2)) * np.sin(2.*ma.pi*frc_a * ma.cos(thT2)) 
 	AA3_anal =  1./(2.*ma.pi*frc_a*ma.cos(thT3)) * np.sin(2.*ma.pi*frc_a * ma.cos(thT3)) 
+	AAB_anal =  1./(2.*ma.pi*frc_a*ma.cos(thT3)) * np.sin(2.*ma.pi*frc_a * ma.cos(thT3)) 
 
 	from scipy import special as spc
 	Ring_anal = spc.j0(2.*ma.pi*frc_a)
 
-	
+	plt.figure(figsize=(8,8))
 
-	plt.title(r'Isotropic, $ \bar{A} / A_{\rm{V}} =%g$, $J = \pi/2$' %Afac)
-	Anl1 = plt.plot(frc_a, AA1_anal, color='black')
-	Anl2 = plt.plot(frc_a, AA2_anal, color='blue')
-	Anl3 = plt.plot(frc_a, AA3_anal, color='red')
-	Ring = plt.plot(frc_a, Ring_anal, color='green')
-
+	#plt.title(r'Isotropic, $ \bar{A} / A_{\rm{V}} =%g$, $J = \pi/2$' %Afac)
+	plt.title('Isotropic')
+	Anl1   = plt.plot(frc_a, AA1_anal, color='red', linewidth=3)
+	#Anl2   = plt.plot(frc_a, AA2_anal, color='blue')
+	#Anl3   = plt.plot(frc_a, AA3_anal, color='red')
+	Ring   = plt.plot(frc_a, Ring_anal, color='green', linewidth=3)
+	AnlBst = plt.plot(frc_a, AAB_anal, color='red', linestyle='--', linewidth=3)
 
 
 
 	###plot td/P Measured from LIR
 	#plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
-	plt.axvline(x=3.3, color='blue', linestyle='--', linewidth=3 )
-	plt.axvspan(3.3-0.7, 3.3+0.7, color='blue', alpha=0.4, lw=0)
+	plt.axvline(x=3.3, color='orange', linestyle=':', linewidth=3 )
+	plt.axvspan(3.3-0.7, 3.3+0.7, color='orange', alpha=0.5, lw=0)
 
 
 	# plot location of Wein peak
-	plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle='--', linewidth=3 )
-	plt.axvline(x=tdoP_W2_Wein, color='red', linestyle='--', linewidth=3)
+	plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle=':', linewidth=3 )
+	plt.axvline(x=tdoP_W2_Wein, color='red', linestyle=':', linewidth=3)
 
 	##plot measured sublimation region
-	plt.axvspan(0.0,frc_PG, color='grey', alpha=0.4, lw=0)
+	plt.axvspan(0.0,frc_PG, color='grey', alpha=0.7, lw=0)
 	plt.axhline(y=0, color='black', linestyle=':')
 
 
@@ -834,14 +840,30 @@ if (PG1302_ISO):
 
 
 
+	# ##plot measured AIR/A
+	# AW1 = 0.70/Afac
+	# AW1_mn = AW1-0.05
+	# AW1_mx = AW1+0.05
+	# plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
+	# AW2 = 0.62/Afac
+	# AW2_mn = AW2 - 0.05
+	# AW2_mx = AW2 + 0.05
+	# plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
+
+	# # and negatives
+	# plt.axhspan(-AW1_mn, -AW1_mx, color='yellow', alpha=0.4, lw=0)
+	# plt.axhspan(-AW2_mn, -AW2_mx, color='red', alpha=0.4, lw=0)
+
+
+
+
 	##plot measured AIR/A
-	AW1 = 0.70/Afac
-	AW1_mn = AW1-0.05
-	AW1_mx = AW1+0.05
+	AW1_mn = (0.7-0.05)/2.63
+	AW1_mx = (0.7 +0.05)
 	plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
 	AW2 = 0.62/Afac
-	AW2_mn = AW2 - 0.05
-	AW2_mx = AW2 + 0.05
+	AW2_mn = (0.62-0.05)/2.63
+	AW2_mx = (0.62 +0.05)
 	plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	# and negatives
@@ -849,12 +871,13 @@ if (PG1302_ISO):
 	plt.axhspan(-AW2_mn, -AW2_mx, color='red', alpha=0.4, lw=0)
 
 	
-	plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0] ], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \cos^{-1}{0.125}$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
+	#plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0] ], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \cos^{-1}{0.125}$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
+	plt.legend( [ Anl1[0],  Ring[0], AnlBst[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$', r'$\cos{\theta_T} = 0.125$, $J=\pi/2$'), loc='upper right', fontsize=14)
 
 
 
-	plt.ylabel(r"$A_{\rm{IR}} / A$")
-	plt.xlabel(r"$t_d / P$")
+	plt.ylabel(r"$A_{\rm{IR}} / A$", fontsize=22)
+	plt.xlabel(r"$t_d / P$", fontsize=22)
 
 
 
@@ -917,37 +940,37 @@ if (PG1302_Dop):
 	from scipy import special as spc
 	DopRing_anal = spc.j1(2.*ma.pi*frc_a)
 
-	plt.figure()
+	plt.figure(figsize=(8,8))
 
 	
 
-	Anl1 = plt.plot(frc_a, Dop1_anal, color='black')
-	Anl2 = plt.plot(frc_a, Dop2_anal, color='blue')
-	Anl3 = plt.plot(frc_a, Dop3_anal, color='red')
-	Ring = plt.plot(frc_a, DopRing_anal, color='green')
+	Anl1 = plt.plot(frc_a, Dop1_anal, color='red', linewidth=3)
+	#Anl2 = plt.plot(frc_a, Dop2_anal, color='blue')
+	#Anl3 = plt.plot(frc_a, Dop3_anal, color='red')
+	Ring = plt.plot(frc_a, DopRing_anal, color='green', linewidth=3)
 
 	if (numRing):
 		Dop = plt.scatter(frc_t, DOP_AIR_over_AUV, marker='*', color='purple')
 		plt.title(r'Doppler, $\bar{A} / A_{\rm{V}} =%g$, $I = 0.0$' %Afac)
 	else:
-		plt.title(r'Doppler, $\bar{A} / A_{\rm{V}} =%g$, $J = \pi/2$, $I = 0.0$' %Afac)
-
+		#plt.title(r'Doppler, $\bar{A} / A_{\rm{V}} =%g$, $J = \pi/2$, $I = 0.0$' %Afac)
+		plt.title('Doppler')
 
 	
 	## plot td/P Measured from LIR
 	#plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
-	plt.axvline(x=3.3, color='blue', linestyle='--', linewidth=3 )
-	plt.axvspan(3.3-0.7, 3.3+0.7, color='blue', alpha=0.4, lw=0)
+	plt.axvline(x=3.3, color='orange', linestyle=':', linewidth=3 )
+	plt.axvspan(3.3-0.7, 3.3+0.7, color='orange', alpha=0.5, lw=0)
 
 
 	# plot location of Wein peak
-	plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle='--', linewidth=3 )
-	plt.axvline(x=tdoP_W2_Wein, color='red', linestyle='--', linewidth=3 )
+	plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle=':', linewidth=3 )
+	plt.axvline(x=tdoP_W2_Wein, color='red', linestyle=':', linewidth=3 )
 
 
 
 	##plot measured sublimation region
-	plt.axvspan(0.0,frc_PG, color='grey', alpha=0.4, lw=0)
+	plt.axvspan(0.0,frc_PG, color='grey', alpha=0.7, lw=0)
 	plt.axhline(y=0, color='black', linestyle=':')
 
 
@@ -984,13 +1007,22 @@ if (PG1302_Dop):
 
 
 	##plot measured AIR/A
-	AW1 = 0.70/Afac
-	AW1_mn = AW1-0.05
-	AW1_mx = AW1+0.05
+	# AW1 = 0.70/Afac
+	# AW1_mn = AW1-0.05
+	# AW1_mx = AW1+0.05
+	# plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
+	# AW2 = 0.62/Afac
+	# AW2_mn = AW2 - 0.05
+	# AW2_mx = AW2 + 0.05
+	# plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
+
+	##plot measured AIR/A
+	AW1_mn = (0.7-0.05)/2.63
+	AW1_mx = (0.7 +0.05)
 	plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
 	AW2 = 0.62/Afac
-	AW2_mn = AW2 - 0.05
-	AW2_mx = AW2 + 0.05
+	AW2_mn = (0.62-0.05)/2.63
+	AW2_mx = (0.62 +0.05)
 	plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	# and negatives
@@ -1001,12 +1033,14 @@ if (PG1302_Dop):
 	if (numRing):
 		plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0], Dop], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \pi/3$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$', r'$\cos{\theta_T} = 0.1$, $J=0.1$'), loc='upper right', fontsize=14)
 	else:
-		plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \pi/3$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
+		#plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \pi/3$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
+		plt.legend( [ Anl1[0],   Ring[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
 
 
 
-	plt.ylabel(r"$A_{\rm{IR}} / A$")
-	plt.xlabel(r"$t_d / P$")
+
+	plt.ylabel(r"$A_{\rm{IR}} / A$", fontsize=22)
+	plt.xlabel(r"$t_d / P$", fontsize=22)
 
 
 

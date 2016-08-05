@@ -368,7 +368,7 @@ def Fnuint_Ring_Iso(ph, nu, t, Dist, args, RHStable, Ttable):
 
 
 ### This is the spherical shell case for theta_T = 0
-## SHELL TORUS OPTHIN Fnu for doppler beaming case, optically thick shell torus
+## SHELL TORUS OPTHIN Fnu, optically thick shell torus
 def Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 
@@ -1300,10 +1300,6 @@ def F_Thick_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 
 
 
-
-
-
-
 ##################
 ### F_DOPPPLER
 ##################
@@ -1353,6 +1349,7 @@ def F_Ring_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 def F_ShTorOptThin_Dop_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	return intg.quad(Fnu_Sphere_Dop_QuadInt, numin, numax, args=(t, Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
 
+###USING SERIES RESULTS INSTEAD - diff args
 def F_ShTorOptThin_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	res=[]
 	for i in range(len(t)):
@@ -1441,6 +1438,135 @@ def F_Thick_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	for i in range(len(t)):
 		res.append( intg.quad(Fnu_Thick_Dop_QuadInt_PG, numin, numax, args=(t[i], Dist, Aargs, RHStable, Ttable), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1, full_output=fo  )[0] )
 	return np.array(res)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################
+### INTEGRATE over nu first with series expansion!
+#################
+def black_body_flux(x1,x2):
+    """ 
+    Compute the black body flux between given unitless energy range
+    x = (E_photon / kT) using the series approximation to compute
+    the two one-sided integrals. The returned value is unitless
+    and needs to be scaled by :
+     2 (kT)^4 / (h^3 c^2) to get units of   energy / area / steradian
+    """
+
+    return one_sided_black_body_flux(x1) - one_sided_black_body_flux(x2)
+
+def one_sided_black_body_flux(x):
+    """
+    Compute the one sided black body flux intergral between
+    x = (E_photon / kT) using the series approximation to compute
+    The returned value is unitless and needs to be scaled by :
+     2 (kT)^4 / (h^3 c^2) to get units of   energy / area / steradian
+    """
+
+    max_iter = 513
+    min_iter = 4
+    tolerance = 1.0E-10
+
+    difference = 1.0
+
+    sum = 0.0; old_sum = 0.0
+    i = 1
+
+    while((difference > tolerance and i < max_iter) or i < min_iter):
+        old_sum = sum
+        sum += (x*x*x/(1.0*i) + 3.0*x*x/(1.0*i*i) + 6.0*x/(1.0*i*i*i) + 6.0/(1.0*i*i*i*i))*np.exp(-i*x)
+        difference  = sum - old_sum
+        i = i + 1
+
+    return sum
+
+
+#First Integrate over nu
+def FPhTh_Sphere_Iso_QuadInt_Series(ph, thet, t, Dist, Aargs, RHStable, Ttable, numn, numx):
+	Rd = Aargs[5]
+	aeff = Aargs[9]
+
+	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
+	Tlocal = TDust_Iso_PG(tem, Rd, thet, ph, Aargs, RHStable, Ttable)
+
+	# x1 = 100.*h*c*numn/(kb*Tlocal)
+	# x2 = 100.*h*c*numx/(kb*Tlocal)
+	x1 = 1.*h*numn/(kb*Tlocal)
+	x2 = 1.*h*numx/(kb*Tlocal)
+
+
+	# surface density in optically thick limit
+	Surf_nd = 1./(ma.pi*aeff*aeff)#2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff) # 
+	unts = 2.*(kb*Tlocal)**4 / (h*h*h * c*c) * 1000. #W/m^2 to erg/s/cm^2
+
+	return  unts * black_body_flux(x1,x2) * ma.pi* aeff*aeff/Dist/Dist * Rd*Rd* np.sin(thet) * Surf_nd
+
+
+#Now Integrate over space
+def FTh_Sphere_Iso_QuadInt_Series(thet, t, Dist, Aargs, RHStable, Ttable, numn, numx):
+	return intg.quad(FPhTh_Sphere_Iso_QuadInt_Series, 0., 2.*ma.pi, args=(thet, t, Dist, Aargs, RHStable, Ttable, numn, numx), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+
+def F_Sphere_Iso_QuadInt_Series(t, Dist, Aargs, RHStable, Ttable, numn, numx):
+	return intg.quad(FTh_Sphere_Iso_QuadInt_Series, 0., ma.pi, args=(t, Dist, Aargs, RHStable, Ttable, numn, numx), epsabs=myabs, epsrel=myrel, limit=reclim, limlst = limlst, maxp1=maxp1,  full_output=fo  )[0]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

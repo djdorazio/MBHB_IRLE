@@ -29,14 +29,15 @@ from emcee_Funcs import *
 ################################
 ################################
 Shell_OptThin = True
+TwoRs = True
 
 ##multiprocessing
-NThread = 36
+NThread = 4
 
 #Temp table resolution
 NTemp = 1800
 Tmin = 100.
-Tsub = 1800.
+Tsub = 17000.
 
 
 
@@ -254,15 +255,22 @@ for i in range(NTemp):
 
 if (Shell_OptThin):
 	print "SETTING UP OPT-THIN GEO-THIN TORUS SHELL MCMC (!)..."
-	Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
 	#param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$A$']
-	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']	
-	ndim = len(param_names)
-	nwalkers = ndim*12
+	if (TwoRs):
+		Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
+		param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_1$', r'$R_2$']	
+		### From MEASURED VALUES:
+		p0 = [0.99, 0.125, 3.2, 4.2]
+	else:
+		Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g_TwoRs" %Tsub
+		param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']	
+		### From MEASURED VALUES:
+		p0 = [0.99, 0.125, 4.2]
 
-	#Best fit with chi2=92 form reclim1 best fit 4048 steps, 48 walkers
-	###MEASURED VALUES:
-	p0 = [0.99, 0.125, 4.2]
+	ndim = len(param_names)
+	nwalkers = ndim*2
+
+
 	#Best fit from fmin (ISO_Fitting.py)
 	#p0 = [-0.94789069,   0.91328937,  10.23015572,   0.09667759]
 	p0 = np.array(p0)
@@ -280,12 +288,16 @@ if (Shell_OptThin):
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
 
 
-	sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ISO_SHThin_posterior, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
+	if (TwoRs):
+		sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ISO_SHThin_posterior_TwoRs, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
+	else:
+		sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ISO_SHThin_posterior, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
+
 
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 1024#2048
+	clen = 2#2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 
@@ -383,7 +395,7 @@ if (Shell_OptThin):
 print "PLOTTING BEST FIT LIGHT CURVES"
 from Gen_Plot import *
 if (Shell_OptThin):
-	Plot_Shell_Thin_ISO(p_opt, 40, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
+	Plot_Shell_Thin_ISO(p_opt, TwoRs, 60, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
 
 
 
