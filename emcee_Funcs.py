@@ -84,6 +84,20 @@ def ln_Sinprior(p, Flat, SinFit, No_Prd):
 
 def ln_BBprior(params):
 	#sinJJ, cosTT, Rin, alpha = params
+	Td, sqtfR  = params
+					
+	if Td < 0.0:
+		return -np.inf
+
+	if sqtfR < 0.0:
+		return -np.inf
+			
+	return 0.
+
+
+
+def ln_BBprior_Qv(params):
+	#sinJJ, cosTT, Rin, alpha = params
 	Td, nu0, gam, sqtfR  = params
 					
 	if Td < 0.0:
@@ -105,6 +119,10 @@ def ln_BBprior(params):
 def ln_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
 		
+def ln_SHThin_likelihood_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			return -(OpThin_TorShell_Err2_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
+		
+
 ##LIKLIHOODS
 def ln_ISO_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(ISO_OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
@@ -142,6 +160,10 @@ def ln_BBlikelihood(p, t, y, dy):
 	return -(BB_Err2(p, t, y, dy)) 
 
 
+def ln_BBlikelihood_Qv(p, t, y, dy):
+	return -(BB_Err2_Qv(p, t, y, dy)) 
+
+
 
 
 
@@ -156,6 +178,14 @@ def ln_SHThin_posterior(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2,
 			ln_l = ln_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
 			return ln_l + ln_p
 
+
+def ln_SHThin_posterior_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			ln_p = ln_prior_TwoRs(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_SHThin_likelihood_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
+			return ln_l + ln_p
 
 def ln_ISO_SHThin_posterior(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			ln_p = ln_prior(p)
@@ -192,6 +222,16 @@ def ln_BBposterior(p, t, y, dy):
 			
 			ln_l = ln_BBlikelihood(p, t, y, dy)
 			return ln_l + ln_p
+
+
+def ln_BBposterior_Qv(p, t, y, dy):
+			ln_p = ln_BBprior_Qv(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_BBlikelihood_Qv(p, t, y, dy)
+			return ln_l + ln_p
+
 
 
 

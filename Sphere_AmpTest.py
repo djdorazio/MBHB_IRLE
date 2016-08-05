@@ -1,11 +1,15 @@
 import cPickle as pickle
+
+
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
+
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
-#matplotlib.rcParams['font.family'] = 'sans-serif'
-#matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
+matplotlib.rcParams['font.family'] = 'sans-serif'
+matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
 import matplotlib.pyplot as plt
+
 
 matplotlib.rcParams.update({'font.size': 18})
 
@@ -19,8 +23,9 @@ import scipy.integrate as intgt
 
 
 ###OPTIONS###OPTIONS
-IR_Lum = False
-fmin = False
+IR_Lum = True
+fitQv = False
+func_min = False
 MCMC = True
 NThread = 4
 
@@ -33,8 +38,8 @@ ISOvDop_varyI = False
 ISOvthT = False
 DOPvthT = False
 
-PG1302_ISO = True
-PG1302_Dop = True
+PG1302_ISO = False
+PG1302_Dop = False
 numRing = False
 
 
@@ -75,8 +80,8 @@ Ompc = 2.*ma.pi*c/pc2cm/2.
 ## TEST VALUES
 ### DUST stuff
 ## for Qv
-nne = 1.
-nu0 = numicron
+nne = 0.0#1.8
+nu0 = numicron/1.5#/0.37
 
 Rde = RdPG
 Rrout = 1.0*Rde
@@ -147,8 +152,8 @@ numx = Nnumx*numicron
 
 
 Tmin = 100.
-Tsub=1800.
-NT = 1800
+Tsub = 1800.
+NT   = 1800
 
 
 
@@ -399,33 +404,54 @@ if (IR_Lum):
 
 
 	T0 = 0.5*(TW2_Wein + TW1_Wein)
-	BB_p0 = [T0, 1.*numicron/10**14, 1.0, 1.0]
-
-
-	if (fmin):
-		Topt  = sc.optimize.fmin(BB_Err2,    [T0, 1.*numicron, 1.0, pc2cm], args=(nus, Flxs, Errs), full_output=1, disp=False)[0]
-		Td = Topt[0]
-		nu0 = Topt[1] * 10**14
-		gam = Topt[2]
-		sqtfR = Topt[3] * pc2cm
-		#cf1 = Topt[3]
+	if (func_min):
+		if (fitQv):
+			Topt  = sc.optimize.fmin(BB_Err2_Qv,    [T0, 1.*numicron/10**14, 1.0, 1.0], args=(nus, Flxs, Errs), full_output=1, disp=False)[0]
+			Td = Topt[0]
+			nu0 = Topt[1] * 10**14
+			gam = Topt[2]
+			sqtfR = Topt[3] * pc2cm
+			#cf1 = Topt[3]
+		else:
+			Topt  = sc.optimize.fmin(BB_Err2,    [T0, 1.0], args=(nus, Flxs, Errs), full_output=1, disp=False)[0]
+			Td = Topt[0]
+			#nu0 = numicron/0.37 defined above
+			gam = nne
+			sqtfR = Topt[1] * pc2cm
 	else: 
 		print "Not doing fmin"
 
 
 	if (MCMC):
 		import emcee
+
+		if (fitQv):
+			param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\sqrt{\cos{\theta_T}} R_d$"]
+			if (func_min):
+				BB_p0 = [Topt[0], Topt[1], Topt[2], Topt[3]]
+			else:
+				BB_p0 = [T0, 1.*numicron/10**14, 1.0, 1.0]
+		else:	
+			param_names = [r"$T_d$", r"$\sqrt{\cos{\theta_T}} R_d$"]
+			if (func_min):
+				BB_p0 = [Topt[0], Topt[1]]
+			else:
+				BB_p0 = [T0, 1.0]		
+
 		ndim = len(BB_p0)
-		param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\sqrt{\cos{\theta_T}} R_d$"]
 		nwalkers = ndim*16#*2
-		BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior, threads=NThread, args=(nus, Flxs, Errs) )
+
+		if (fitQv):
+			BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior_Qv, threads=NThread, args=(nus, Flxs, Errs) )
+		else:
+			BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior, threads=NThread, args=(nus, Flxs, Errs) )
 
 
 
 		BB_p0 = np.array(BB_p0)
 		BB_walker_p0 = np.random.normal(BB_p0, np.abs(BB_p0)*1E-4, size=(nwalkers, ndim))
 
-		clen = 4096#*2
+		clen = 2048#*2
 		BB_pos,_,_ = BB_sampler.run_mcmc(BB_walker_p0 , clen)
 
 
@@ -508,17 +534,29 @@ if (IR_Lum):
 
 		target.close()
 
-		
-		Td = BB_p_opt[0]
-		nu0 = BB_p_opt[1] * 10**14
-		gam = BB_p_opt[2] 
-		sqtfR = BB_p_opt[3] * pc2cm
+		if (fitQv):
+			Td = BB_p_opt[0]
+			nu0 = BB_p_opt[1] * 10**14
+			gam = BB_p_opt[2] 
+			sqtfR = BB_p_opt[3] * pc2cm
 
-		### get avg deltas
-		delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
-		delnu0 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * 10**14
-		delk   = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) )
-		delfR2 = 0.5* ( (BB_MAP_vals[3] - BB_perc[0,3]) + (BB_perc[1,3] - BB_MAP_vals[3]) ) * pc2cm
+			### get avg deltas
+			delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
+			delnu0 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * 10**14
+			delk   = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) )
+			delfR2 = 0.5* ( (BB_MAP_vals[3] - BB_perc[0,3]) + (BB_perc[1,3] - BB_MAP_vals[3]) ) * pc2cm
+		else:
+			Td = BB_p_opt[0]
+			#nu0 = numicron/0.37 defined above
+			gam = nne
+			sqtfR = BB_p_opt[1] * pc2cm
+
+			### get avg deltas
+			delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
+			delnu0 = 0.0
+			delk   = 0.0
+			delfR2 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * pc2cm
+
 	else:
 		print "Not doing MCMC"
 
@@ -587,11 +625,13 @@ if (IR_Lum):
 	delTdoP = tdoP - (Rmatch - delR)*pc2cm/(1474*3600*24 * c)
 	nu0_print = nu0/10**14
 	delnu0_print = delnu0/10**14
+	delfR2 = delfR2/pc2cm
+	sqtfR = sqtfR/pc2cm
 
 	print "T_opt = %g +- %g K" %(Td, delT)
 	print "nu0 = %g +- %g Hz/10^14" %(nu0_print, delnu0_print)
 	print "k = %g +- %g" %(gam, delk)
-	print "sqrt(f)R_d = %g +- %g K" %(sqtfR, delfR2)
+	print "sqrt(f)R_d = %g +- %g cm" %(sqtfR, delfR2)
 
 	print "R_opt = %g +- %g pc" %(Rmatch, delR)
 	print "t_d/P = %g +- %g" %(tdoP, delTdoP)

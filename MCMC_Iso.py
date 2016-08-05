@@ -46,8 +46,16 @@ Tsub = 17000.
 ### Define Constants
 ################################
 ################################
-nne = 1.
-nu0 = numicron/1.5
+# nne = 1.
+# nu0 = numicron/1.5
+
+#Barvainis sublmation values
+# nne = 1.6
+# nu0 = numicron/0.37
+
+#Mohr netzer values
+nne = 1.8
+nu0 = numicron/0.37
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
 zPG1302 = 0.2784

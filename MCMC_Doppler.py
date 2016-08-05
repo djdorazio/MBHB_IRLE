@@ -29,6 +29,7 @@ from emcee_Funcs import *
 ################################
 ################################
 Shell_OptThin = True
+TwoRs = True
 
 ##multiprocessing
 NThread = 4
@@ -252,9 +253,17 @@ for i in range(NTemp):
 
 if (Shell_OptThin):
 	print "SETTING UP OPT-THIN GEO-THIN TORUS SHELL MCMC (!)..."
-	Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_" %(NTemp, Tsub)
-	#param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$\bar{\alpha}$']	
-	param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']
+	if (TwoRs):
+		Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_" %(NTemp, Tsub)
+		param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_1$', r'$R_2$']
+		###MEASURED VALUES (edge on ring):
+		p0 = [0.01, 0.125, 1.75, 1.75]
+	else:
+		Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_TwoRs_" %(NTemp, Tsub)
+		param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']
+		###MEASURED VALUES (edge on ring):	
+		p0 = [0.01, 0.125, 1.75]
+
 	ndim = len(param_names)	
 	nwalkers = ndim*2
 
@@ -268,7 +277,6 @@ if (Shell_OptThin):
 
 
 	###MEASURED VALUES (edge on ring):
-	p0 = [0.01, 0.125, 1.75]
 	#
 	p0 = np.array(p0)
 	## args of non changing parameters to pass 
@@ -276,8 +284,11 @@ if (Shell_OptThin):
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, Rrout, nu0, nne, betst] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, Rrout, nu0, nne, betst] 
 
+	if (TwoRs):
+		sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_SHThin_posterior_TwoRs, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
+	else:
+		sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_SHThin_posterior, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
 
-	sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_SHThin_posterior, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
 
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
@@ -381,7 +392,7 @@ print "PLOTTING BEST FIT LIGHT CURVES"
 
 from Gen_Plot import *
 if (Shell_OptThin):
-	Plot_Shell_Thin_Dop(p_opt, 40,  Shell_File,  W1args, W2args, RHS_table, T_table,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
+	Plot_Shell_Thin_Dop(p_opt, TwoRs, 60,  Shell_File,  W1args, W2args, RHS_table, T_table,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
 
 
 
