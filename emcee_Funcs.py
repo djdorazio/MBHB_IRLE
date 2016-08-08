@@ -106,7 +106,7 @@ def ln_BBprior_Qv(params):
 	if nu0<0:
 		return -np.inf
 						
-	if gam < 0.0 or gam > 3.0:
+	if gam < 0.0 or gam > 10.0:
 		return -np.inf
 
 	if sqtfR < 0.0:

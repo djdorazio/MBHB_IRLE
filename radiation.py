@@ -1,3 +1,4 @@
+### - borrowed from Andrew Emerick on August 2, 2016 - Dan  D'Orazio
 # --- external ---
 import numpy as np
 

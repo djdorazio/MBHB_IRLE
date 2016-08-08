@@ -11,9 +11,9 @@ import time
 def BB_Err2(p, nu, y, dy):
 	Td, sqtfR  = p
 
-	gam = 0.0
+	gam = 1.8
 
-	nu0 = numicron/1.5#0.37
+	nu0 = numicron/0.37
 
 	sqtfR = sqtfR#*pc2cm
 	Dst = 1.4*10**9#*pc2cm
@@ -22,7 +22,7 @@ def BB_Err2(p, nu, y, dy):
 
 	pref = np.ones(len(nu))
 	for i in range(len(nu)):
-		pref[i] = min(1., (nu[i]/nu0)**(4.+gam))
+		pref[i] = min(1., (nu[i]/nu0)**(gam))
 	chi = (y - pref*Bv(nu, Td)* (sqtfR/Dst)**2 )/ dy
 	chi2 = sum(chi*chi)
 	print chi2
@@ -50,7 +50,7 @@ def BB_Err2_Qv(p, nu, y, dy):
 		#print Rprint
 		pref = np.ones(len(nu))
 		for i in range(len(nu)):
-			pref[i] = min(1., (nu[i]/nu0)**(4.+gam))
+			pref[i] = min(1., (nu[i]/nu0)**(gam))
 		chi = (y - pref*Bv(nu, Td)* (sqtfR/Dst)**2 )/ dy
 		chi2 = sum(chi*chi)
 

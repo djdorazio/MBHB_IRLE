@@ -32,12 +32,12 @@ Shell_OptThin = True
 TwoRs = True
 
 ##multiprocessing
-NThread = 4
+NThread = 16
 
 #Temp table resolution
 NTemp = 1800
 Tmin = 100.
-Tsub = 17000.
+Tsub = 1700.
 
 
 
@@ -276,7 +276,7 @@ if (Shell_OptThin):
 		p0 = [0.99, 0.125, 4.2]
 
 	ndim = len(param_names)
-	nwalkers = ndim*2
+	nwalkers = ndim*4
 
 
 	#Best fit from fmin (ISO_Fitting.py)
@@ -305,7 +305,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 2#2048
+	clen = 512#2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 

@@ -80,8 +80,8 @@ Ompc = 2.*ma.pi*c/pc2cm/2.
 ## TEST VALUES
 ### DUST stuff
 ## for Qv
-nne = 0.0#1.8
-nu0 = numicron/1.5#/0.37
+nne = 1.8
+nu0 = numicron/0.37
 
 Rde = RdPG
 Rrout = 1.0*Rde
@@ -439,7 +439,7 @@ if (IR_Lum):
 				BB_p0 = [T0, 1.0]		
 
 		ndim = len(BB_p0)
-		nwalkers = ndim*16#*2
+		nwalkers = ndim*32#*2
 
 		if (fitQv):
 			BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior_Qv, threads=NThread, args=(nus, Flxs, Errs) )
@@ -451,7 +451,7 @@ if (IR_Lum):
 		BB_p0 = np.array(BB_p0)
 		BB_walker_p0 = np.random.normal(BB_p0, np.abs(BB_p0)*1E-4, size=(nwalkers, ndim))
 
-		clen = 2048#*2
+		clen = 4096#*2
 		BB_pos,_,_ = BB_sampler.run_mcmc(BB_walker_p0 , clen)
 
 
@@ -587,14 +587,27 @@ if (IR_Lum):
 	#PROPAGATE ERRORS
 	dLIR_dk = np.pi * 4.*np.pi*sqtfR**2 * intgt.quad(lambda nu:2.*h*nu**3 * (nu/nu0)**gam * np.log(nu/nu0)  /(c*c * (-1. + np.exp( h*nu/(kb*Td)) )  ), 0.0, nu0 )[0] / Lav
 
+	
+
+
 	dLIR_dnu0 = np.pi * 4.*np.pi*sqtfR**2 * intgt.quad(lambda nu:-2.*h*gam*nu*(nu/nu0)**(2. + gam) * nu0 / (c*c * (-1. + np.exp( h*nu/(kb*Td)) )  ), 0.0, nu0 )[0] / Lav
+
+	
+
+
+
 
 	dLIR_dT = np.pi * 4.*np.pi*sqtfR**2 * intg.quad(lambda nu:2.*np.exp(h*nu/(kb*Td)) * h*h * nu**4 * min(1., (nu/nu0)**gam)/( c*c * (-1. + np.exp(h*nu/(kb*Td)) )**2 * kb*Td**2 ), 0.0, numicron*5. )[0] / Lav
 	#dLIR_dT = 1.
 
-	dLIR_dLtot = -4.*np.pi*sqtfR**2 * intgt.quad(lambda nu:min(1., (nu/nu0)**(4.+gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav**2
+	#dLIR_dLtot = -4.*np.pi*sqtfR**2 * intgt.quad(lambda nu:min(1., (nu/nu0)**(4.+gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav**2
 
-	dLIR_dfR2 =  8.*np.pi*sqtfR * intgt.quad(lambda nu:min(1., (nu/nu0)**(4.+gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
+	#dLIR_dfR2 =  8.*np.pi*sqtfR * intgt.quad(lambda nu:min(1., (nu/nu0)**(4.+gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
+
+	dLIR_dLtot = -4.*np.pi*sqtfR**2 * intgt.quad(lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav**2
+
+	dLIR_dfR2 =  16.*np.pi*sqtfR * intgt.quad(lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
+
 
 	delLTot = Lav * (1. - 6./10.)
 
@@ -602,9 +615,9 @@ if (IR_Lum):
 	#DLIR = ma.sqrt(											    (dLIR_dT*delT)**2  + (dLIR_dLtot*delLTot)**2  + (dLIR_dfR2*delfR2)**2 )
 
 
-	CF    = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(4.+gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
-	CFmin = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(4.+gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  / (Lav*14./10.)
-	CFmax = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(4.+gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  /(Lav*6./10.)
+	CF    = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
+	CFmin = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  / (Lav*14./10.)
+	CFmax = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  /(Lav*6./10.)
 	CFErrP = CFmax - CF 
 	CFErrM = CF - CFmin
 
@@ -656,7 +669,7 @@ if (IR_Lum):
 	
 	pref = np.ones(len(nu))
 	for i in range(len(nu)):
-		pref[i] = min(1., (nu[i]*10**14/nu0)**(4.+gam))
+		pref[i] = min(1., (nu[i]*10**14/nu0)**(gam))
 
 	plt.figure()
 	plt.scatter(W1_mid/10**14, Fw1* 10.**(26), color='orange', s=40, marker='o')
@@ -665,15 +678,19 @@ if (IR_Lum):
 	plt.axvline(W3_mid/10**14,  color='brown')
 	plt.axvline(W4_mid/10**14,  color='purple')
 
-	plt.plot(nu, pref * Bv(nu*10**14, Td) * (sqtfR/Dst)**2 * 10.**(26), color = 'gray', linewidth = 2)
+	plt.plot(nu, pref * Bv(nu*10**14, Td) * (sqtfR*pc2cm/Dst)**2 * 10.**(26), color = 'gray', linewidth = 2)
 
 	plt.xlabel(r'$\nu$ [$10^{14}$ Hz]')
 	plt.ylabel('Flux [mJy]')
+	
 	plt.xlim(0.0,2.0)
 	plt.ylim(0.0,16.0)
 
 	#plt.show()
-	plt.savefig("../emcee_data/BBfit_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
+	if (fitQv):
+		plt.savefig("../emcee_data/BBfit_fitQv_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
+	else:
+		plt.savefig("../emcee_data/BBfit_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
 
 
 
