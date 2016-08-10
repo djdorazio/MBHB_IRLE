@@ -39,7 +39,7 @@ FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 
 
-def Plot_Shell_Thin_Dop(p, TwoRs, Nt, Shell_File,  W1args, W2args, RHS_table, T_table,    tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg):
+def Plot_Shell_Thin_Dop(p, Fit_mag0, TwoRs, Nt, Shell_File,  W1args, W2args, RHS_table, T_table,    tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg):
 
 	ttopt = np.linspace(tsrt[0]-100, t_MJD[len(t_MJD)-1]+100,       Nt)
 
@@ -80,9 +80,12 @@ def Plot_Shell_Thin_Dop(p, TwoRs, Nt, Shell_File,  W1args, W2args, RHS_table, T_
 		W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell([p[0], p[1], p[2]], (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
 		W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell([p[0], p[1], p[3]] , (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 	else:
-		W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell(p, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
-		W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell(p , (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
-
+		if (Fit_mag0):
+			W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell_mag0W1(p, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+			W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell_mag0W2(p , (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
+		else:
+			W1shell = plt.plot(ttopt, magPoint_OpThin_TorShell(p, (ttopt+50000)/(1.+zPG1302), W1args, RHS_table, T_table), linestyle = '--', color='orange', linewidth=2)
+			W2shell = plt.plot(ttopt, magPoint_OpThin_TorShell(p , (ttopt+50000)/(1.+zPG1302), W2args, RHS_table, T_table)+0.5, linestyle = '--', color='red', linewidth=2)
 
 	plt.grid(b=True, which='both')
 			

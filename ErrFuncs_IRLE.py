@@ -182,6 +182,58 @@ def magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 
 
 
+
+def magPoint_OpThin_TorShell_mag0W1(params, t, THEargs, RHStable, Ttable):
+
+	sinJJ, cosTT, Rin, mag0_W1 = params
+
+	alph = -2.0 ##FUV PG value
+	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calculation method
+	Rin = Rin * pc2cm#2.73213149e+18
+
+
+
+
+	t = t * 86400.
+	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
+	thetT = np.arccos(cosTT)
+	
+	FRel, numin, numax, Dist, Lav, Ombn,     pp, Rout,  nu0, nne, beta = THEargs
+	IncFit = np.arccos(0.067/beta)
+	aeff = (c/nu0)/(2.*ma.pi)
+
+	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+
+	return -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel) + mag0_W1 
+
+
+def magPoint_OpThin_TorShell_mag0W2(params, t, THEargs, RHStable, Ttable):
+
+	sinJJ, cosTT, Rin, mag0_W1 = params
+
+	alph = -2.0 ##FUV PG value
+	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calculation method
+	Rin = Rin * pc2cm#2.73213149e+18
+
+
+
+
+	t = t * 86400.
+	JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
+	thetT = np.arccos(cosTT)
+	
+	FRel, numin, numax, Dist, Lav, Ombn,     pp, Rout,  nu0, nne, beta = THEargs
+	IncFit = np.arccos(0.067/beta)
+	aeff = (c/nu0)/(2.*ma.pi)
+
+	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+
+	return -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel)  
+
+
+
+
+
 def magPoint_OpThin_TorShell_W1(params, t, THEargs, RHStable, Ttable):
 
 	#sinJJ, cosTT, Rin, alph = params
@@ -242,6 +294,20 @@ def OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2
 	#p0 = [sinJ, cosT, Rin]
 	chi1 = (y1 - magPoint_OpThin_TorShell(p, t, THEargs1, RHStable, Ttable)) / dy1
 	chi2 = (y2 - magPoint_OpThin_TorShell(p, t, THEargs2, RHStable, Ttable)) / dy2
+	sumChi2 = sum(chi1*chi1) + sum(chi2*chi2)
+	print(sumChi2 )
+	t2=time.clock()
+	print(t2-t1)
+	return sumChi2
+
+
+
+def OpThin_TorShell_Err2_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+	print "EVAL", p
+	t1=time.clock()
+	#p0 = [sinJ, cosT, Rin]
+	chi1 = (y1 - magPoint_OpThin_TorShell_mag0W1(p, t, THEargs1, RHStable, Ttable)) / dy1
+	chi2 = (y2 - magPoint_OpThin_TorShell_mag0W2(p, t, THEargs2, RHStable, Ttable)) / dy2
 	sumChi2 = sum(chi1*chi1) + sum(chi2*chi2)
 	print(sumChi2 )
 	t2=time.clock()

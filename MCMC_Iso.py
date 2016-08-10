@@ -31,10 +31,10 @@ from emcee_Funcs import *
 Shell_OptThin = True
 Fit_mag0 = True
 TwoRs = False
-fmin_start = False
+fmin_start = True
 
 ##multiprocessing
-NThread = 16
+NThread = 4
 
 #Temp table resolution
 NTemp = 1700
@@ -283,7 +283,8 @@ if (Shell_OptThin):
 			popt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2_TwoRs,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
 	
 		if (Fit_mag0):
-			p0 = [ 0.94640088,  0.12592987, 4.41782365, 0.0]
+			p0 = [ 0.99, 0.125, 4.2, -0.2]
+			#0.97892352  0.12836802  4.13484639 -0.20489902 chi 254
 			popt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2_mag0,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
 	
 
@@ -306,7 +307,7 @@ if (Shell_OptThin):
 			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$mag^{\rm{W1}}_0$']	
 			### From MEASURED VALUES:
 			#[sinJ, costhT, R, magW10 magW20]
-			p0 = [0.99, 0.125, 4.2, 0.01]
+			p0 = [0.99, 0.125, 4.2, -0.2]
 		else:
 			Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g_TwoRs" %Tsub
 			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']	
@@ -314,7 +315,7 @@ if (Shell_OptThin):
 			p0 = [0.99, 0.125, 4.2]
 
 	ndim = len(param_names)
-	nwalkers = ndim*4
+	nwalkers = ndim*2
 
 
 	#Best fit from fmin (ISO_Fitting.py)
@@ -348,7 +349,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 512#2048
+	clen = 2#2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 

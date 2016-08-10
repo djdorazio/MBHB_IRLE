@@ -145,6 +145,11 @@ def ln_BBprior_Qv(params):
 def ln_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
 		
+
+def ln_SHThin_likelihood_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			return -(OpThin_TorShell_Err2_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
+		
+
 def ln_SHThin_likelihood_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(OpThin_TorShell_Err2_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
 		
@@ -206,6 +211,15 @@ def ln_SHThin_posterior(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2,
 				return -np.inf
 			
 			ln_l = ln_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
+			return ln_l + ln_p
+
+
+def ln_SHThin_posterior_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			ln_p = ln_prior_mag0(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_SHThin_likelihood_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
 			return ln_l + ln_p
 
 
