@@ -16,9 +16,9 @@ import scipy.signal as sgn
 #### INTEGRATION ERROR TOLS
 myrel = 1.49e-14#0.001
 myabs = 1.49e-14#0.001
-reclim = 1
-limlst = 1
-maxp1 = 1
+reclim = 2
+limlst = 2
+maxp1 = 2
 fo = 1
 
 ##GLOBAL PHYSICS CONSTANTS (cgs):
