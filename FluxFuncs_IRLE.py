@@ -9,8 +9,8 @@ import scipy.integrate as intg
 import scipy.signal as sgn
 #from apw import Tfunc
 
-#Goal is to out put the IR flux from irradiated dust geometry surrouding binary.
-#Result Function 1: gives nu and r dependnet flux
+#Goal is to out put the IR flux from irradiated dust geometry surrounding binary.
+#Result Function 1: gives nu and r dependent flux
 #Result Function 2: gives flux integrated over r and nu - given bounds
 
 #### INTEGRATION ERROR TOLS
@@ -211,6 +211,7 @@ def Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0):
 	Fsrc_ISO_p0 = [5.99559901e-02,   1.17220299e-01,   4.43302411e+00, 1.88371914e+03]
 	Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
 	t0   = Fsrc_ISO_p0[2]# * 2.*ma.pi/Ombn
+
 	return Lavg/(4.*ma.pi*r*r)* ( 1. + Amp*np.sin(Ombn*t - t0)  )
 
 

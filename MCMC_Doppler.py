@@ -32,7 +32,7 @@ Shell_OptThin = True
 TwoRs = True
 
 ##multiprocessing
-NThread = 4
+NThread = 12
 
 #Temp table resolution
 NTemp = 1800
@@ -45,8 +45,8 @@ Tsub  = 1800.
 ### Define Constants
 ################################
 ################################
-nne = 1.
-nu0 = numicron/1.5
+nne = 0.0
+nu0 = numicron#/1.5
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
 zPG1302 = 0.2784
@@ -265,7 +265,7 @@ if (Shell_OptThin):
 		p0 = [0.01, 0.125, 1.75]
 
 	ndim = len(param_names)	
-	nwalkers = ndim*2
+	nwalkers = ndim*3
 
 	#Best fit from fmin (Dop_Fitting.py)
 	#p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
@@ -293,7 +293,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 2#2048
+	clen = 512#2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 

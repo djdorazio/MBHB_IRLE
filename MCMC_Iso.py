@@ -29,15 +29,17 @@ from emcee_Funcs import *
 ################################
 ################################
 Shell_OptThin = True
-TwoRs = True
+Fit_mag0 = True
+TwoRs = False
+fmin_start = False
 
 ##multiprocessing
 NThread = 16
 
 #Temp table resolution
-NTemp = 1800
+NTemp = 1700
 Tmin = 100.
-Tsub = 1700.
+Tsub = 1800.
 
 
 
@@ -54,8 +56,8 @@ Tsub = 1700.
 # nu0 = numicron/0.37
 
 #Mohr netzer values
-nne = 1.8
-nu0 = numicron/0.37
+nne = 0.0#1.8
+nu0 = numicron#/0.37
 
 #(*SOME SYSTEM SPECIFIC CONSTANTS FOR TESTING*)
 zPG1302 = 0.2784
@@ -262,18 +264,54 @@ for i in range(NTemp):
 
 
 if (Shell_OptThin):
+	if (fmin_start):
+		print "Running fmin to start"
+		from scipy import optimize
+		from scipy.optimize import fmin
+
+		## args of non changing parameters to pass
+		## BEST FIT OPTICAL FOR INPUT (already taken care of in Fsrc_ISO_PG, being redundant)
+		Fsrc_ISO_p0 = [5.99559901e-02,   1.17220299e-01,   4.43302411e+00, 1.88371914e+03]
+		Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
+		t0   = Fsrc_ISO_p0[2]  ##t0 is really phi0, the phase
+
+		W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+		W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+
+		if (TwoRs):
+			p0 = [ 0.94640088,  0.12592987,  2.96947227,  4.41782365]
+			popt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2_TwoRs,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
+	
+		if (Fit_mag0):
+			p0 = [ 0.94640088,  0.12592987, 4.41782365, 0.0]
+			popt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2_mag0,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
+	
+
+	else:
+		print "NO FMIN - jumping to MCMC"
+
 	print "SETTING UP OPT-THIN GEO-THIN TORUS SHELL MCMC (!)..."
 	#param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$A$']
 	if (TwoRs):
-		Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
+		Shell_File = "ISO_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
 		param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_1$', r'$R_2$']	
 		### From MEASURED VALUES:
-		p0 = [0.99, 0.125, 3.2, 4.2]
+		if (fmin_start):
+			p0 = popt
+		else:
+			p0 = [0.99, 0.125, 3.2, 4.2]
 	else:
-		Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g_TwoRs" %Tsub
-		param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']	
-		### From MEASURED VALUES:
-		p0 = [0.99, 0.125, 4.2]
+		if (Fit_mag0):
+			Shell_File = "ISO_GeoThin_IROptThin_Fitmag0s_noAMP_Tsub%g_TwoRs" %Tsub
+			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$mag^{\rm{W1}}_0$']	
+			### From MEASURED VALUES:
+			#[sinJ, costhT, R, magW10 magW20]
+			p0 = [0.99, 0.125, 4.2, 0.01]
+		else:
+			Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g_TwoRs" %Tsub
+			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']	
+			### From MEASURED VALUES:
+			p0 = [0.99, 0.125, 4.2]
 
 	ndim = len(param_names)
 	nwalkers = ndim*4
@@ -294,12 +332,17 @@ if (Shell_OptThin):
 
 	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
 	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+	#W1args = [FW1Rel, 0.0, 3.*numicron, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+	#W2args = [FW2Rel, 0.0, 3.*numicron, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
 
 
 	if (TwoRs):
 		sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ISO_SHThin_posterior_TwoRs, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
 	else:
-		sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ISO_SHThin_posterior, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
+		if (Fit_mag0):
+			sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ISO_SHThin_posterior_mag0, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
+		else:
+			sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_ISO_SHThin_posterior, threads=NThread,args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg))
 
 
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
@@ -400,10 +443,39 @@ if (Shell_OptThin):
 	target.close()
 
 
-print "PLOTTING BEST FIT LIGHT CURVES"
-from Gen_Plot import *
-if (Shell_OptThin):
-	Plot_Shell_Thin_ISO(p_opt, TwoRs, 60, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
+	print "PLOTTING BEST FIT LIGHT CURVES"
+	from Gen_Plot import *
+
+	Plot_Shell_Thin_ISO(p_opt, Fit_mag0, TwoRs, 40, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
+
+
+
+else:
+	## args of non changing parameters to pass
+	## BEST FIT OPTICAL FOR INPUT (already taken care of in Fsrc_ISO_PG, being redundant)
+	Fsrc_ISO_p0 = [5.99559901e-02,   1.17220299e-01,   4.43302411e+00, 1.88371914e+03]
+	Ombn =	2.*ma.pi/(Fsrc_ISO_p0[3]*24.*3600.) * (1.+0.2784)
+	t0   = Fsrc_ISO_p0[2]  ##t0 is really phi0, the phase
+
+	W1args = [FW1Rel, W1mn, W1mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+	W2args = [FW2Rel, W2mn, W2mx, Dst, Lav, Ombn, pp, aeff, nu0, nne, t0] 
+
+	if (TwoRs):
+		Shell_File = "Test_ISO_twoRs_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
+		p_opt = [0.99, 0.125, 2.1, 4.1]
+	else:
+		if (Fit_mag0):
+			Shell_File = "Test_ISO_mag0s_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
+			p_opt = [0.99, 0.125, 4.1, -0.2]
+		else:
+			Shell_File = "Test_ISO_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
+			p_opt = [0.99, 0.125, 4.1]
+
+
+	print "PLOTTING TEST LIGHT CURVES"
+	from Gen_Plot import *
+
+	Plot_Shell_Thin_ISO(p_opt, Fit_mag0, TwoRs, 40, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
 
 
 

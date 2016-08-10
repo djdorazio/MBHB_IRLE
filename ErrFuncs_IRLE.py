@@ -11,9 +11,9 @@ import time
 def BB_Err2(p, nu, y, dy):
 	Td, sqtfR  = p
 
-	gam = 1.8
+	gam = 0.0#1.8
 
-	nu0 = numicron/0.37
+	nu0 = numicron#/0.37
 
 	sqtfR = sqtfR#*pc2cm
 	Dst = 1.4*10**9#*pc2cm
@@ -32,16 +32,18 @@ def BB_Err2(p, nu, y, dy):
 
 def BB_Err2_Qv(p, nu, y, dy):
 	Td, nu0, gam, sqtfR  = p
+	#Td, nu0, gam, fcov  = p
 
 	sqtfR = sqtfR#*pc2cm
-	nu0 = nu0*10**14
+	
+	nu0 = nu0*1.*10**14
 	Dst = 1.4*10**9#*pc2cm
 	Lav = 6.78*10**46
 	print p
 	## make sure R is consistent with Temp there!
-	#qIR = (1./nu0)**(gam)
-	#from scipy import special as spc
-	#R = ma.sqrt(  Lav / (  4.* ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4.+gam) * spc.gamma(4+gam) * spc.zetac(4.+gam) * Td**(4.+gam) ) )
+	qIR = (1./nu0)**(gam)
+	from scipy import special as spc
+	R = ma.sqrt(  Lav / (  4.* ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4.+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
 	
 	if (gam < 0):
 		chi2 = np.inf
@@ -52,6 +54,7 @@ def BB_Err2_Qv(p, nu, y, dy):
 		for i in range(len(nu)):
 			pref[i] = min(1., (nu[i]/nu0)**(gam))
 		chi = (y - pref*Bv(nu, Td)* (sqtfR/Dst)**2 )/ dy
+		#chi = (y - pref*Bv(nu, Td)* fcov*(R/Dst)**2 )/ dy
 		chi2 = sum(chi*chi)
 
 	print chi2
@@ -110,7 +113,7 @@ def magPoint_OpThick_TorShell(params, t, THEargs, RHStable, Ttable):
 	sinJJ, cosTT, Rin = params
 
 	n0 = 1000000.00000001
-	Rin = Rin * 2.73213149e+18
+	Rin = Rin * pc2cm #2.73213149e+18
 
 
 	t = t * 86400.
@@ -133,7 +136,7 @@ def magPoint_OpThin_TorShell_dustP(params, t, THEargs, RHStable, Ttable):
 	sinJJ, cosTT, Rin, nne, nu0 = params
 
 	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calcualtion method
-	Rin = Rin * 2.73213149e+18
+	Rin = Rin * pc2cm#2.73213149e+18
 
 	aeff = (c/nu0)/(2.*ma.pi)
 
@@ -158,9 +161,9 @@ def magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 	#sinJJ, cosTT, Rin, alph = params
 	sinJJ, cosTT, Rin = params
 
-	alph = -2.0
-	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calcualtion method
-	Rin = Rin * 2.73213149e+18
+	alph = -2.0 ##FUV PG value
+	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calculation method
+	Rin = Rin * pc2cm#2.73213149e+18
 
 
 
@@ -184,8 +187,8 @@ def magPoint_OpThin_TorShell_W1(params, t, THEargs, RHStable, Ttable):
 	#sinJJ, cosTT, Rin, alph = params
 	sinJJ, cosTT, RW1, RW2 = params
 
-	alph = -2.0
-	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calcualtion method
+	alph = -2.0 ##FUV PG value
+	n0 = 1.0  #this shouldn't matter opt thin is to IR, and is assumed in calculation method
 	Rin = RW1 * pc2cm# 2.73213149e+18
 
 
@@ -210,8 +213,8 @@ def magPoint_OpThin_TorShell_W2(params, t, THEargs, RHStable, Ttable):
 	#sinJJ, cosTT, Rin, alph = params
 	sinJJ, cosTT, RW1, RW2 = params
 
-	alph = -2.0
-	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calcualtion method
+	alph = -2.0 ##FUV PG value
+	n0 = 1.0  #this shouldn't matter opt thin is to IR, and is assumed in calculation method
 	Rin = RW2 * pc2cm# 2.73213149e+18
 
 
@@ -266,7 +269,7 @@ def magPoint_Sphere_dustP(params, t, THEargs, RHStable, Ttable):
 	Rin, nne, nu0 = params
 
 	n0 = 1.0  #this shouldn't matter opt thin is to IR, and is assumed in calcualtion method
-	Rin = Rin * 2.73213149e+18
+	Rin = Rin * pc2cm#2.73213149e+18
 
 	aeff = (c/nu0)/(2.*ma.pi)
 
@@ -295,7 +298,7 @@ def magPoint_OpThick_TorShell_dustP(params, t, THEargs, RHStable, Ttable):
 	sinJJ, cosTT, Rin, nne, nu0 = params
 
 	n0 = 1000000.00000001
-	Rin = Rin * 2.73213149e+18
+	Rin = Rin * pc2cm#2.73213149e+18
 
 	aeff = (c/nu0)/(2.*ma.pi)
 
@@ -325,7 +328,7 @@ def magPoint_OpThin_TorThick(params, t, THEargs, RHStable, Ttable):
 	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
 		return np.inf
 	else:
-		Rin = Rin * 2.73213149e+18
+		Rin = Rin * pc2cm#2.73213149e+18
 		n0 = n0*1.e-10
 		t = t * 86400.
 		JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
@@ -437,7 +440,7 @@ def ISO_magPoint_OpThin_TorThick(params, t, THEargs, RHStable, Ttable):
 	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
 		return np.inf
 	else:
-		Rin = Rin * 2.73213149e+18
+		Rin = Rin * pc2cm#2.73213149e+18
 		n0 = n0*1.e-10
 		t = t * 86400.
 		JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
@@ -478,7 +481,7 @@ def ISO_magPoint_OpThin_TorShell_W1(params, t, THEargs, RHStable, Ttable):
 	#sinJJ, cosTT, Rin, Amp = params
 	sinJJ, cosTT, RW1, RW2 = params
 
-	Amp = 0.35
+	Amp = 0.14*2.63 #FUV amplitude
 
 	n0 = 1.0 ## shouldnt matter
 	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
@@ -504,9 +507,9 @@ def ISO_magPoint_OpThin_TorShell_W2(params, t, THEargs, RHStable, Ttable):
 	#sinJJ, cosTT, Rin, Amp = params
 	sinJJ, cosTT, RW1, RW2 = params
 
-	Amp = 0.35
+	Amp = 0.14*2.63 #FUV amplitude
 
-	n0 = 1.0 ## shouldnt matter
+	n0 = 1.0 ## shouldn't matter
 	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
 		return np.inf
 	else:
@@ -531,13 +534,13 @@ def ISO_magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 	#sinJJ, cosTT, Rin, Amp = params
 	sinJJ, cosTT, Rin = params
 
-	Amp = 0.35
+	Amp = 0.14*2.63 #FUV amplitude
 
 	n0 = 1.0 ## shouldnt matter
 	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
 		return np.inf
 	else:
-		Rin = Rin * 2.73213149e+18
+		Rin = Rin * pc2cm #2.73213149e+18
 		t = t * 86400.
 		JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
 		thetT = np.arccos(cosTT)
@@ -551,6 +554,59 @@ def ISO_magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 
 		return -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel)
 
+
+
+def ISO_magPoint_OpThin_TorShell_mag0W1(params, t, THEargs, RHStable, Ttable):
+
+	sinJJ, cosTT, Rin, mag0_W1 = params
+
+	Amp = 0.14*2.63 #FUV amplitude
+
+	n0 = 1.0 ## shouldnt matter
+	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
+		return np.inf
+	else:
+		Rin = Rin * pc2cm #2.73213149e+18
+		t = t * 86400.
+		JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
+		thetT = np.arccos(cosTT)
+		
+		FRel, numin, numax, Dist, Lav, Ombn, pp, aeff, nu0, nne, t0 = THEargs
+
+
+		#Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+				#Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+		Aargs  = [Lav, Amp, Ombn, t0, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+		## add zero point to W2 
+		return -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel) + mag0_W1
+
+
+
+def ISO_magPoint_OpThin_TorShell_mag0W2(params, t, THEargs, RHStable, Ttable):
+
+	sinJJ, cosTT, Rin, mag0_W1 = params
+
+	Amp = 0.14*2.63 #FUV amplitude
+
+	n0 = 1.0 ## shouldnt matter
+	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
+		return np.inf
+	else:
+		Rin = Rin * pc2cm #2.73213149e+18
+		t = t * 86400.
+		JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
+		thetT = np.arccos(cosTT)
+		
+		FRel, numin, numax, Dist, Lav, Ombn, pp, aeff, nu0, nne, t0 = THEargs
+
+
+		#Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+				#Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+		Aargs  = [Lav, Amp, Ombn, t0, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
+		## dont add zero point to W2 
+		return -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel) 
+
+
               
 
 def ISO_OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
@@ -559,6 +615,19 @@ def ISO_OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1
 	#p0 = [sinJ, cosT, Rin]
 	chi1 = ( y1 - ISO_magPoint_OpThin_TorShell(p, t, THEargs1, RHStable, Ttable) ) / dy1
 	chi2 = ( y2 - ISO_magPoint_OpThin_TorShell(p, t, THEargs2, RHStable, Ttable) ) / dy2
+	sumChi2 = sum(chi1*chi1) + sum(chi2*chi2)
+	print(sumChi2 )
+	t2=time.clock()
+	print(t2-t1)
+	return sumChi2
+
+
+def ISO_OpThin_TorShell_Err2_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+	print "EVAL", p
+	t1=time.clock()
+	#ONLY ADD zero point mag to W1 for now - see magpoint fncs
+	chi1 = ( y1 - ISO_magPoint_OpThin_TorShell_mag0W1(p, t, THEargs1, RHStable, Ttable) ) / dy1
+	chi2 = ( y2 - ISO_magPoint_OpThin_TorShell_mag0W2(p, t, THEargs2, RHStable, Ttable) ) / dy2
 	sumChi2 = sum(chi1*chi1) + sum(chi2*chi2)
 	print(sumChi2 )
 	t2=time.clock()
@@ -591,7 +660,7 @@ def ISO_magPoint_OpThin_dustP_TorShell(params, t, THEargs, RHStable, Ttable):
 	if (cosTT*cosTT > 1.0 or sinJJ*sinJJ > 1.0):
 		return np.inf
 	else:
-		Rin = Rin * 2.73213149e+18
+		Rin = Rin * pc2cm #2.73213149e+18
 		t = t * 86400.
 		JJ = np.arcsin(sinJJ) ## CAREFUL WITH DOMAIN OF COS
 		thetT = np.arccos(cosTT)

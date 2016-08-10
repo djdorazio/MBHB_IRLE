@@ -80,8 +80,8 @@ Ompc = 2.*ma.pi*c/pc2cm/2.
 ## TEST VALUES
 ### DUST stuff
 ## for Qv
-nne = 1.8
-nu0 = numicron/0.37
+nne = 0.0#1.8
+nu0 = numicron#/0.37
 
 Rde = RdPG
 Rrout = 1.0*Rde
@@ -403,7 +403,7 @@ if (IR_Lum):
 	Errs = np.array(Errs)
 
 
-	T0 = 0.5*(TW2_Wein + TW1_Wein)
+	T0 = 880.0#0.5*(TW2_Wein + TW1_Wein)
 	if (func_min):
 		if (fitQv):
 			Topt  = sc.optimize.fmin(BB_Err2_Qv,    [T0, 1.*numicron/10**14, 1.0, 1.0], args=(nus, Flxs, Errs), full_output=1, disp=False)[0]
@@ -430,7 +430,7 @@ if (IR_Lum):
 			if (func_min):
 				BB_p0 = [Topt[0], Topt[1], Topt[2], Topt[3]]
 			else:
-				BB_p0 = [T0, 1.*numicron/10**14, 1.0, 1.0]
+				BB_p0 = [T0, 1.*numicron/10**14, 1.0, 0.125]
 		else:	
 			param_names = [r"$T_d$", r"$\sqrt{\cos{\theta_T}} R_d$"]
 			if (func_min):
@@ -564,7 +564,11 @@ if (IR_Lum):
 	
 
 	qIR   = (1./nu0)**(gam)
-	RR = ma.sqrt(  Lav / (8. * ma.pi  * qIR * h/c/c * (kb/h)**(4.+gam) * spc.gamma(4+gam) * spc.zetac(4.+gam) * Td**(4.+gam)) )
+	RR = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
+	Rg4 = ma.sqrt( Lav / (16.*ma.pi * sigSB*Td**4))
+
+
+
 
 
 
@@ -614,6 +618,13 @@ if (IR_Lum):
 	DCF = ma.sqrt( (dLIR_dk*delk)**2 + (dLIR_dnu0*delnu0)**2 + (dLIR_dT*delT)**2  + (dLIR_dLtot*delLTot)**2  + (dLIR_dfR2*delfR2)**2 )
 	#DLIR = ma.sqrt(											    (dLIR_dT*delT)**2  + (dLIR_dLtot*delLTot)**2  + (dLIR_dfR2*delfR2)**2 )
 
+	##Error on R(td)
+	dRdT = -2.*RR/Td
+	dRdL = 0.5*RR/Lav
+	dRR = ma.sqrt( (dRdT*delT)**2 + (dRdL * delLTot)**2)
+	RTd_print = RR/pc2cm
+	dRTd_print = dRR/pc2cm
+
 
 	CF    = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
 	CFmin = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  / (Lav*14./10.)
@@ -648,6 +659,8 @@ if (IR_Lum):
 
 	print "R_opt = %g +- %g pc" %(Rmatch, delR)
 	print "t_d/P = %g +- %g" %(tdoP, delTdoP)
+
+	print "R_Td = %g +- %g pc" %(RTd_print, dRTd_print)
 
 
 	#TofRopt = 1800.*(  2.*Rmatch/ma.sqrt(CF)/ma.sqrt(Lav/10.**(46)) )**(-1./2.8)

@@ -23,10 +23,25 @@ def ln_prior(params):
 	#sinJJ, cosTT, Rin, alpha = params
 	sinJJ, cosTT, Rin = params
 					
-	if sinJJ < -1 or sinJJ > 1:
+	if sinJJ < -1.0 or sinJJ > 1.0:
 		return -np.inf
 
-	if cosTT < 0.07 or cosTT > 0.18:
+	if cosTT < -1.0 or cosTT > 1.0:
+		return -np.inf
+						
+	if Rin > 5.2 or Rin < 1.0 :
+		return -np.inf
+			
+	return 0.
+
+
+def ln_prior_mag0(params):
+	sinJJ, cosTT, Rin, mag0_W1 = params
+					
+	if sinJJ < -1.0 or sinJJ > 1.0:
+		return -np.inf
+
+	if cosTT < -1.0 or cosTT > 1.0:
 		return -np.inf
 						
 	if Rin > 5.2 or Rin < 1.0 :
@@ -39,16 +54,22 @@ def ln_prior_TwoRs(params):
 	#sinJJ, cosTT, Rin, alpha = params
 	sinJJ, cosTT, RW1, RW2 = params
 					
-	if sinJJ < -1 or sinJJ > 1:
+	if sinJJ < -1.0 or sinJJ > 1.0:
 		return -np.inf
 
-	if cosTT < 0.07 or cosTT > 0.18:
+	if cosTT < -1.0 or cosTT > 1.0:
 		return -np.inf
 						
-	if RW1 > 5.2 or RW2 < 1.0 :
+	# if RW1 > 5.2 or RW1 < 1.0 :
+	# 	return -np.inf
+
+	# if RW2 > 5.2 or RW2 < 1.0 :
+	# 	return -np.inf
+
+	if RW1 < 0.0:
 		return -np.inf
 
-	if RW1 > 5.2 or RW2 < 1.0 :
+	if RW2 < 0.0 :
 		return -np.inf
 			
 	return 0.
@@ -99,19 +120,24 @@ def ln_BBprior(params):
 def ln_BBprior_Qv(params):
 	#sinJJ, cosTT, Rin, alpha = params
 	Td, nu0, gam, sqtfR  = params
+	#Td, nu0, gam, fcov  = params
 					
 	if Td < 0.0:
 		return -np.inf
 
-	if nu0<0:
+	if nu0<=0.0 or nu0>10:
 		return -np.inf
 						
-	if gam < 0.0 or gam > 10.0:
+	if gam < 0.0 or gam>10.:
 		return -np.inf
 
 	if sqtfR < 0.0:
 		return -np.inf
 			
+	#if fcov < 0.0 or fcov > 1.:
+	#	return -np.inf
+
+
 	return 0.
 
 
@@ -127,6 +153,10 @@ def ln_SHThin_likelihood_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, d
 def ln_ISO_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(ISO_OpThin_TorShell_Err2(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
 		
+def ln_ISO_SHThin_likelihood_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			return -(ISO_OpThin_TorShell_Err2_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
+		
+
 def ln_ISO_SHThin_likelihood_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
 			return -(ISO_OpThin_TorShell_Err2_TwoRs(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2))
 		
@@ -193,6 +223,14 @@ def ln_ISO_SHThin_posterior(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1,
 				return -np.inf
 			
 			ln_l = ln_ISO_SHThin_likelihood(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
+			return ln_l + ln_p
+
+def ln_ISO_SHThin_posterior_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2):
+			ln_p = ln_prior_mag0(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_ISO_SHThin_likelihood_mag0(p, t, THEargs1, THEargs2, RHStable, Ttable, y1, dy1, y2, dy2)
 			return ln_l + ln_p
 
 
