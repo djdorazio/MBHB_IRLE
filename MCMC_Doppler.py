@@ -34,7 +34,7 @@ TwoRs = False
 fmin_start = False
 
 ##multiprocessing
-NThread = 16
+NThread = 32
 
 #Temp table resolution
 NTemp = 1800
@@ -267,7 +267,7 @@ if (Shell_OptThin):
 			popt  = sc.optimize.fmin(DOP_OpThin_TorShell_Err2_TwoRs,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
 	
 		if (Fit_mag0):
-			p0 = [ 0.01, 0.125, 1.7, 0.5]
+			p0 = [ 0.0121,  0.1168,  1.2238,  0.5365]
 			#0.97892352  0.12836802  4.13484639 -0.20489902 chi 254
 			popt  = sc.optimize.fmin(OpThin_TorShell_Err2_mag0,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
 	
@@ -284,7 +284,7 @@ if (Shell_OptThin):
 			Shell_File = "DOP_GeoThin_OptThin_Fitmag0W1_NTemp%g_Tsub%g_TwoRs_" %(NTemp, Tsub)
 			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$mag^{\rm{W1}}_0$']
 			###MEASURED VALUES (edge on ring):	
-			p0 = [0.01, 0.125, 1.7, 0.5]
+			p0 = [0.0121,  0.1168,  1.2238,  0.5365]
 		else:
 			Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_TwoRs_" %(NTemp, Tsub)
 			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']
@@ -292,7 +292,7 @@ if (Shell_OptThin):
 			p0 = [0.01, 0.125, 1.75]
 
 	ndim = len(param_names)	
-	nwalkers = ndim*4
+	nwalkers = ndim*8
 
 	#Best fit from fmin (Dop_Fitting.py)
 	#p0 = [-0.85664946,  0.87693384,  9.48441709, -1.3605258]
@@ -323,7 +323,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 512#2048
+	clen = 2048
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 
@@ -434,17 +434,17 @@ else:
 		p0 = [0.01, 0.125, 1.75, 1.75]
 	else:
 		if (Fit_mag0):
-			Shell_File = "DOP_GeoThin_OptThin_Fitmag0W1_NTemp%g_Tsub%g_TwoRs_" %(NTemp, Tsub)
-			p0 = [0.01, 0.125, 1.7, 0.5]
+			Shell_File = "DOP_GeoThin_OptThin_Fitmag0W1_NTemp%g_Tsub%g_" %(NTemp, Tsub)
+			p0 = [0.0121,  0.1168,  1.2238,  0.5365]
 		else:
-			Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_TwoRs_" %(NTemp, Tsub)
+			Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_" %(NTemp, Tsub)
 			p0 = [0.01, 0.125, 1.75]
 
 
 
 	print "PLOTTING TEST LIGHT CURVES - DOPPLER"
 	from Gen_Plot import *
-	Plot_Shell_Thin_Dop(p0, Fit_mag0, TwoRs, 60,  Shell_File,  W1args, W2args, RHS_table, T_table,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
+	Plot_Shell_Thin_Dop(p0, Fit_mag0, TwoRs, 40,  Shell_File,  W1args, W2args, RHS_table, T_table,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
 
 
 
