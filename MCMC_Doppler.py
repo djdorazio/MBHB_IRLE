@@ -190,9 +190,10 @@ for i in range(0 , len(iseg)-1):
 
 	#W1_avsg.append((max(W1_mag[iseg[i]+1:iseg[i+1]]) - min(W1_mag[iseg[i]+1:iseg[i+1]]))/6.)
 	#W2_avsg.append((max(W2_mag[iseg[i]+1:iseg[i+1]]) - min(W2_mag[iseg[i]+1:iseg[i+1]]))/6.)
-	Nseg = len(W1_sig[iseg[i]+1:iseg[i+1]])
-	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
-	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
+	Nseg1 = len(W1_sig[iseg[i]+1:iseg[i+1]])
+	Nseg2 = len(W2_sig[iseg[i]+1:iseg[i+1]])
+	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg1) )
+	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2) )
 
 ## APPEND THE ONE AKARI DATA POINT
 #MJD 51537.0 (ISO), 55022.5 (Akari)

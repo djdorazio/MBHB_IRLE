@@ -31,13 +31,13 @@ from emcee_Funcs import *
 Shell_OptThin = True
 Fit_mag0 = True
 TwoRs = False
-fmin_start = False
+fmin_start = True
 
 ##multiprocessing
 NThread = 32
 
 #Temp table resolution
-NTemp = 1800
+NTemp = 1700
 Tmin = 100.
 Tsub = 1800.
 
@@ -177,7 +177,7 @@ W1_sig=np.delete(W1_sig,idelm)
 
 
 
-###### get average value for each cluser of data points in time
+###### get average value for each cluster of data points in time
 iseg = []
 iseg.append(-1)
 for i in range(len(t_MJD)-1):
@@ -200,9 +200,12 @@ for i in range(0 , len(iseg)-1):
 
 	#W1_avsg.append((max(W1_mag[iseg[i]+1:iseg[i+1]]) - min(W1_mag[iseg[i]+1:iseg[i+1]]))/6.)
 	#W2_avsg.append((max(W2_mag[iseg[i]+1:iseg[i+1]]) - min(W2_mag[iseg[i]+1:iseg[i+1]]))/6.)
-	Nseg = len(W1_sig[iseg[i]+1:iseg[i+1]])
-	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
-	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg)
+	Nseg1 = len(W1_sig[iseg[i]+1:iseg[i+1]])
+	Nseg2 = len(W2_sig[iseg[i]+1:iseg[i+1]])
+	#W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg1)
+	#W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg2)
+	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2  ))
+	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2  ))
 
 ## APPEND THE ONE AKARI DATA POINT
 #MJD 51537.0 (ISO), 55022.5 (Akari)
