@@ -31,15 +31,15 @@ from emcee_Funcs import *
 Shell_OptThin = True
 Fit_mag0 = True
 TwoRs = False
-fmin_start = True
+fmin_start = False
 
 ##multiprocessing
-NThread = 32
+NThread = 30
 
 #Temp table resolution
 NTemp = 1700
 Tmin = 100.
-Tsub = 1800.
+Tsub = 1800.#2100.
 
 
 
@@ -204,7 +204,7 @@ for i in range(0 , len(iseg)-1):
 	Nseg2 = len(W2_sig[iseg[i]+1:iseg[i+1]])
 	#W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg1)
 	#W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg2)
-	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2  ))
+	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg1  ))
 	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2  ))
 
 ## APPEND THE ONE AKARI DATA POINT
@@ -286,7 +286,10 @@ if (Shell_OptThin):
 			popt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2_TwoRs,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
 	
 		if (Fit_mag0):
-			p0 = [ 0.9909, 0.1241, 2.9088, 0.0156]
+			###fit only W mag0 
+			###p0 = [ 0.99089844,  0.12429319,  2.87854028,  0.01627178]  #chi2 = 24.9
+			#both mag0s
+			p0 = [ 0.99089844,  0.12429319,  2.87854028,  0.01, 0.01]  #chi2 = 24.9
 			#0.97892352  0.12836802  4.13484639 -0.20489902 chi 254
 			popt  = sc.optimize.fmin(ISO_OpThin_TorShell_Err2_mag0,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
 	
@@ -306,11 +309,11 @@ if (Shell_OptThin):
 			p0 = [0.99, 0.125, 3.2, 4.2]
 	else:
 		if (Fit_mag0):
-			Shell_File = "ISO_GeoThin_IROptThin_Fitmag0s_noAMP_Tsub%g_TwoRs" %Tsub
-			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$mag^{\rm{W1}}_0$']	
+			Shell_File = "ISO_GeoThin_IROptThin_FitBOTHmag0s_noAMP_Tsub%g_TwoRs" %Tsub
+			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$mag^{\rm{W1}}_0$', r'$mag^{\rm{W2}}_0$']	
 			### From MEASURED VALUES:
 			#[sinJ, costhT, R, magW10 magW20]
-			p0 = [0.9909, 0.1241, 2.9088, 0.0156]
+			p0 = [0.99089844,  0.12429319,  2.87854028,  0.01, 0.01]
 		else:
 			Shell_File = "ISO_GeoThin_OptThin_noAMP_Tsub%g_TwoRs" %Tsub
 			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']	
@@ -318,7 +321,7 @@ if (Shell_OptThin):
 			p0 = [0.99, 0.125, 4.2]
 
 	ndim = len(param_names)
-	nwalkers = ndim*8
+	nwalkers = ndim*6
 
 
 	#Best fit from fmin (ISO_Fitting.py)
@@ -352,7 +355,7 @@ if (Shell_OptThin):
 	walker_p0 = np.random.normal(p0, np.abs(p0)*1E-4, size=(nwalkers, ndim))
 
 
-	clen = 2048
+	clen = 512
 	pos,_,_ = sampler.run_mcmc(walker_p0 , clen)
 
 
@@ -470,7 +473,7 @@ else:
 	else:
 		if (Fit_mag0):
 			Shell_File = "Test_ISO_mag0s_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
-			p_opt = [0.9909, 0.1241, 2.9088, 0.0156]
+			p_opt = [0.99089844,  0.12429319,  2.87854028,  0.01627178]
 		else:
 			Shell_File = "Test_ISO_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
 			p_opt = [0.99, 0.125, 4.1]

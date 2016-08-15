@@ -185,7 +185,7 @@ def magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 
 def magPoint_OpThin_TorShell_mag0W1(params, t, THEargs, RHStable, Ttable):
 
-	sinJJ, cosTT, Rin, mag0_W1 = params
+	sinJJ, cosTT, Rin, mag0_W1, mag0_W2 = params
 
 	alph = -2.0 ##FUV PG value
 	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calculation method
@@ -209,10 +209,10 @@ def magPoint_OpThin_TorShell_mag0W1(params, t, THEargs, RHStable, Ttable):
 
 def magPoint_OpThin_TorShell_mag0W2(params, t, THEargs, RHStable, Ttable):
 
-	sinJJ, cosTT, Rin, mag0_W1 = params
+	sinJJ, cosTT, Rin, mag0_W1, mag0_W2 = params
 
 	alph = -2.0 ##FUV PG value
-	n0 = 1.0  #this shoudlnt matter opt thin is to IR, and is assumed in calculation method
+	n0 = 1.0  #this shouldn't matter opt thin is to IR, and is assumed in calculation method
 	Rin = Rin * pc2cm#2.73213149e+18
 
 
@@ -228,7 +228,7 @@ def magPoint_OpThin_TorShell_mag0W2(params, t, THEargs, RHStable, Ttable):
 
 	Aargs  = [Lav, beta, IncFit, Ombn, alph, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
 
-	return -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel)  
+	return -2.5*np.log10(F_ShTorOptThin_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel) + mag0_W2
 
 
 
@@ -624,7 +624,7 @@ def ISO_magPoint_OpThin_TorShell(params, t, THEargs, RHStable, Ttable):
 
 def ISO_magPoint_OpThin_TorShell_mag0W1(params, t, THEargs, RHStable, Ttable):
 
-	sinJJ, cosTT, Rin, mag0_W1 = params
+	sinJJ, cosTT, Rin, mag0_W1, mag0_W2 = params
 
 	Amp = 0.14*2.63 #FUV amplitude
 
@@ -650,7 +650,7 @@ def ISO_magPoint_OpThin_TorShell_mag0W1(params, t, THEargs, RHStable, Ttable):
 
 def ISO_magPoint_OpThin_TorShell_mag0W2(params, t, THEargs, RHStable, Ttable):
 
-	sinJJ, cosTT, Rin, mag0_W1 = params
+	sinJJ, cosTT, Rin, mag0_W1, mag0_W2 = params
 
 	Amp = 0.14*2.63 #FUV amplitude
 
@@ -670,7 +670,7 @@ def ISO_magPoint_OpThin_TorShell_mag0W2(params, t, THEargs, RHStable, Ttable):
 				#Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 		Aargs  = [Lav, Amp, Ombn, t0, n0, Rin, pp, thetT, JJ, aeff, nu0, nne]
 		## dont add zero point to W2 
-		return -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel) 
+		return -2.5*np.log10(F_ShTorOptThin_Iso_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable)/FRel) + mag0_W2
 
 
               
