@@ -36,7 +36,7 @@ def ln_prior(params):
 
 
 def ln_prior_mag0(params):
-	sinJJ, cosTT, Rin, mag0_W1 = params
+	sinJJ, cosTT, Rin, mag0_W1, mag0_W2 = params
 					
 	if sinJJ < -1.0 or sinJJ > 1.0:
 		return -np.inf
