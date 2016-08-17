@@ -188,12 +188,23 @@ for i in range(0 , len(iseg)-1):
 	W1_avg.append(np.mean(W1_mag[iseg[i]+1:iseg[i+1]]))
 	W2_avg.append(np.mean(W2_mag[iseg[i]+1:iseg[i+1]]))
 
-	#W1_avsg.append((max(W1_mag[iseg[i]+1:iseg[i+1]]) - min(W1_mag[iseg[i]+1:iseg[i+1]]))/6.)
-	#W2_avsg.append((max(W2_mag[iseg[i]+1:iseg[i+1]]) - min(W2_mag[iseg[i]+1:iseg[i+1]]))/6.)
+
 	Nseg1 = len(W1_sig[iseg[i]+1:iseg[i+1]])
 	Nseg2 = len(W2_sig[iseg[i]+1:iseg[i+1]])
-	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg1) )
-	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2) )
+
+	#W1_avsg.append((max(W1_mag[iseg[i]+1:iseg[i+1]]) - min(W1_mag[iseg[i]+1:iseg[i+1]]))/6.)
+	#W2_avsg.append((max(W2_mag[iseg[i]+1:iseg[i+1]]) - min(W2_mag[iseg[i]+1:iseg[i+1]]))/6.)
+
+	##PROPER averaged errors
+	#W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg1) )
+	#W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2) )
+
+	# exaggerated small error bars
+	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg1 )
+	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 ))/Nseg2 )
+
+
+
 
 ## APPEND THE ONE AKARI DATA POINT
 #MJD 51537.0 (ISO), 55022.5 (Akari)
@@ -271,7 +282,7 @@ if (Shell_OptThin):
 			### BEST fit (sinJ, costhT, Rd, mag0_w1)
 			###p0 = [ 0.0121,  0.1168,  1.2238,  0.5365]
 			### BEST fit (sinJ, costhT, Rd, mag0_w1, mag0_w2)
-			p0 = [ 0.0121,  0.1168,  1.2238,  0.1, 0.1]
+			p0 = [ 0.0121,  0.1168,  1.2238,  0.5, 0.01]
 			#0.97892352  0.12836802  4.13484639 -0.20489902 chi 254
 			popt  = sc.optimize.fmin(OpThin_TorShell_Err2_mag0,    p0, args=(t_avg, W1args, W2args, RHS_table, T_table, W1_avg, W1_avsg, W2_avg, W2_avsg), full_output=1, disp=False, ftol=0.01)[0]
 	
@@ -288,7 +299,10 @@ if (Shell_OptThin):
 			Shell_File = "DOP_GeoThin_OptThin_FitBOTHmag0s_NTemp%g_Tsub%g_TwoRs_" %(NTemp, Tsub)
 			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$', r'$mag^{\rm{W1}}_0$', r'$mag^{\rm{W2}}_0$']
 			###MEASURED VALUES (edge on ring):	
-			p0 = [0.0121,  0.1168,  1.2238,  0.1, 0.1]
+			if (fmin_start):
+				p0 = popt
+			else:
+				p0 = [0.0121,  0.1168,  1.2238,  0.01, 0.01]
 		else:
 			Shell_File = "DOP_GeoThin_OptThin_NTemp%g_Tsub%g_TwoRs_" %(NTemp, Tsub)
 			param_names = [r'$\sin{J}$', r'$\cos{\theta_T}$', r'$R_{\rm{d}}$']
@@ -448,8 +462,7 @@ else:
 
 	print "PLOTTING TEST LIGHT CURVES - DOPPLER"
 	from Gen_Plot import *
-	Plot_Shell_Thin_Dop(p0, Fit_mag0, TwoRs, 60,  Shell_File,  W1args, W2args, RHS_table, T_table,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
-
+	Plot_Shell_Thin_Dop(p0, Fit_mag0, TwoRs, 40,  Shell_File,  W1args, W2args, RHS_table, T_table,     tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig,W1_avsg, W2_avsg)
 
 
 

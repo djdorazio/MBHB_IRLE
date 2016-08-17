@@ -473,7 +473,7 @@ else:
 	else:
 		if (Fit_mag0):
 			Shell_File = "Test_ISO_mag0s_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
-			p_opt = [0.99089844,  0.12429319,  2.87854028,  0.01627178]
+			p_opt = [0.99089844,  0.12429319,  2.87854028,  0.01627178, 0.0]
 		else:
 			Shell_File = "Test_ISO_noRpriors_GeoThin_OptThin_noAMP_Tsub%g" %Tsub
 			p_opt = [0.99, 0.125, 4.1]

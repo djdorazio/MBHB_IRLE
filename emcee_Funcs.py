@@ -44,7 +44,7 @@ def ln_prior_mag0(params):
 	if cosTT < -1.0 or cosTT > 1.0:
 		return -np.inf
 						
-	if Rin > 5.2 or Rin < 1.0 :
+	if Rin > 5.2 or Rin < 0.0 :
 		return -np.inf
 			
 	return 0.

@@ -439,7 +439,7 @@ if (IR_Lum):
 				BB_p0 = [T0, 1.0]		
 
 		ndim = len(BB_p0)
-		nwalkers = ndim*32#*2
+		nwalkers = ndim*16#*2
 
 		if (fitQv):
 			BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior_Qv, threads=NThread, args=(nus, Flxs, Errs) )
@@ -451,7 +451,7 @@ if (IR_Lum):
 		BB_p0 = np.array(BB_p0)
 		BB_walker_p0 = np.random.normal(BB_p0, np.abs(BB_p0)*1E-4, size=(nwalkers, ndim))
 
-		clen = 4096#*2
+		clen = 1024#4096#*2
 		BB_pos,_,_ = BB_sampler.run_mcmc(BB_walker_p0 , clen)
 
 
@@ -690,6 +690,14 @@ if (IR_Lum):
 
 	plt.axvline(W3_mid/10**14,  color='brown')
 	plt.axvline(W4_mid/10**14,  color='purple')
+
+
+	plt.axvline(W1mn/10**14,  color='orange')
+	plt.axvline(W1mx/10**14,  color='orange')
+	plt.axvline(W2mn/10**14,  color='red')
+	plt.axvline(W2mx/10**14,  color='red')
+
+
 
 	plt.plot(nu, pref * Bv(nu*10**14, Td) * (sqtfR*pc2cm/Dst)**2 * 10.**(26), color = 'gray', linewidth = 2)
 
