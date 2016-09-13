@@ -85,7 +85,7 @@ def ln_Sinprior(p, Flat, SinFit, No_Prd):
 			if Amp < 0.:
 				return -np.inf
 
-			if phs < 0.0 or phs > Prd:
+			if phs < -0.5*Prd or phs > 0.5*Prd:
 				return -np.inf
 		else:
 			Amp, Prd, phs, mag0 = p	
@@ -136,6 +136,49 @@ def ln_BBprior_Qv(params):
 			
 	#if fcov < 0.0 or fcov > 1.:
 	#	return -np.inf
+
+
+	return 0.
+
+
+
+def ln_BBprior_Fcov(params):
+	Td, fcov, Lfac  = params
+					
+	if Td < 0.0:
+		return -np.inf
+			
+	if fcov < 0.0 or fcov > 1.:
+		return -np.inf
+
+	if Lfac < 0.1 or Lfac > 100.:
+		return -np.inf
+
+
+	return 0.
+
+
+def ln_BBprior_Qv_Fcov(params):
+	Td, nu0, gam, fcov, Lfac  = params
+	
+					
+	if Td < 0.0:
+		return -np.inf
+
+	if nu0<=0.0 or nu0>10:
+		return -np.inf
+						
+	if gam < 0.0 or gam>10.:
+		return -np.inf
+
+	#if sqtfR < 0.0:
+	#	return -np.inf
+			
+	if fcov < 0.0 or fcov > 1.:
+		return -np.inf
+
+	if Lfac < 0.1 or Lfac > 100.:
+		return -np.inf
 
 
 	return 0.
@@ -197,6 +240,12 @@ def ln_BBlikelihood(p, t, y, dy):
 
 def ln_BBlikelihood_Qv(p, t, y, dy):
 	return -(BB_Err2_Qv(p, t, y, dy)) 
+
+def ln_BBlikelihood_Fcov(p, t, y, dy):
+	return -(BB_Err2_Fcov(p, t, y, dy)) 
+
+def ln_BBlikelihood_Qv_Fcov(p, t, y, dy):
+	return -(BB_Err2_Qv_Fcov(p, t, y, dy)) 
 
 
 
@@ -282,6 +331,24 @@ def ln_BBposterior_Qv(p, t, y, dy):
 				return -np.inf
 			
 			ln_l = ln_BBlikelihood_Qv(p, t, y, dy)
+			return ln_l + ln_p
+
+
+
+def ln_BBposterior_Fcov(p, t, y, dy):
+			ln_p = ln_BBprior_Fcov(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_BBlikelihood_Fcov(p, t, y, dy)
+			return ln_l + ln_p
+
+def ln_BBposterior_Qv_Fcov(p, t, y, dy):
+			ln_p = ln_BBprior_Qv_Fcov(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_BBlikelihood_Qv_Fcov(p, t, y, dy)
 			return ln_l + ln_p
 
 

@@ -28,7 +28,7 @@ from ErrFuncs_IRLE import *
 ### OPTIONS
 ################################
 ################################
-Fit_src = False
+Fit_src = True
 
 ### Fit a geometrrically (2aeff) thin, optically IR thick model where all emission comes from Rin, don't fit for dust
 same_rem = False
@@ -44,7 +44,7 @@ diff_rem = False
 ### Fit a geometrically Thick (where tau->1), optically IR thin model with parameters [sinJ, cosT, Rin, n0], don't fit for dust
 Opt_Thin = False
 
-same_rem_thin = True
+same_rem_thin = False
 
 
 

@@ -28,10 +28,10 @@ from emcee_Funcs import *
 ### OPTIONS
 ################################
 ################################
-Shell_OptThin = True
+Shell_OptThin = False
 Fit_mag0 = True
 TwoRs = False
-fmin_start = False
+fmin_start = True
 
 ##multiprocessing
 NThread = 30
@@ -98,14 +98,17 @@ W2mn = numicron/5.3
 
 nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
-FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
+## zero flux * char freq
+#FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
+#FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
+## zero flux * freq bandwidth
+FW1Rel = 3.09540*10**(-21)*1.7506*10**(13)#(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*1.4653*10**(13)#(W2mn + W2mx)/2
 
 
-
-
-
-
+# 
+#
+#
 
 
 
@@ -482,7 +485,7 @@ else:
 	print "PLOTTING TEST LIGHT CURVES"
 	from Gen_Plot import *
 
-	Plot_Shell_Thin_ISO(p_opt, Fit_mag0, TwoRs, 40, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
+	Plot_Shell_Thin_ISO(p_opt, Fit_mag0, TwoRs, 20, Shell_File,   W1args, W2args, RHS_table, T_table,  tsrt, t_avg, t_MJD,    Lumsrt, W1_mag, W2_mag, W1_avg, W2_avg,   sigL, W1_sig, W2_sig, W1_avsg, W2_avsg)
 
 
 

@@ -25,6 +25,7 @@ import scipy.integrate as intgt
 ###OPTIONS###OPTIONS
 IR_Lum = True
 fitQv = False
+fitFcov = True
 func_min = False
 MCMC = True
 NThread = 4
@@ -380,9 +381,14 @@ if (IR_Lum):
 
 	Fw1 = np.mean(FnuW1_t) 
 	Fw2 = np.mean(FnuW2_t)
+	Fw3 = 36.0745 * 10.**(-26)
+	Fw4 = 101.8591 * 10.**(-26)
+
 
 	ErrW1 = np.mean(ErrW1_t)
 	ErrW2 = np.mean(ErrW2_t)
+	ErrW3 = 0.5647 * 10.**(-26)
+	ErrW4 = 2.6262 * 10.**(-26)
 
 
 	## BEST FIT Black Body
@@ -394,12 +400,19 @@ if (IR_Lum):
 	
 
 
+	# nus = (W1_mid, W2_mid, W3_mid)
+	# nus = np.array(nus)
+	# Flxs = (Fw1, Fw2, Fw3)
+	# Flxs = np.array(Flxs)
+	# Errs = (ErrW1, ErrW2, ErrW3)
+	# Errs = np.array(Errs)
 
-	nus = (W1_mid, W2_mid)
+
+	nus = (W1_mid, W2_mid, W3_mid, W4_mid)
 	nus = np.array(nus)
-	Flxs = (Fw1, Fw2)
+	Flxs = (Fw1, Fw2, Fw3, Fw4)
 	Flxs = np.array(Flxs)
-	Errs = (ErrW1, ErrW2)
+	Errs = (ErrW1, ErrW2, ErrW3, ErrW4)
 	Errs = np.array(Errs)
 
 
@@ -426,32 +439,46 @@ if (IR_Lum):
 		import emcee
 
 		if (fitQv):
-			param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\sqrt{\cos{\theta_T}} R_d$"]
-			if (func_min):
-				BB_p0 = [Topt[0], Topt[1], Topt[2], Topt[3]]
+			if (fitFcov):
+				param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\cos{\theta_T}$", "$K_L$"]
+				BB_p0 = [T0, 1.*numicron/10**14, 1.0, 0.125, 1.0]
 			else:
-				BB_p0 = [T0, 1.*numicron/10**14, 1.0, 0.125]
+				param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\sqrt{\cos{\theta_T}} R_d$"]
+				if (func_min):
+					BB_p0 = [Topt[0], Topt[1], Topt[2], Topt[3]]
+				else:
+					BB_p0 = [T0, 1.*numicron/10**14, 1.0, 0.125]
 		else:	
-			param_names = [r"$T_d$", r"$\sqrt{\cos{\theta_T}} R_d$"]
-			if (func_min):
-				BB_p0 = [Topt[0], Topt[1]]
+			if (fitFcov):
+				param_names = [r"$T_d$", r"$\cos{\theta_T}$", "$K_L$"]
+				BB_p0 = [T0, 0.125, 1.0]	
 			else:
-				BB_p0 = [T0, 1.0]		
+				param_names = [r"$T_d$", r"$\sqrt{\cos{\theta_T}} R_d$"]
+				if (func_min):
+					BB_p0 = [Topt[0], Topt[1]]
+				else:
+					BB_p0 = [T0, 1.0]		
 
 		ndim = len(BB_p0)
 		nwalkers = ndim*16#*2
 
 		if (fitQv):
-			BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior_Qv, threads=NThread, args=(nus, Flxs, Errs) )
+			if (fitFcov):
+				BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior_Qv_Fcov, threads=NThread, args=(nus, Flxs, Errs) )
+			else:
+				BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior_Qv, threads=NThread, args=(nus, Flxs, Errs) )
 		else:
-			BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior, threads=NThread, args=(nus, Flxs, Errs) )
+			if (fitFcov):
+				BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior_Fcov, threads=NThread, args=(nus, Flxs, Errs) )
+			else:
+				BB_sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_BBposterior, threads=NThread, args=(nus, Flxs, Errs) )
 
 
 
 		BB_p0 = np.array(BB_p0)
 		BB_walker_p0 = np.random.normal(BB_p0, np.abs(BB_p0)*1E-4, size=(nwalkers, ndim))
 
-		clen = 1024#4096#*2
+		clen = 4096
 		BB_pos,_,_ = BB_sampler.run_mcmc(BB_walker_p0 , clen)
 
 
@@ -535,10 +562,23 @@ if (IR_Lum):
 		target.close()
 
 		if (fitQv):
-			Td = BB_p_opt[0]
+			Td  = BB_p_opt[0]
 			nu0 = BB_p_opt[1] * 10**14
 			gam = BB_p_opt[2] 
-			sqtfR = BB_p_opt[3] * pc2cm
+			
+			if (fitFcov):
+				Fcov = BB_p_opt[3]
+				Lfac = BB_p_opt[4]
+				Lav   = Lfac*Lav  #update L with Lfac then define R
+				qIR   = (1./nu0)**(gam)
+				RR    = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
+				sqtfR = np.sqrt(Fcov) * RR
+			else:
+				sqtfR = BB_p_opt[3] * pc2cm
+				qIR   = (1./nu0)**(gam)
+				RR = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
+				Rg4 = ma.sqrt( Lav / (16.*ma.pi * sigSB*Td**4))
+
 
 			### get avg deltas
 			delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
@@ -546,10 +586,28 @@ if (IR_Lum):
 			delk   = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) )
 			delfR2 = 0.5* ( (BB_MAP_vals[3] - BB_perc[0,3]) + (BB_perc[1,3] - BB_MAP_vals[3]) ) * pc2cm
 		else:
-			Td = BB_p_opt[0]
-			#nu0 = numicron/0.37 defined above
-			gam = nne
-			sqtfR = BB_p_opt[1] * pc2cm
+			if (fitFcov):
+				Td = BB_p_opt[0]
+				nu0 = 1.0
+				gam = 0.0
+
+				Fcov = BB_p_opt[1]
+				Lfac = BB_p_opt[2]
+				Lav   = Lfac*Lav  #update L with Lfac then define R
+				qIR   = (1./nu0)**(gam)
+				RR    = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
+				sqtfR = np.sqrt(Fcov) * RR
+
+			else:
+				Td = BB_p_opt[0]
+				#nu0 = numicron/0.37 defined above
+				gam = nne
+				sqtfR = BB_p_opt[1] * pc2cm
+
+				qIR   = (1./nu0)**(gam)
+				RR = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
+				Rg4 = ma.sqrt( Lav / (16.*ma.pi * sigSB*Td**4))
+
 
 			### get avg deltas
 			delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
@@ -563,10 +621,7 @@ if (IR_Lum):
 
 	
 
-	qIR   = (1./nu0)**(gam)
-	RR = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
-	Rg4 = ma.sqrt( Lav / (16.*ma.pi * sigSB*Td**4))
-
+	
 
 
 
@@ -625,10 +680,12 @@ if (IR_Lum):
 	RTd_print = RR/pc2cm
 	dRTd_print = dRR/pc2cm
 
-
-	CF    = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
-	CFmin = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  / (Lav*14./10.)
-	CFmax = 4.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  /(Lav*6./10.)
+	## integral over IR BB should be equal to Lbol tot!
+	# the 16 is from 4pi aeff^2 *sig_d * 4pi R^2*f and Sigd->1/(pia^2) for tau->1
+	Nrm   = 16.*ma.pi*RR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]
+	CF    = 16.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Nrm
+	CFmin = 16.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  / (Lav*14./10.)
+	CFmax = 16.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  /(Lav*6./10.)
 	CFErrP = CFmax - CF 
 	CFErrM = CF - CFmin
 
@@ -652,15 +709,23 @@ if (IR_Lum):
 	delfR2 = delfR2/pc2cm
 	sqtfR = sqtfR/pc2cm
 
+	nrm = Nrm/Lav
+
 	print "T_opt = %g +- %g K" %(Td, delT)
 	print "nu0 = %g +- %g Hz/10^14" %(nu0_print, delnu0_print)
 	print "k = %g +- %g" %(gam, delk)
+
+	print "Fcover fit = %g" %Fcov
 	print "sqrt(f)R_d = %g +- %g cm" %(sqtfR, delfR2)
+
+	print "Lfac = %g" %Lfac
 
 	print "R_opt = %g +- %g pc" %(Rmatch, delR)
 	print "t_d/P = %g +- %g" %(tdoP, delTdoP)
 
 	print "R_Td = %g +- %g pc" %(RTd_print, dRTd_print)
+
+	print "Int(f=1)/Lav = %g" %nrm
 
 
 	#TofRopt = 1800.*(  2.*Rmatch/ma.sqrt(CF)/ma.sqrt(Lav/10.**(46)) )**(-1./2.8)
@@ -670,12 +735,13 @@ if (IR_Lum):
 	#CF = 0.5*(CFmax + CFmin)
 	#CFerr = 0.5*(CFmax - CFmin)
 
-	print "Fw1_mean = %g +- %g" %(Fw1, ErrW1)
+	#print "Fw1_mean = %g +- %g" %(Fw1, ErrW1)
 
-	print "Fw2_mean = %g +- %g" %(Fw2, ErrW2)
+	#print "Fw2_mean = %g +- %g" %(Fw2, ErrW2)
 
 	#print "f = %g +- %g" %(CF, CFerr)
-	print "f = %g + %g - %g" %(CF, CFErrP, CFErrM)
+	#print "f = %g + %g - %g" %(CF, CFErrP, CFErrM)
+	
 	print "f = %g +- %g" %(CF, DCF)
 
 	nu = np.linspace(0.01*numicron, 1*numicron, 100)/10**14
@@ -687,15 +753,23 @@ if (IR_Lum):
 	plt.figure()
 	plt.scatter(W1_mid/10**14, Fw1* 10.**(26), color='orange', s=40, marker='o')
 	plt.scatter(W2_mid/10**14, Fw2* 10.**(26), color='red', s =40, marker='o')
+	plt.errorbar(W1_mid/10**14, Fw1* 10.**(26), yerr=ErrW1*10.**(26), linestyle="none", color='orange', alpha=1., elinewidth=1.5)
+	plt.errorbar(W2_mid/10**14, Fw2* 10.**(26), yerr=ErrW2*10.**(26), linestyle="none", color='red', alpha=1., elinewidth=1.5)
 
-	plt.axvline(W3_mid/10**14,  color='brown')
-	plt.axvline(W4_mid/10**14,  color='purple')
+	plt.scatter(W3_mid/10**14, Fw3* 10.**(26), color='purple', s=40, marker='o')
+	plt.scatter(W4_mid/10**14, Fw4* 10.**(26), color='brown', s =40, marker='o')
+	plt.errorbar(W3_mid/10**14, Fw3* 10.**(26), yerr=ErrW3*10.**(26), linestyle="none", color='purple', alpha=1., elinewidth=1.5)
+	plt.errorbar(W4_mid/10**14, Fw4* 10.**(26), yerr=ErrW4*10.**(26), linestyle="none", color='brown', alpha=1., elinewidth=1.5)
 
 
-	plt.axvline(W1mn/10**14,  color='orange')
-	plt.axvline(W1mx/10**14,  color='orange')
-	plt.axvline(W2mn/10**14,  color='red')
-	plt.axvline(W2mx/10**14,  color='red')
+	#plt.axvline(W3_mid/10**14,  color='brown')
+	#plt.axvline(W4_mid/10**14,  color='purple')
+
+
+	#plt.axvline(W1mn/10**14,  color='orange')
+	#plt.axvline(W1mx/10**14,  color='orange')
+	#plt.axvline(W2mn/10**14,  color='red')
+	#plt.axvline(W2mx/10**14,  color='red')
 
 
 
@@ -705,7 +779,7 @@ if (IR_Lum):
 	plt.ylabel('Flux [mJy]')
 	
 	plt.xlim(0.0,2.0)
-	plt.ylim(0.0,16.0)
+	#plt.ylim(0.0,16.0)
 
 	#plt.show()
 	if (fitQv):
@@ -889,7 +963,7 @@ if (PG1302_ISO):
 
 	##plot measured td/P
 	tdoP_W1_mn = 0.1
-	tdoP_W1_mx = 0.29
+	tdoP_W1_mx = 0.30
 	#A_IR>0 
 	plt.axvspan(   tdoP_W1_mn, tdoP_W1_mx,    ymin=0.333, ymax=1.0, color='yellow', alpha=0.4, lw=0)
 	plt.axvspan(tdoP_W1_mn+1., tdoP_W1_mx+1., ymin=0.333, ymax=1.0, color='yellow', alpha=0.4, lw=0)
@@ -936,12 +1010,12 @@ if (PG1302_ISO):
 
 
 	##plot measured AIR/A
-	AW1_mn = (0.7-0.05)/2.63
-	AW1_mx = (0.7 +0.05)
+	AW1_mn = (0.68-0.21)/2.63
+	AW1_mx = (0.68 + 0.12)
 	plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
-	AW2 = 0.62/Afac
-	AW2_mn = (0.62-0.05)/2.63
-	AW2_mx = (0.62 +0.05)
+	AW2 = 0.64/Afac
+	AW2_mn = (0.64-0.20)/2.63
+	AW2_mx = (0.62 +0.12)
 	plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	# and negatives
@@ -1055,7 +1129,7 @@ if (PG1302_Dop):
 	##plot measured td/P
 	# Doppl is a quarter cycle out of phase with UV from get-go
 	tdoP_W1_mn = 0.1 + 0.25
-	tdoP_W1_mx = 0.29 + 0.25
+	tdoP_W1_mx = 0.3 + 0.25
 	#A_IR>0
 	plt.axvspan(   tdoP_W1_mn,    tdoP_W1_mx, ymin=0.333, ymax=1.0, color='yellow', alpha=0.4, lw=0)
 	plt.axvspan(tdoP_W1_mn+1., tdoP_W1_mx+1., ymin=0.333, ymax=1.0, color='yellow', alpha=0.4, lw=0)
@@ -1095,12 +1169,14 @@ if (PG1302_Dop):
 	# plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	##plot measured AIR/A
-	AW1_mn = (0.7-0.05)/2.63
-	AW1_mx = (0.7 +0.05)
+
+
+	AW1_mn = (0.68-0.21)/2.63
+	AW1_mx = (0.68 + 0.12)
 	plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
-	AW2 = 0.62/Afac
-	AW2_mn = (0.62-0.05)/2.63
-	AW2_mx = (0.62 +0.05)
+	AW2 = 0.64/Afac
+	AW2_mn = (0.64-0.20)/2.63
+	AW2_mx = (0.62 +0.12)
 	plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	# and negatives

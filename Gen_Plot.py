@@ -204,7 +204,7 @@ def Plot_Sin(p_Fsrc_sin, p_W1, p_W2, Nt, Shell_File,     Flat, SinFit, No_Prd,  
 
 
 	plt.figure()
-	plt.title("Isotropic Source, Torus Shell")
+	plt.title("Sin Fits")
 	plt.errorbar(tsrt, Lumsrt-3.0, yerr=sigL, linestyle="none", color = "blue", alpha=0.5) #alpha=0.1
 
 
@@ -217,7 +217,7 @@ def Plot_Sin(p_Fsrc_sin, p_W1, p_W2, Nt, Shell_File,     Flat, SinFit, No_Prd,  
 
 
 	print "PLOT Sins"
-	Fsrc = plt.plot(ttopt, sinPoint(p_Fsrc_sin, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd), linestyle = '--', color='orange', linewidth=2)
+	Fsrc = plt.plot(ttopt, sinPoint(p_Fsrc_sin, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd)-3., linestyle = '--', color='blue', linewidth=2)
 
 	W1sin = plt.plot(ttopt, sinPoint(p_W1, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd), linestyle = '--', color='orange', linewidth=2)
 	W2sin = plt.plot(ttopt, sinPoint(p_W2, (ttopt+50000)/(1.+zPG1302),  Flat, SinFit, No_Prd)+0.5, linestyle = '--', color='red', linewidth=2)
