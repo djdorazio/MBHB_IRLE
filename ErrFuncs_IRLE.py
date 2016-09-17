@@ -23,7 +23,7 @@ def BB_Err2(p, nu, y, dy):
 	pref = np.ones(len(nu))
 	for i in range(len(nu)):
 		pref[i] = min(1., (nu[i]/nu0)**(gam))
-	chi = (y - pref*Bv(nu, Td)* (sqtfR/Dst)**2 )/ dy
+	chi = (y - pref*Bv(nu, Td)*4.*ma.pi* (sqtfR/Dst)**2 )/ dy
 	chi2 = sum(chi*chi)
 	print chi2
 	return chi2
@@ -53,7 +53,7 @@ def BB_Err2_Qv(p, nu, y, dy):
 		pref = np.ones(len(nu))
 		for i in range(len(nu)):
 			pref[i] = min(1., (nu[i]/nu0)**(gam))
-		chi = (y - pref*Bv(nu, Td)* (sqtfR/Dst)**2 )/ dy
+		chi = (y - pref*Bv(nu, Td)* 4.*ma.pi**(sqtfR/Dst)**2 )/ dy
 		#chi = (y - pref*Bv(nu, Td)* fcov*(R/Dst)**2 )/ dy
 		chi2 = sum(chi*chi)
 
@@ -73,20 +73,22 @@ def BB_Err2_Fcov(p, nu, y, dy):
 	Lav = 6.78*10**46
 	print p
 	## make sure R is consistent with Temp there!
-	qIR = (1./nu0)**(gam)
+	#qIR = (1./nu0)**(gam)
 	from scipy import special as spc
-	R = ma.sqrt(  Lfac*Lav / (  4.* ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
+	#R = ma.sqrt(  Lfac*Lav / (  4.* ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
+	R =  ma.sqrt( Lfac*Lav / (16.*ma.pi * sigSB*Td**4))
 	R = R/pc2cm
 	if (gam < 0):
 		chi2 = np.inf
 	else:
 		#Rprint = sqtfR/pc2cm
 		#print Rprint
-		pref = np.ones(len(nu))
-		for i in range(len(nu)):
-			pref[i] = min(1., (nu[i]/nu0)**(gam))
+		##pref = np.ones(len(nu))
+		##for i in range(len(nu)):
+		##	pref[i] = min(1., (nu[i]/nu0)**(gam))
+		pref = 1.0
 
-		chi = (y - pref*Bv(nu, Td)* fcov*(R/Dst)**2 )/ dy
+		chi = (y - pref*Bv(nu, Td)* 4.*ma.pi*fcov*(R/Dst)**2 )/ dy
 		chi2 = sum(chi*chi)
 
 	print chi2
@@ -120,7 +122,7 @@ def BB_Err2_Qv_Fcov(p, nu, y, dy):
 			pref[i] = min(1., (nu[i]/nu0)**(gam))
 		#chi = (y - pref*Bv(nu, Td)* (sqtfR/Dst)**2 )/ dy
 
-		chi = (y - pref*Bv(nu, Td)* fcov*(R/Dst)**2 )/ dy
+		chi = (y - pref*Bv(nu, Td)* 4.*ma.pi*fcov*(R/Dst)**2 )/ dy
 		chi2 = sum(chi*chi)
 
 	print chi2

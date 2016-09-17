@@ -148,10 +148,10 @@ def ln_BBprior_Fcov(params):
 	if Td < 0.0:
 		return -np.inf
 			
-	if fcov < 0.0 or fcov > 1.:
+	if fcov < 0.0 or fcov > 1.0:
 		return -np.inf
 
-	if Lfac < 0.1 or Lfac > 100.:
+	if Lfac < 5./10. or Lfac > 15.0/10.:
 		return -np.inf
 
 
@@ -165,10 +165,10 @@ def ln_BBprior_Qv_Fcov(params):
 	if Td < 0.0:
 		return -np.inf
 
-	if nu0<=0.0 or nu0>10:
+	if nu0<=0.0 or nu0>4:
 		return -np.inf
 						
-	if gam < 0.0 or gam>10.:
+	if gam < 0.0 or gam>4.:
 		return -np.inf
 
 	#if sqtfR < 0.0:
@@ -177,7 +177,7 @@ def ln_BBprior_Qv_Fcov(params):
 	if fcov < 0.0 or fcov > 1.:
 		return -np.inf
 
-	if Lfac < 0.1 or Lfac > 100.:
+	if Lfac < 0.25 or Lfac > 4.:
 		return -np.inf
 
 

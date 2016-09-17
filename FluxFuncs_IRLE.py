@@ -420,7 +420,7 @@ def Fnuint_Shell_OptThin_Iso_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	return ma.pi* aeff*aeff/Dist/Dist *fint
 
 
-## Fnu for doppler beaming case, optically thick shell torus
+## Fnu for iso beaming case, optically thick shell torus
 def Fnuint_Shell_OptThick_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 

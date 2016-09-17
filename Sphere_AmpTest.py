@@ -23,29 +23,48 @@ import scipy.integrate as intgt
 
 
 ###OPTIONS###OPTIONS
-IR_Lum = True
+IR_Lum = False
+AddW3 = False
 fitQv = False
 fitFcov = True
 func_min = False
 MCMC = True
 NThread = 4
 
+##FIG 3
 ISOvDop = False
+
 ISOvDop_MAX = False
 
+##Fig 4
 Dop_alphs = False
+
 ISOvDop_varyI = False
 
+#Figs 6 and 7
+JJt = ma.pi/4.
 ISOvthT = False
 DOPvthT = False
 
-PG1302_ISO = False
+PG1302_ISO = False	
 PG1302_Dop = False
+W1W2vals = True
 numRing = False
 
 
+##Fig 5
+Qv_nu0 = True
+## INTEGRATION LIMTS FOR ALL nu
+if (Qv_nu0==True and ISOvDop == False and Dop_alphs == False and ISOvthT == False and DOPvthT == False and numRing == False):
+	Nnumn = 1./2.8 #0.0#0.00001
+	Nnumx = 1./4.0 #5.0
+else:
+	Nnumn = 0.0
+	Nnumx = 3.0
 
-Qv_nu0 = False
+numn = Nnumn*numicron
+numx = Nnumx*numicron
+
 Qv_k = False
 
 
@@ -88,7 +107,7 @@ Rde = RdPG
 Rrout = 1.0*Rde
 pp = 2.0
 thetTst = 0.0#1.*ma.pi/2.
-JJt = ma.pi/2.
+
 
 aeff = (c/nu0)/(2.*ma.pi)
 #aeff = 0.16*10**(-4) #(0.1 micrometer is an average ISM dust grain size - choose 0.16 to make nu0~1um)
@@ -141,15 +160,7 @@ FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 
 
-## INTEGRATION LIMTS FOR ALL nu
-#Nnumn = 1./2.8 #0.0#0.00001
-#Nnumx = 1./4.0 #5.0
 
-Nnumn = 0.0
-Nnumx = 3.0
-
-numn = Nnumn*numicron
-numx = Nnumx*numicron
 
 
 Tmin = 100.
@@ -160,13 +171,13 @@ NT   = 1800
 
 Rsub = 0.5 * ma.sqrt(Lav/(10.**(46))) * (1800./1800.)**(2.8)  * pc2cm
 
-frc_PG = Rsub/c / (2.*ma.pi/OmPG) ## sublimation radisu for L = Lav (10^8.7 is Mass for which epsilon = 1)
+frc_PG = Rsub/c / (2.*ma.pi/OmPG) ## sublimation radius for L = Lav (10^8.7 is Mass for which epsilon = 1)
 
 #frc_PG = Rde /ma.sqrt(0.1)  * ma.sqrt( 10**(8.7)/(10**(9.0)) )/c / (2.*ma.pi/OmPG) ## sublimation radisu for L = Lav (10^8.7 is Mass for which epsilon = 1)
 #frc_PGb = frc_PG /ma.sqrt(0.1)
 
-frc_mx = 5.0
-frc_t = np.linspace(0.01, frc_mx, 20.0)
+frc_mx = 3.0
+frc_t = np.linspace(0.01, frc_mx, 40.0)
 frc_a = np.linspace(0.01, frc_mx, 1000.0)
 
 WeinCst = 2.821439
@@ -350,6 +361,8 @@ def DOP_AIR_o_AUV_NRM(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 
 
 
+
+#### BB FIT BELOW
 if (IR_Lum):
 	# nne = 0.0 #no absorption efficiency
 	# nu0 = numicron
@@ -397,26 +410,38 @@ if (IR_Lum):
 
 	from scipy import special as spc
 	from emcee_Funcs import *
+
+	if (AddW3):
+		# NO W4
+		nus = (W1_mid, W2_mid, W3_mid)
+		nus = np.array(nus)
+		Flxs = (Fw1, Fw2, Fw3)
+		Flxs = np.array(Flxs)
+		Errs = (ErrW1, ErrW2, ErrW3)
+		Errs = np.array(Errs)
+	else:
+		#No W# and no W4
+		nus = (W1_mid, W2_mid)
+		nus = np.array(nus)
+		Flxs = (Fw1, Fw2)
+		Flxs = np.array(Flxs)
+		Errs = (ErrW1, ErrW2)
+		Errs = np.array(Errs)	
+
 	
 
-
-	# nus = (W1_mid, W2_mid, W3_mid)
+	#ALL
+	# nus = (W1_mid, W2_mid, W3_mid, W4_mid)
 	# nus = np.array(nus)
-	# Flxs = (Fw1, Fw2, Fw3)
+	# Flxs = (Fw1, Fw2, Fw3, Fw4)
 	# Flxs = np.array(Flxs)
-	# Errs = (ErrW1, ErrW2, ErrW3)
+	# Errs = (ErrW1, ErrW2, ErrW3, ErrW4)
 	# Errs = np.array(Errs)
 
-
-	nus = (W1_mid, W2_mid, W3_mid, W4_mid)
-	nus = np.array(nus)
-	Flxs = (Fw1, Fw2, Fw3, Fw4)
-	Flxs = np.array(Flxs)
-	Errs = (ErrW1, ErrW2, ErrW3, ErrW4)
-	Errs = np.array(Errs)
-
-
-	T0 = 880.0#0.5*(TW2_Wein + TW1_Wein)
+	if (AddW3):
+		T0 = 570.0#0.5*(TW2_Wein + TW1_Wein)
+	else:
+		T0 = 880.0
 	if (func_min):
 		if (fitQv):
 			Topt  = sc.optimize.fmin(BB_Err2_Qv,    [T0, 1.*numicron/10**14, 1.0, 1.0], args=(nus, Flxs, Errs), full_output=1, disp=False)[0]
@@ -440,8 +465,8 @@ if (IR_Lum):
 
 		if (fitQv):
 			if (fitFcov):
-				param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\cos{\theta_T}$", "$K_L$"]
-				BB_p0 = [T0, 1.*numicron/10**14, 1.0, 0.125, 1.0]
+				param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\cos{\theta_T}$", "BC"]
+				BB_p0 = [T0, 0.1*numicron/10**14, 0.1, 0.125, 1.0]
 			else:
 				param_names = [r"$T_d$", r"$\nu_0$", r"$k$", r"$\sqrt{\cos{\theta_T}} R_d$"]
 				if (func_min):
@@ -450,8 +475,8 @@ if (IR_Lum):
 					BB_p0 = [T0, 1.*numicron/10**14, 1.0, 0.125]
 		else:	
 			if (fitFcov):
-				param_names = [r"$T_d$", r"$\cos{\theta_T}$", "$K_L$"]
-				BB_p0 = [T0, 0.125, 1.0]	
+				param_names = [r"$T_d$", r"$\cos{\theta_T}$", "BC"]
+				BB_p0 = [T0, 0.04, 1.0]	
 			else:
 				param_names = [r"$T_d$", r"$\sqrt{\cos{\theta_T}} R_d$"]
 				if (func_min):
@@ -460,7 +485,7 @@ if (IR_Lum):
 					BB_p0 = [T0, 1.0]		
 
 		ndim = len(BB_p0)
-		nwalkers = ndim*16#*2
+		nwalkers = ndim*32
 
 		if (fitQv):
 			if (fitFcov):
@@ -476,9 +501,9 @@ if (IR_Lum):
 
 
 		BB_p0 = np.array(BB_p0)
-		BB_walker_p0 = np.random.normal(BB_p0, np.abs(BB_p0)*1E-4, size=(nwalkers, ndim))
+		BB_walker_p0 = np.random.normal(BB_p0, np.abs(BB_p0)*1E-3, size=(nwalkers, ndim))
 
-		clen = 4096
+		clen = 4096*2
 		BB_pos,_,_ = BB_sampler.run_mcmc(BB_walker_p0 , clen)
 
 
@@ -554,7 +579,7 @@ if (IR_Lum):
 			BB_mxprbs[i] = max(BB_lnprobs[i])
 		
 
-		chi2_pdf_BB = -max(BB_mxprbs)/(len(nus) - len(param_names) - 1)
+		chi2_pdf_BB = -max(BB_mxprbs)#/(len(nus) - len(param_names) - 1)
 		
 		target.write("\n")		
 		target.write("BBfit reduced chi2 =  %04g" %chi2_pdf_BB)
@@ -573,6 +598,24 @@ if (IR_Lum):
 				qIR   = (1./nu0)**(gam)
 				RR    = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
 				sqtfR = np.sqrt(Fcov) * RR
+
+				### get avg deltas
+				delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
+				delnu0 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * 10**14
+				delk   = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) )
+				delF    = 0.5* ( (BB_MAP_vals[3] - BB_perc[0,3]) + (BB_perc[1,3] - BB_MAP_vals[3]) ) 
+				delLfac = 0.5* ( (BB_MAP_vals[4] - BB_perc[0,4]) + (BB_perc[1,4] - BB_MAP_vals[4]) ) 
+
+
+				delR = ma.sqrt(  (1/2. *RR * delLfac/Lfac)**2  +  (1/2.* RR * delT/Td)**2  )
+				delfR2 = ma.sqrt(  (RR*RR*delF)**2  +  (2. * Fcov * RR * delR)**2  )
+
+				dfM = (BB_MAP_vals[3] - BB_perc[0,3])
+				dfP = (BB_perc[1,3] - BB_MAP_vals[3])
+
+				dLM = (BB_MAP_vals[3] - BB_perc[0,3])
+				dLP = (BB_perc[1,3] - BB_MAP_vals[3])
+
 			else:
 				sqtfR = BB_p_opt[3] * pc2cm
 				qIR   = (1./nu0)**(gam)
@@ -580,11 +623,11 @@ if (IR_Lum):
 				Rg4 = ma.sqrt( Lav / (16.*ma.pi * sigSB*Td**4))
 
 
-			### get avg deltas
-			delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
-			delnu0 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * 10**14
-			delk   = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) )
-			delfR2 = 0.5* ( (BB_MAP_vals[3] - BB_perc[0,3]) + (BB_perc[1,3] - BB_MAP_vals[3]) ) * pc2cm
+				### get avg deltas
+				delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
+				delnu0 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * 10**14
+				delk   = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) )
+				delfR2 = 0.5* ( (BB_MAP_vals[3] - BB_perc[0,3]) + (BB_perc[1,3] - BB_MAP_vals[3]) ) * pc2cm
 		else:
 			if (fitFcov):
 				Td = BB_p_opt[0]
@@ -598,6 +641,25 @@ if (IR_Lum):
 				RR    = ma.sqrt(  Lav / (4. * ma.pi * 8. * ma.pi  * qIR * h/c/c * (kb/h)**(4+gam) * spc.gamma(4+gam) * (spc.zetac(4+gam)+1.) * Td**(4+gam) ) )
 				sqtfR = np.sqrt(Fcov) * RR
 
+				### get avg deltas
+				## BB_perc[0,i] is lower value of ith parameter, [1,i] is higher value
+				delT    = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
+				delnu0  = 0.0
+				delk    = 0.0
+				delF    = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) 
+				delLfac = 0.5* ( (BB_MAP_vals[2] - BB_perc[0,2]) + (BB_perc[1,2] - BB_MAP_vals[2]) ) 
+
+				dfM = (BB_MAP_vals[1] - BB_perc[0,1])
+				dfP = (BB_perc[1,1] - BB_MAP_vals[1])
+
+				dLM = (BB_MAP_vals[2] - BB_perc[0,2])
+				dLP = (BB_perc[1,2] - BB_MAP_vals[2])
+
+
+				delR = ma.sqrt(  (1/2.* RR * delLfac/Lfac)**2  +  (1/2. *RR * delT/Td)**2  )
+				delfR2 = ma.sqrt(  (RR*RR*delF)**2  +  (2. * Fcov * RR * delR)**2  )
+
+
 			else:
 				Td = BB_p_opt[0]
 				#nu0 = numicron/0.37 defined above
@@ -609,11 +671,11 @@ if (IR_Lum):
 				Rg4 = ma.sqrt( Lav / (16.*ma.pi * sigSB*Td**4))
 
 
-			### get avg deltas
-			delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
-			delnu0 = 0.0
-			delk   = 0.0
-			delfR2 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * pc2cm
+				### get avg deltas
+				delT   = 0.5* ( (BB_MAP_vals[0] - BB_perc[0,0]) + (BB_perc[1,0] - BB_MAP_vals[0]) )
+				delnu0 = 0.0
+				delk   = 0.0
+				delfR2 = 0.5* ( (BB_MAP_vals[1] - BB_perc[0,1]) + (BB_perc[1,1] - BB_MAP_vals[1]) ) * pc2cm
 
 	else:
 		print "Not doing MCMC"
@@ -667,8 +729,12 @@ if (IR_Lum):
 
 	dLIR_dfR2 =  16.*np.pi*sqtfR * intgt.quad(lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Lav
 
+	if (fitFcov):
+		delLTot = delLfac * Lav/Lfac  #remember we already updated Lav = Lfac*Lav
+	else:
+		delLTot = Lav * (1. - 6./10.)
+		
 
-	delLTot = Lav * (1. - 6./10.)
 
 	DCF = ma.sqrt( (dLIR_dk*delk)**2 + (dLIR_dnu0*delnu0)**2 + (dLIR_dT*delT)**2  + (dLIR_dLtot*delLTot)**2  + (dLIR_dfR2*delfR2)**2 )
 	#DLIR = ma.sqrt(											    (dLIR_dT*delT)**2  + (dLIR_dLtot*delLTot)**2  + (dLIR_dfR2*delfR2)**2 )
@@ -682,6 +748,7 @@ if (IR_Lum):
 
 	## integral over IR BB should be equal to Lbol tot!
 	# the 16 is from 4pi aeff^2 *sig_d * 4pi R^2*f and Sigd->1/(pia^2) for tau->1
+	# Alternatively take the expression for F_nu, multiply by 4piD^2 and integrate over sphere and freq, if Qnu=1, get LIR/L=f
 	Nrm   = 16.*ma.pi*RR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]
 	CF    = 16.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0] / Nrm
 	CFmin = 16.*ma.pi*sqtfR**2 * intgt.quad( lambda nu:min(1., (nu/nu0)**(gam)) * np.pi * Bv(nu, Td), 0.0, numicron*5. )[0]  / (Lav*14./10.)
@@ -695,12 +762,16 @@ if (IR_Lum):
 
 	#
 	#Rmatch = ma.sqrt(  Lav / (8. * ma.pi  * qIR * h/c/c * (kb/h)**(4.+gam) * spc.gamma(4+gam) * spc.zetac(4.+gam) * Td**(4.+gam)) )
-	Rmatch = sqtfR/ma.sqrt(CF)
+	#Rmatch = sqtfR/ma.sqrt(CF)
+
+	Rmatch = sqtfR/ma.sqrt(Fcov)
 	#Rmatch = RR
 	Rmatch = Rmatch/pc2cm
 
+	delR = delR/pc2cm
 
-	delR = ma.sqrt((-0.5*sqtfR/CF**(3./2.) * DCF)**2 + (delfR2/ma.sqrt(CF))**2) / pc2cm
+
+	#delR = ma.sqrt((-0.5*sqtfR/CF**(3./2.) * DCF)**2 + (delfR2/ma.sqrt(CF))**2) / pc2cm
 
 	tdoP = Rmatch*pc2cm/(1474*3600*24 * c)
 	delTdoP = tdoP - (Rmatch - delR)*pc2cm/(1474*3600*24 * c)
@@ -715,10 +786,10 @@ if (IR_Lum):
 	print "nu0 = %g +- %g Hz/10^14" %(nu0_print, delnu0_print)
 	print "k = %g +- %g" %(gam, delk)
 
-	print "Fcover fit = %g" %Fcov
+	
 	print "sqrt(f)R_d = %g +- %g cm" %(sqtfR, delfR2)
 
-	print "Lfac = %g" %Lfac
+	
 
 	print "R_opt = %g +- %g pc" %(Rmatch, delR)
 	print "t_d/P = %g +- %g" %(tdoP, delTdoP)
@@ -742,7 +813,23 @@ if (IR_Lum):
 	#print "f = %g +- %g" %(CF, CFerr)
 	#print "f = %g + %g - %g" %(CF, CFErrP, CFErrM)
 	
+
+	print "Lfac = %g - %g + %g" % (Lfac, dLM, dLP)
+
 	print "f = %g +- %g" %(CF, DCF)
+
+	print "Fcover fit = %g - %g + %g" %(Fcov, dfM, dfP)
+
+
+	print "chi2 = %g" %chi2_pdf_BB
+
+
+
+
+
+
+
+	########PLOTTING
 
 	nu = np.linspace(0.01*numicron, 1*numicron, 100)/10**14
 	
@@ -757,9 +844,9 @@ if (IR_Lum):
 	plt.errorbar(W2_mid/10**14, Fw2* 10.**(26), yerr=ErrW2*10.**(26), linestyle="none", color='red', alpha=1., elinewidth=1.5)
 
 	plt.scatter(W3_mid/10**14, Fw3* 10.**(26), color='purple', s=40, marker='o')
-	plt.scatter(W4_mid/10**14, Fw4* 10.**(26), color='brown', s =40, marker='o')
+	plt.scatter(W4_mid/10**14, Fw4* 10.**(26), color='brown', s =40, marker='o', alpha=0.5)
 	plt.errorbar(W3_mid/10**14, Fw3* 10.**(26), yerr=ErrW3*10.**(26), linestyle="none", color='purple', alpha=1., elinewidth=1.5)
-	plt.errorbar(W4_mid/10**14, Fw4* 10.**(26), yerr=ErrW4*10.**(26), linestyle="none", color='brown', alpha=1., elinewidth=1.5)
+	plt.errorbar(W4_mid/10**14, Fw4* 10.**(26), yerr=ErrW4*10.**(26), linestyle="none", color='brown', alpha=0.5, elinewidth=1.5)
 
 
 	#plt.axvline(W3_mid/10**14,  color='brown')
@@ -773,19 +860,63 @@ if (IR_Lum):
 
 
 
-	plt.plot(nu, pref * Bv(nu*10**14, Td) * (sqtfR*pc2cm/Dst)**2 * 10.**(26), color = 'gray', linewidth = 2)
+	plt.plot(nu, pref * Bv(nu*10**14, Td) * 4.*ma.pi* (sqtfR*pc2cm/Dst)**2 * 10.**(26), color = 'gray', linewidth = 2)
 
 	plt.xlabel(r'$\nu$ [$10^{14}$ Hz]')
 	plt.ylabel('Flux [mJy]')
 	
-	plt.xlim(0.0,2.0)
-	#plt.ylim(0.0,16.0)
+	plt.xlim(0.0,1.5)
+	plt.ylim(0.0,110.0)
 
 	#plt.show()
 	if (fitQv):
-		plt.savefig("../emcee_data/BBfit_fitQv_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
+		if (AddW3):
+			plt.savefig("../emcee_data/BBfit_fitQv_BestFit_ModBlackBody_clen%g_%gwalkersAddW3.png" %(clen, nwalkers))
+		else:	
+			plt.savefig("../emcee_data/BBfit_fitQv_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
 	else:
-		plt.savefig("../emcee_data/BBfit_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
+		if (AddW3):
+			plt.savefig("../emcee_data/BBfit_BestFit_ModBlackBody_clen%g_%gwalkers_AddW3.png" %(clen, nwalkers))
+		else:
+			plt.savefig("../emcee_data/BBfit_BestFit_ModBlackBody_clen%g_%gwalkers.png" %(clen, nwalkers))
+
+
+## BB FIT ABOVE
+
+### ANALYTIC PLOTTING BELOW
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -820,12 +951,12 @@ if (ISOvDop):
 
 	#Dop_mean = np.mean(DOP_AIR_over_AUV)
 	plt.figure()
-	AnlIso = plt.plot(frc_a, Iso_anal, color='black')
-	AnlDop = plt.plot(frc_a, Dop_anal, color='red')
+	AnlIso = plt.plot(frc_a, Iso_anal, color='black', linewidth=3)
+	AnlDop = plt.plot(frc_a, Dop_anal, color='red', linewidth=3)
 	#AnlIso = plt.plot(frc_a, LogISO_Anl, color='black')
 	#AnlDop = plt.plot(frc_a, LogDOP_Anl, color='red')
-	ISO = plt.scatter(frc_t, ISO_AIR_over_AUV, marker='x', color='black')
-	DOP = plt.scatter(frc_t, DOP_AIR_over_AUV, marker='*', color='red')
+	ISO = plt.scatter(frc_t, ISO_AIR_over_AUV, marker='x', color='black', s=40)
+	DOP = plt.scatter(frc_t, DOP_AIR_over_AUV, marker='*', color='red', s=40)
 
 	#plt.axvspan(frc_PG, frc_PGb, color='grey', alpha=0.5, lw=0)
 	plt.axhline(y=0, color='black', linestyle=':')
@@ -839,6 +970,8 @@ if (ISOvDop):
 	plt.xlim(0.0,frc_mx)
 	plt.ylim(-0.5,1.0)
 	#plt.show()
+
+	plt.tight_layout()
 
 	Savename = "plots/Iso_and_Dop/Analytics/DopvsISO_AIRoAUV_alpha%g_TsubCut%g_J%g_numin%g_numx%g_reclim2_TRHS3.png" %(alph, Tsub, JJt, Nnumn, Nnumx)
 	Savename = Savename.replace('.', 'p')
@@ -896,6 +1029,8 @@ if (ISOvDop_MAX):
 
 	plt.xlim(0.0,frc_mx)
 
+	plt.tight_layout()
+
 	#plt.show()
 
 	Savename = "plots/Iso_and_Dop/Analytics/MAXObscDopvsISO_AIRoAUV_J%g_numin%g_numx%g_reclim2_TRHS.png" %(JJt, Nnumn, Nnumx)
@@ -918,12 +1053,23 @@ if (ISOvDop_MAX):
 if (PG1302_ISO):
 
 	Afac = 2.63
-	thT1 = 0.0
-	thT2 = ma.pi/4.
-	#thT3 = ma.pi/3.
 
-	#thT3 = np.arccos(0.0986)
-	thT3 = np.arccos(0.125)
+	if (W1W2vals):
+		thT1 = np.arccos(0.05-0.01)
+		thT2 = ma.pi/4.
+		#thT3 = ma.pi/3.
+
+		#thT3 = np.arccos(0.0986)
+		#thT3 = np.arccos(0.125)
+		thT3 = np.arccos(0.05+0.02)
+	else:
+		thT1 = np.arccos(0.115-0.06)
+		thT2 = ma.pi/4.
+		#thT3 = ma.pi/3.
+
+		#thT3 = np.arccos(0.0986)
+		#thT3 = np.arccos(0.125)
+		thT3 = np.arccos(0.115+0.001)
 
 
 	AA1_anal =  1./(2.*ma.pi*frc_a*ma.cos(thT1)) * np.sin(2.*ma.pi*frc_a * ma.cos(thT1)) 
@@ -938,23 +1084,29 @@ if (PG1302_ISO):
 
 	#plt.title(r'Isotropic, $ \bar{A} / A_{\rm{V}} =%g$, $J = \pi/2$' %Afac)
 	plt.title('Isotropic')
-	Anl1   = plt.plot(frc_a, AA1_anal, color='red', linewidth=3)
+	Anl1   = plt.plot(frc_a, AA1_anal, color='blue', linewidth=3)
 	#Anl2   = plt.plot(frc_a, AA2_anal, color='blue')
 	#Anl3   = plt.plot(frc_a, AA3_anal, color='red')
 	Ring   = plt.plot(frc_a, Ring_anal, color='green', linewidth=3)
-	AnlBst = plt.plot(frc_a, AAB_anal, color='red', linestyle='--', linewidth=3)
+	AnlBst = plt.plot(frc_a, AAB_anal, color='blue', linestyle='--', linewidth=3)
 
 
 
 	###plot td/P Measured from LIR
 	#plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
-	plt.axvline(x=3.3, color='orange', linestyle=':', linewidth=3 )
-	plt.axvspan(3.3-0.7, 3.3+0.7, color='orange', alpha=0.5, lw=0)
+	#plt.axvline(x=3.3, color='orange', linestyle=':', linewidth=3 )
+	#plt.axvspan(3.3-0.7, 3.3+0.7, color='orange', alpha=0.5, lw=0)
+	#plt.axvline(x=4.0, color='orange', linestyle=':', linewidth=3 )
+
+	if (W1W2vals):
+		plt.axvspan(1.6-0.3, 1.6+0.3, color='orange', alpha=0.6, lw=0)
+	else:
+		plt.axvspan(3.0-0.8, 3.0+0.8, color='orange', alpha=0.6, lw=0)
 
 
 	# plot location of Wein peak
-	plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle=':', linewidth=3 )
-	plt.axvline(x=tdoP_W2_Wein, color='red', linestyle=':', linewidth=3)
+	#plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle=':', linewidth=3 )
+	#plt.axvline(x=tdoP_W2_Wein, color='red', linestyle=':', linewidth=3)
 
 	##plot measured sublimation region
 	plt.axvspan(0.0,frc_PG, color='grey', alpha=0.7, lw=0)
@@ -1009,13 +1161,20 @@ if (PG1302_ISO):
 
 
 
-	##plot measured AIR/A
-	AW1_mn = (0.68-0.21)/2.63
-	AW1_mx = (0.68 + 0.12)
+	##plot measured AIR/A # withbest fit limits on bol correction divided
+	if (W1W2vals):
+		Lfac_max = 0.9+0.4
+		Lfac_min = 0.9-0.3
+	else:
+		Lfac_max = 0.6 - 0.01
+		Lfac_min = 0.6 + 0.7
+
+	AW1_mn = (0.68-0.21)/2.63/(Lfac_max)
+	AW1_mx = (0.68 + 0.12)/(Lfac_min)
 	plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
 	AW2 = 0.64/Afac
-	AW2_mn = (0.64-0.20)/2.63
-	AW2_mx = (0.62 +0.12)
+	AW2_mn = (0.64-0.20)/2.63/(Lfac_max)
+	AW2_mx = (0.62 +0.12)/(Lfac_min)
 	plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	# and negatives
@@ -1024,7 +1183,8 @@ if (PG1302_ISO):
 
 	
 	#plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0] ], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \cos^{-1}{0.125}$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
-	plt.legend( [ Anl1[0],  Ring[0], AnlBst[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$', r'$\cos{\theta_T} = 0.125$, $J=\pi/2$'), loc='upper right', fontsize=14)
+	#plt.legend( [ Anl1[0],  Ring[0], AnlBst[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$', r'$\cos{\theta_T} = 0.125$, $J=\pi/2$'), loc='upper right', fontsize=14)
+	plt.legend( [ Anl1[0],  AnlBst[0], Ring[0] ], (r"$\theta^{\rm{min}}_T$, $J=\pi/2$", r"$\theta^{\rm{max}}_T$, $J=\pi/2$", r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
 
 
 
@@ -1036,7 +1196,7 @@ if (PG1302_ISO):
 	plt.xlim(0.0,frc_mx)
 	plt.ylim(-0.5,1.0)
 
-
+	#plt.tight_layout()
 	#plt.show()
 
 	Savename = "plots/Iso_and_Dop/Analytics/PG1302_ISO_divAfac%g_J%g_numin%g_numx%g.png" %(Afac, JJt, Nnumn, Nnumx)
@@ -1052,15 +1212,25 @@ if (PG1302_ISO):
 if (PG1302_Dop):
 
 	Afac = 2.63
-	thT1 = 0.0
-	thT2 = ma.pi/4.
-	thT3 = ma.pi/3.
+	
+
+	if (W1W2vals):
+		thT1 = np.arccos(0.05-0.01)
+		thT2 = ma.pi/4.
+		thT3 = np.arccos(0.05+0.02)
+	else:
+		#thT1 = 0.0
+		thT1 = np.arccos(0.115-0.06)
+		thT2 = ma.pi/4.
+		#thT3 = ma.pi/3.
+		thT3 = np.arccos(0.115+0.001)
 
 
 	Inc = 0.0*ma.pi/2.1
-
 	thT = np.arccos(0.1)
-	JJt = ma.pi/2. - np.arccos(0.1)  #0.1 radians
+
+
+	JJt = ma.pi/2. - np.arccos(0.1)  #0.1 radians for numerical ring only
 	
 
 	
@@ -1096,9 +1266,9 @@ if (PG1302_Dop):
 
 	
 
-	Anl1 = plt.plot(frc_a, Dop1_anal, color='red', linewidth=3)
+	Anl1 = plt.plot(frc_a, Dop1_anal, color='blue', linewidth=3)
 	#Anl2 = plt.plot(frc_a, Dop2_anal, color='blue')
-	#Anl3 = plt.plot(frc_a, Dop3_anal, color='red')
+	Anl3 = plt.plot(frc_a, Dop3_anal, color='blue', linestyle='--', linewidth=3)
 	Ring = plt.plot(frc_a, DopRing_anal, color='green', linewidth=3)
 
 	if (numRing):
@@ -1111,13 +1281,17 @@ if (PG1302_Dop):
 	
 	## plot td/P Measured from LIR
 	#plt.axvline(x=3.821, color='grey', linestyle='--', linewidth=3 )
-	plt.axvline(x=3.3, color='orange', linestyle=':', linewidth=3 )
-	plt.axvspan(3.3-0.7, 3.3+0.7, color='orange', alpha=0.5, lw=0)
-
+	#plt.axvline(x=3.3, color='orange', linestyle=':', linewidth=3 )
+	#plt.axvspan(3.3-0.7, 3.3+0.7, color='orange', alpha=0.5, lw=0)
+	#plt.axvline(x=4.0, color='orange', linestyle=':', linewidth=3 )
+	if (W1W2vals):
+		plt.axvspan(1.6-0.3, 1.6+0.3, color='orange', alpha=0.6, lw=0)
+	else:
+		plt.axvspan(3.0-0.8, 3.0+0.8, color='orange', alpha=0.6, lw=0)
 
 	# plot location of Wein peak
-	plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle=':', linewidth=3 )
-	plt.axvline(x=tdoP_W2_Wein, color='red', linestyle=':', linewidth=3 )
+	#plt.axvline(x=tdoP_W1_Wein, color='yellow', linestyle=':', linewidth=3 )
+	#plt.axvline(x=tdoP_W2_Wein, color='red', linestyle=':', linewidth=3 )
 
 
 
@@ -1169,14 +1343,19 @@ if (PG1302_Dop):
 	# plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	##plot measured AIR/A
+	if (W1W2vals):
+		Lfac_max = 0.9+0.4
+		Lfac_min = 0.9-0.3
+	else:
+		Lfac_max = 0.6 - 0.01
+		Lfac_min = 0.6 + 0.7
 
-
-	AW1_mn = (0.68-0.21)/2.63
-	AW1_mx = (0.68 + 0.12)
+	AW1_mn = (0.68-0.21)/2.63/(Lfac_max)
+	AW1_mx = (0.68 + 0.12)/(Lfac_min)
 	plt.axhspan(AW1_mn, AW1_mx, color='yellow', alpha=0.4, lw=0)
 	AW2 = 0.64/Afac
-	AW2_mn = (0.64-0.20)/2.63
-	AW2_mx = (0.62 +0.12)
+	AW2_mn = (0.64-0.20)/2.63/(Lfac_max)
+	AW2_mx = (0.62 +0.12)/(Lfac_min)
 	plt.axhspan(AW2_mn, AW2_mx, color='red', alpha=0.4, lw=0)
 
 	# and negatives
@@ -1188,7 +1367,8 @@ if (PG1302_Dop):
 		plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0], Dop], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \pi/3$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$', r'$\cos{\theta_T} = 0.1$, $J=0.1$'), loc='upper right', fontsize=14)
 	else:
 		#plt.legend( [ Anl1[0],  Anl2[0],  Anl3[0], Ring[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/4$, $J=\pi/2$',    r'$\theta_T = \pi/3$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
-		plt.legend( [ Anl1[0],   Ring[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
+		#plt.legend( [ Anl1[0],   Ring[0]], (r'$\theta_T = 0$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
+		plt.legend( [ Anl1[0],   Anl3[0], Ring[0]], (r'$\theta^{\rm{min}}_T$, $J=\pi/2$', r'$\theta^{\rm{max}}_T$, $J=\pi/2$', r'$\theta_T = \pi/2$, $J=0$'), loc='upper right', fontsize=14)
 
 
 
@@ -1201,6 +1381,8 @@ if (PG1302_Dop):
 	plt.xlim(0.0,frc_mx)
 	plt.ylim(-0.5,1.0)
 	#plt.show()
+
+	#plt.tight_layout()
 
 	Savename = "plots/Iso_and_Dop/Analytics/PG1302_DOP_divAfac%g_J%g_numin%g_numx%g.png" %(Afac, JJt, Nnumn, Nnumx)
 	Savename = Savename.replace('.', 'p')
@@ -1284,29 +1466,31 @@ if (Dop_alphs):
 
 	#Dop_mean = np.mean(DOP_AIR_over_AUV)
 	plt.figure()
-	AnlDop = plt.plot(frc_a, Dop_anal, color='red')
+	AnlDop = plt.plot(frc_a, Dop_anal, color='red', linewidth=3)
 
 	plt.plot(frc_t, DOP1_AIR_over_AUV, linestyle='--', color='black')
 	plt.plot(frc_t, DOP2_AIR_over_AUV, linestyle='--', color='red')
 	plt.plot(frc_t, DOP3_AIR_over_AUV, linestyle='--', color='blue')
 	plt.plot(frc_t, DOP4_AIR_over_AUV, linestyle='--', color='green')
 
-	DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black')
-	DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='red')
-	DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='blue')
-	DOP4 = plt.scatter(frc_t, DOP4_AIR_over_AUV, marker='*', color='green')
+	DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black', s=40)
+	DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='red', s=40)
+	DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='blue', s=40)
+	DOP4 = plt.scatter(frc_t, DOP4_AIR_over_AUV, marker='*', color='green', s=40)
 
 	#plt.axvspan(frc_PG, frc_PGb, color='grey', alpha=0.5, lw=0)
 	plt.axhline(y=0, color='black', linestyle=':')
 	#plt.axhline(y=Dop_mean, color='red', linestyle='--')
 
-	plt.legend( [  AnlDop[0], DOP1, DOP2, DOP3, DOP4 ], ('Dop Analytic', r'$\alpha = 6.0$', r'$\alpha = 4.0$',  r'$\alpha = 2.0$', r'$\alpha = -2.0$'), loc='upper right', fontsize=14)
+	plt.legend( [  AnlDop[0], DOP1, DOP2, DOP3, DOP4 ], ('Dop Analytic', r'$\bar{\alpha} = 6.0$', r'$\bar{\alpha} = 4.0$',  r'$\bar{\alpha} = 2.0$', r'$\bar{\alpha} = -2.0$'), loc='upper right', fontsize=14)
 
 	plt.ylabel(r"$A_{\rm{IR}} / A$")
 	plt.xlabel(r"$t_d / P$")
 
 	plt.xlim(0.0,frc_mx)
 	#plt.show()
+
+	plt.tight_layout()
 
 	Savename = "plots/Iso_and_Dop/Analytics/DopvsAlpha_AIRoAUV_J%g_numin%g_numx%g_reclim1_TRHS.png" %(JJt, Nnumn, Nnumx)
 	Savename = Savename.replace('.', 'p')
@@ -1392,6 +1576,8 @@ if (ISOvDop_varyI):
 	plt.xlabel(r"$t_d / P$")
 
 	plt.xlim(0.0,frc_mx)
+
+	plt.tight_layout()
 	#plt.show()
 
 	Savename = "plots/Iso_and_Dop/Analytics/Dop_varyI_AIRoAUV_alph%g_J%g_numin%g_numx%g_reclim2_TRHS.png" %(alph,JJt, Nnumn, Nnumx)
@@ -1414,7 +1600,8 @@ if (ISOvthT):
 	thT1 = 0.0
 	thT2 = ma.pi/4.
 	thT3 = ma.pi/3.
-	JJt  = 0.*ma.pi/4.
+
+	#JJt  = 0.*ma.pi/4.
 
 	nne = 0.0 #no absorption efficiency
 	##TABULATE T's and RHSs
@@ -1452,15 +1639,15 @@ if (ISOvthT):
 
 	if (JJt==ma.pi/2):
 		plt.title(r'Isotropic, $J = \pi/2$')
-		Anl1 = plt.plot(frc_a, AA1_anal, color='black')
-		Anl2 = plt.plot(frc_a, AA2_anal, color='blue')
-		Anl3 = plt.plot(frc_a, AA3_anal, color='red')
+		Anl1 = plt.plot(frc_a, AA1_anal, color='black',  linewidth=3)
+		Anl2 = plt.plot(frc_a, AA2_anal, color='blue',  linewidth=3)
+		Anl3 = plt.plot(frc_a, AA3_anal, color='red',  linewidth=3)
 
 		
 
-		ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black')
-		ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='blue')
-		ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='red')
+		ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black', s=40)
+		ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='blue', s=40)
+		ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='red', s=40)
 		plt.plot(frc_t, ISO1_AIR_over_AUV, linestyle='--', color='black')
 		plt.plot(frc_t, ISO2_AIR_over_AUV, linestyle='--', color='blue')
 		plt.plot(frc_t, ISO3_AIR_over_AUV, linestyle='--', color='red')
@@ -1476,13 +1663,13 @@ if (ISOvthT):
 		plt.legend( [ Anl1[0],  ISO1, Anl2[0], ISO2, Anl3[0], ISO3], (r'$\theta_T = 0$', '',  r'$\theta_T = \pi/4$', '',    r'$\theta_T = \pi/3$', ''), loc='upper right', fontsize=14)
 	elif (JJt==0.0):
 		plt.title(r'Isotropic, $J = 0.0$')
-		Anl1 = plt.plot(frc_a, AA1_anal, color='black')
+		Anl1 = plt.plot(frc_a, AA1_anal, color='black',  linewidth=3)
 
-		Ring = plt.plot(frc_a, Ring_anal, color='green')
+		Ring = plt.plot(frc_a, Ring_anal, color='green',  linewidth=3)
 
-		ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black')
-		ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='blue')
-		ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='red')
+		ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black', s=40)
+		ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='blue', s=40)
+		ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='red', s=40)
 		plt.plot(frc_t, ISO1_AIR_over_AUV, linestyle='--', color='black')
 		plt.plot(frc_t, ISO2_AIR_over_AUV, linestyle='--', color='blue')
 		plt.plot(frc_t, ISO3_AIR_over_AUV, linestyle='--', color='red')
@@ -1492,13 +1679,13 @@ if (ISOvthT):
 
 
 		plt.legend( [ Anl1[0],  ISO1,  ISO2, ISO3, Ring[0] ], (r'$\theta_T = 0$', '',  r'$\theta_T = \pi/4$',    r'$\theta_T = \pi/3$', 'Ring'), loc='upper right', fontsize=14)
-	elif (JJT==ma.pi/4.):
+	elif (JJt==ma.pi/4.):
 		plt.title(r'Isotropic, $J = \pi/4$')
-		Anl1 = plt.plot(frc_a, AA1_anal, color='black')
+		Anl1 = plt.plot(frc_a, AA1_anal, color='black',  linewidth=3)
 
-		ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black')
-		ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='blue')
-		ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='red')
+		ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black', s=40)
+		ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='blue', s=40)
+		ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='red', s=40)
 		plt.plot(frc_t, ISO1_AIR_over_AUV, linestyle='--', color='black')
 		plt.plot(frc_t, ISO2_AIR_over_AUV, linestyle='--', color='blue')
 		plt.plot(frc_t, ISO3_AIR_over_AUV, linestyle='--', color='red')
@@ -1521,6 +1708,8 @@ if (ISOvthT):
 
 	plt.xlim(0.0,frc_mx)
 	plt.ylim(-0.5,1.0)
+
+	plt.tight_layout()
 	#plt.show()
 
 	Savename = "plots/Iso_and_Dop/Analytics/AIRoAUV_REL_J%g_numin%g_numx%g_reclim1.png" %(JJt, Nnumn, Nnumx)
@@ -1540,7 +1729,7 @@ if (DOPvthT):
 	thT2 = ma.pi/4.
 	thT3 = ma.pi/3.
 
-	JJt  = 0.*ma.pi/2.
+	#JJt  = 0.*ma.pi/2.
 
 	Inc = 0.0*ma.pi/2.1
 
@@ -1589,12 +1778,12 @@ if (DOPvthT):
 		plt.title(r'Doppler, $J = \pi/2$, $I = %g$' %Inc)
 		
 
-		Anl1 = plt.plot(frc_a, Dop1_anal, color='black')
-		Anl2 = plt.plot(frc_a, Dop2_anal, color='blue')
-		Anl3 = plt.plot(frc_a, Dop3_anal, color='red')
-		DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black')
-		DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='blue')
-		DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='red')
+		Anl1 = plt.plot(frc_a, Dop1_anal, color='black',  linewidth=3)
+		Anl2 = plt.plot(frc_a, Dop2_anal, color='blue',  linewidth=3)
+		Anl3 = plt.plot(frc_a, Dop3_anal, color='red',  linewidth=3)
+		DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black', s=40)
+		DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='blue', s=40)
+		DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='red', s=40)
 		plt.plot(frc_t, DOP1_AIR_over_AUV, color='black', linestyle="--")
 		plt.plot(frc_t, DOP2_AIR_over_AUV, color='blue', linestyle="--")
 		plt.plot(frc_t, DOP3_AIR_over_AUV, color='red', linestyle="--")
@@ -1610,13 +1799,13 @@ if (DOPvthT):
 		plt.title(r'Doppler, $J = 0.0$, $I = %g$' %Inc)
 
 
-		Anl1 = plt.plot(frc_a, Dop1_anal, color='black')
-		Ring = plt.plot(frc_a, DopRing_anal, color='green')
+		Anl1 = plt.plot(frc_a, Dop1_anal, color='black',  linewidth=3)
+		Ring = plt.plot(frc_a, DopRing_anal, color='green',  linewidth=3)
 
 
-		DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black')
-		DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='blue')
-		DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='red')
+		DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black', s=40)
+		DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='blue', s=40)
+		DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='red', s=40)
 		plt.plot(frc_t, DOP1_AIR_over_AUV, color='black', linestyle="--")
 		plt.plot(frc_t, DOP2_AIR_over_AUV, color='blue', linestyle="--")
 		plt.plot(frc_t, DOP3_AIR_over_AUV, color='red', linestyle="--")
@@ -1632,11 +1821,11 @@ if (DOPvthT):
 		plt.title(r'Doppler, $J = \pi/4$, $I = %g$' %Inc)
 
 
-		Anl1 = plt.plot(frc_a, Dop1_anal, color='black')
+		Anl1 = plt.plot(frc_a, Dop1_anal, color='black',  linewidth=3)
 
-		DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black')
-		DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='blue')
-		DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='red')
+		DOP1 = plt.scatter(frc_t, DOP1_AIR_over_AUV, marker='*', color='black',s=40)
+		DOP2 = plt.scatter(frc_t, DOP2_AIR_over_AUV, marker='*', color='blue', s=40)
+		DOP3 = plt.scatter(frc_t, DOP3_AIR_over_AUV, marker='*', color='red', s=40)
 		plt.plot(frc_t, DOP1_AIR_over_AUV, color='black', linestyle="--")
 		plt.plot(frc_t, DOP2_AIR_over_AUV, color='blue', linestyle="--")
 		plt.plot(frc_t, DOP3_AIR_over_AUV, color='red', linestyle="--")
@@ -1655,6 +1844,8 @@ if (DOPvthT):
 
 	plt.xlim(0.0,frc_mx)
 	plt.ylim(-0.5,1.0)
+
+	plt.tight_layout()
 	#plt.show()
 
 	Savename = "plots/Iso_and_Dop/Analytics/AIRoAUVDop_REL_J%g_numin%g_numx%g_reclim2.png" %(JJt, Nnumn, Nnumx)
@@ -1729,11 +1920,11 @@ if (Qv_k):
 	plt.figure()
 	plt.title(r'Isotropic')
 	#plt.title(r'$J = \pi/2$')
-	Anl1 = plt.plot(frc_a, AA1_anal, color='black')
+	Anl1 = plt.plot(frc_a, AA1_anal, color='black',  linewidth=3)
 
-	ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black')
-	ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='red')
-	ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='blue')
+	ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black', s=40)
+	ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='red', s=40)
+	ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='blue', s=40)
 	
 	
 
@@ -1750,6 +1941,8 @@ if (Qv_k):
 	
 
 	plt.xlim(0.0,frc_mx)
+
+	plt.tight_layout()
 	#plt.show()
 
 	Savename = "plots/Iso_and_Dop/Analytics/Qv_vark__AIRoAUV_J%g_numin%g_numx%g_reclim1.png" %(JJt, Nnumn, Nnumx)
@@ -1844,11 +2037,11 @@ if (Qv_nu0):
 	plt.figure()
 	plt.title(r'Isotropic')
 	#plt.title(r'$J = \pi/2$')
-	Anl1 = plt.plot(frc_a, AA1_anal, color='black')
+	Anl1 = plt.plot(frc_a, AA1_anal, color='black',  linewidth=3)
 
-	ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black')
-	ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='red')
-	ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='blue')
+	ISO1 = plt.scatter(frc_t, ISO1_AIR_over_AUV, marker='x', color='black', s=40)
+	ISO2 = plt.scatter(frc_t, ISO2_AIR_over_AUV, marker='x', color='red', s=40)
+	ISO3 = plt.scatter(frc_t, ISO3_AIR_over_AUV, marker='x', color='blue', s=40)
 
 
 
@@ -1865,6 +2058,8 @@ if (Qv_nu0):
 
 
 	plt.xlim(0.0,frc_mx)
+
+	plt.tight_layout()
 	#plt.show()
 
 	Savename = "plots/Iso_and_Dop/Analytics/Qv_varnu0_SublimationCutT%g_AIRoAUV_k%g_J%g_numin%g_numx%g_reclim1.png" %(Tsub, kk, JJt, Nnumn, Nnumx)
