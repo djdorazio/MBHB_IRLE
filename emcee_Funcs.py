@@ -104,6 +104,17 @@ def ln_Sinprior(p, Flat, SinFit, No_Prd):
 	return 0.
 
 
+def ln_BBCorprior(params):
+	Td, XX = params
+					
+	if Td < 0.0:
+		return -np.inf
+
+	if XX < 0.0:
+		return -np.inf
+			
+	return 0.
+
 
 def ln_BBprior(params):
 	#sinJJ, cosTT, Rin, alpha = params
@@ -153,7 +164,7 @@ def ln_BBprior_Fcov(params):
 	if fcov < 0.0 or fcov > 1.0:
 		return -np.inf
 
-	if Lfac < 5./10. or Lfac > 15.0/10.:
+	if Lfac < 5.0/10. or Lfac > 15.0/10.:
 		return -np.inf
 
 
@@ -238,6 +249,11 @@ def ln_Sinlikelihood(p, t, y, dy, Flat, SinFit, No_Prd):
 
 
 
+
+def ln_BBCorlikelihood(p, t, y, dy):
+	return -(BBcor_Err2(p, t, y, dy)) 
+
+
 def ln_BBlikelihood(p, t, y, dy):
 	return -(BB_Err2(p, t, y, dy)) 
 
@@ -320,6 +336,16 @@ def ln_Sinposterior(p, t, y, dy, Flat, SinFit, No_Prd):
 			return ln_l + ln_p
 
 
+
+def ln_BBCorposterior(p, t, y, dy):
+			ln_p = ln_BBCorprior(p)
+			if not np.isfinite(ln_p):
+				return -np.inf
+			
+			ln_l = ln_BBCorlikelihood(p, t, y, dy)
+			return ln_l + ln_p
+
+
 def ln_BBposterior(p, t, y, dy):
 			ln_p = ln_BBprior(p)
 			if not np.isfinite(ln_p):
@@ -327,6 +353,7 @@ def ln_BBposterior(p, t, y, dy):
 			
 			ln_l = ln_BBlikelihood(p, t, y, dy)
 			return ln_l + ln_p
+
 
 
 def ln_BBposterior_Qv(p, t, y, dy):

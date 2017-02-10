@@ -13,7 +13,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.family'] = 'sans-serif'
 matplotlib.rcParams['font.sans-serif'] = ['Helvetica']
-matplotlib.rcParams.update({'font.size': 20})
+matplotlib.rcParams.update({'font.size': 14})
 import matplotlib.pyplot as plt
 
 from scipy import optimize
@@ -28,15 +28,15 @@ from emcee_Funcs import *
 ### OPTIONS
 ################################
 ################################
-TrimB = True
+TrimB = False#True
 Flat = False
 
 SinFit = True
-No_Prd = True
-FitAll = False
+No_Prd = False
+FitAll = True
 
 ##multiprocessing
-NThread = 16
+NThread = 8
 
 
 
@@ -141,6 +141,9 @@ W2_avg = []
 W1_avsg = []
 W2_avsg = []
 
+VarMn_test_W1 = []
+VarMn_test_W2 = []
+
 
 for i in range(0 , len(iseg)-1):
 	t_avg.append(np.mean(t_MJD[iseg[i]+1:iseg[i+1]+1]))
@@ -158,6 +161,11 @@ for i in range(0 , len(iseg)-1):
 
 	W1_avsg.append(np.sqrt(sum( (W1_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg1  ))
 	W2_avsg.append(np.sqrt(sum( (W2_sig[iseg[i]+1:iseg[i+1]])**2 )/Nseg2  ))
+
+	## see if variance of means or mean of variances is larger
+	VarMn_test_W1.append(np.mean(W1_sig[iseg[i]+1:iseg[i+1]+1])/np.std(W1_mag[iseg[i]+1:iseg[i+1]+1]))
+	VarMn_test_W2.append(np.mean(W2_sig[iseg[i]+1:iseg[i+1]+1])/np.std(W2_mag[iseg[i]+1:iseg[i+1]+1]))
+
 
 ## APPEND THE ONE AKARI DATA POINT
 #MJD 51537.0 (ISO), 55022.5 (Akari)
@@ -214,7 +222,7 @@ elif (SinFit):
 	if (No_Prd):
 		ndim = 3
 		Shell_File = "SinFit_NOPrd"
-		param_names = [r'$A$',r'$t_0$',r'$\rm{mag}_0$']
+		param_names = [r'$\mathcal{A}$',r'$t_0$',r'$\mathcal{B}$']
 		Sinp0_src = [0.14, 2.1, 14.8330]
 		Sinp0_W1 = [0.0887, 0.01, 11.3]
 		Sinp0_W2 = [0.1, 0.01, 10.3]	
@@ -245,12 +253,12 @@ else:
 src_sin_p0 = np.array(Sinp0_src)
 W1_sin_p0 = np.array(Sinp0_W1)
 W2_sin_p0 = np.array(Sinp0_W2)
-src_sin_walker_p0 = np.random.normal(W1_sin_p0, np.abs(W1_sin_p0)*1E-4, size=(nwalkers, ndim))
-W1_sin_walker_p0 = np.random.normal(W1_sin_p0, np.abs(W1_sin_p0)*1E-4, size=(nwalkers, ndim))
-W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-4, size=(nwalkers, ndim))
+src_sin_walker_p0 = np.random.normal(W1_sin_p0, np.abs(W1_sin_p0)*1E-5, size=(nwalkers, ndim))
+W1_sin_walker_p0 = np.random.normal(W1_sin_p0, np.abs(W1_sin_p0)*1E-5, size=(nwalkers, ndim))
+W2_sin_walker_p0 = np.random.normal(W2_sin_p0, np.abs(W2_sin_p0)*1E-5, size=(nwalkers, ndim))
 
 			
-clen = 4096
+clen = 2#4048
 W1_sin_pos,_,_ = W1_sin_sampler.run_mcmc(W1_sin_walker_p0 , clen)
 
 W2_sin_pos,_,_ = W2_sin_sampler.run_mcmc(W2_sin_walker_p0 , clen)
@@ -368,15 +376,15 @@ W2_sin_flatlnprobs = np.vstack(W2_sin_lnprobs[:,clen/2:])
 
 #import triangle
 import corner as triangle
-src_sin_fig = triangle.corner(src_sin_flatchain, labels=param_names)			
+src_sin_fig = triangle.corner(src_sin_flatchain,  labels=param_names, quantiles=[0.15, 0.5, 0.85],show_titles=True, title_kwargs={"fontsize": 14},label_kwargs={"fontsize": 18})			
 src_sin_fig.savefig('../emcee_data/src_'+Shell_File+'_PG1302_Corner_Plot_%iwalkers.png' %clen)
 
 
-W1_sin_fig = triangle.corner(W1_sin_flatchain, labels=param_names)			
+W1_sin_fig = triangle.corner(W1_sin_flatchain, labels=param_names, quantiles=[0.15, 0.5, 0.85],show_titles=True, title_kwargs={"fontsize": 14},label_kwargs={"fontsize": 18})			
 W1_sin_fig.savefig('../emcee_data/W1_'+Shell_File+'_PG1302_Corner_Plot_%iwalkers.png' %clen)
 
 
-W2_sin_fig = triangle.corner(W2_sin_flatchain, labels=param_names)			
+W2_sin_fig = triangle.corner(W2_sin_flatchain, labels=param_names, quantiles=[0.15, 0.5, 0.85],show_titles=True, title_kwargs={"fontsize": 14},label_kwargs={"fontsize": 18})			
 W2_sin_fig.savefig('../emcee_data/W2_'+Shell_File+'_PG1302Corner_Plot_%iwalkers.png' %clen)
 
 
@@ -398,7 +406,7 @@ W2_sin_perc = scoretpercentile(W2_sin_flatchain, [15,85], axis=0)
 
 
 
-filename = "Sin_results_"+Shell_File+"%iwalkers.txt" %clen
+filename = "../emcee_Results/Sin_results_"+Shell_File+"%iwalkers.txt" %clen
 print "Printing Results"
 target = open(filename, 'w')
 target.truncate()

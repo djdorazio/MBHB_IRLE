@@ -14,24 +14,24 @@ from FluxFuncs_IRLE import *
 
 
 
-
-###OPTIONS###OPTIONS
-FISO = True
+#Figures 11 and 12
+###OPTIONS
+FISO = False
 FDOP = True
 
-ShTor_OptThin = True
-ShTor_OptThick = False
-Thick_Tor = False
+ShTor_OptThin = True    ## For Figures
+ShTor_OptThick = False  ## Experimental
+Thick_Tor = False       ## Experimental
 
-thetTst = 1.*ma.pi/3.
-Inc = 0.0#ma.pi/2.  #ma.acos(0.07/betst)#0.*np.pi/4.
+thetTst = 1.*ma.pi/4.   
+Inc = ma.pi/2.  #ma.acos(0.07/betst)#0.*np.pi/4.
 
 
 
 
 
 ##ISO VARS:
-Amp = 0.22105  ##For alpha=0.0, beta=0.0677
+Amp = 0.15 #alph=1.0 bet = 0.07    #0.22105  ##For alpha=0.0, beta=0.0677
 t0 = ma.pi/2. #0.0
 
 
@@ -42,7 +42,7 @@ Omb = 1./(1*yr2sec)
 L0 = 6.78*10**46
 MPGmx = 10**9.4*Msun
 Ryr = c*yr2sec
-RdPG = ma.sqrt(0.1)*2.8 *pc2cm
+RdPG = 1.0*pc2cm #changed from #ma.sqrt(0.1)*2.8 *pc2cm
 OmPG = Omb*2.*ma.pi/4.1
 #alphnu = 1.1
 
@@ -53,7 +53,7 @@ Ompc = 2.*ma.pi*c/pc2cm/2.
 ## TEST VALUES
 ### DUST stuff
 ## for Qv
-nne = 1.
+nne = 1.6 ##changed from 1.
 nu0 = numicron
 Rde = RdPG
 Rrout = 1.0*Rde
@@ -68,9 +68,10 @@ n0 = nfac*n10 ##6.*10**5*Msun/md * 1./(4./3.*ma.pi*(Rrout**3 - Rde**3))
 
 
 Lav = L0
-betst = 0.068#0.06776  ## gives 0.14 mag amplitdue at I=0 
+betst = 0.07 #changed form 0.068 #0.06776  ## gives 0.14 mag amplitdue at I=0 
 Ombn = 2.*ma.pi/(Rde/c)  ##(2pi/P)
-alph = 0.0
+alph = 1.0  ## for what woudl see in optical - use for src light curves
+alphDop = -1.0  ## dust alwas sees this - must use for IR light curves
 Dst = 1.4*10**9*pc2cm
 
 
@@ -82,10 +83,16 @@ W1mn = numicron/4.0
 W2mx = numicron/3.9
 W2mn = numicron/5.3
 
-nuVbnd = c/(545.*10**(-7))
+# nuVbnd = c/(545.*10**(-7))
+# FVbndRel = 3.636*10**(-20)*nuVbnd 
+# FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
+# FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+
+nuVbnd = c/(5.45*10**(-5))
 FVbndRel = 3.636*10**(-20)*nuVbnd 
-FW1Rel = 3.09540*10**(-20)*(W1mn + W1mx)/2
-FW2Rel = 1.7187*10**(-20)*(W2mn + W2mx)/2
+FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
+FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
+
 
 
 
@@ -139,10 +146,16 @@ if (FISO):
 		Ombn = Ombn*Omfac
 		tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
+		# arg1 = [Lav, Amp, Ombn, t0, n0, 0.6*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
+		# arg2 = [Lav, Amp, Ombn, t0, n0, 0.6*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
+		# #arg3 = [Lav, Amp, Ombn, t0, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
+		# arg4 = [Lav, Amp, Ombn, t0, n0, 0.6*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
+
+		### plot at fixed td/p=0.6
 		arg1 = [Lav, Amp, Ombn, t0, n0, 0.6*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
 		arg2 = [Lav, Amp, Ombn, t0, n0, 0.6*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
-		#arg3 = [Lav, Amp, Ombn, t0, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
 		arg4 = [Lav, Amp, Ombn, t0, n0, 0.6*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
+
 
 		FI1 = np.zeros(Nt)
 		FI2 = np.zeros(Nt)
@@ -186,13 +199,16 @@ if (FISO):
 
 		plt.grid(b=True, which='both')
 		#plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=(\theta_T-\pi/2)/2$',   r'$J=(\theta_T-\pi/2)$',  r'$J=\pi/2$'), loc='upper right')
-		plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/2$'), loc='lower right', fontsize=18)
+		if (thetTst==ma.pi/4.):
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/2$'), loc='lower right', fontsize=18)
+		else:
+			plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{iso}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/2$'), loc='upper right', fontsize=18)
 
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
-		#plt.ylim(plt.ylim(11.7, 12.7)[::-1])
+		plt.ylim(plt.ylim(7.2, 8.4)[::-1])
 		plt.tight_layout()
 
 		Savename = "plots/Iso_and_Dop/ShTor_Thin/FISO_ShTor_Thin_nrm%g_"%nrm+"_Rin%g_Inc%g_thetaT%g_VaryJ_numin%g_numx%g.png" %(Rde, Inc, thetTst, Nnumn, Nnumx)
@@ -386,10 +402,13 @@ if (FDOP):
 		#Ombn = Ombn*Omfac
 		#tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
-		arg1 = [Lav, betst, Inc, Ombn, alph, n0, 0.6*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
-		arg2 = [Lav, betst, Inc, Ombn, alph, n0, 0.6*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
-		arg3 = [Lav, betst, Inc, Ombn, alph, n0, 0.6*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
-		arg4 = [Lav, betst, Inc, Ombn, alph, n0, 0.6*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
+		#Plot at fixed td/P = 0.6
+		arg1 = [Lav, betst, Inc, Ombn, alphDop, n0, 0.6*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
+		arg2 = [Lav, betst, Inc, Ombn, alphDop, n0, 0.6*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
+		arg3 = [Lav, betst, Inc, Ombn, alphDop, n0, 0.6*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
+		arg4 = [Lav, betst, Inc, Ombn, alphDop, n0, 0.6*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
+
+
 
 		FI1 = np.zeros(Nt)
 		FI2 = np.zeros(Nt)
@@ -444,12 +463,16 @@ if (FDOP):
 			IR3 = plt.plot(tt/(2*np.pi/Ombn), FI3+nrm, color='#7570b3', linewidth=3)
 			plt.legend( [ s1[0], IR1[0], IR2[0], IR3[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',   r'$J=\pi/4$',   r'$J=\pi/3$',  r'$J=\pi/2$'), loc='lower right', fontsize=18)
 		else:
-			plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',  r'$J=\pi/4$',  r'$J=\pi/2$'), loc='lower right')
+			if (thetTst==ma.pi/4.):
+				plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',  r'$J=\pi/4$',  r'$J=\pi/2$'), loc='lower right', fontsize=18)
+			else:
+				plt.legend( [ s1[0], IR1[0], IR2[0], IR4[0]  ], (r'$F^{\rm{src}}_{\rm{Dop}}$', r'$J=0$',  r'$J=\pi/4$',  r'$J=\pi/2$'), loc='upper right', fontsize=18)
+
 
 		plt.xlabel(r"$N_{\rm{orb}}$")
 		plt.ylabel("mag")
 		plt.xlim(tt[0]* Ombn/(2.*ma.pi), tt[len(tt)-1] * Ombn/(2.*ma.pi))
-		#plt.ylim(plt.ylim(11.8, 12.4)[::-1])
+		plt.ylim(plt.ylim(7.2, 8.4)[::-1])
 		plt.tight_layout()
 
 
@@ -478,10 +501,10 @@ if (FDOP):
 		#Ombn = Ombn*Omfac
 		#tt = np.linspace(0., 2.,       Nt)*2*ma.pi/Ombn
 
-		arg1 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
-		arg2 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
-		arg3 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
-		arg4 = [Lav, betst, Inc, Ombn, alph, n0, 1.33*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
+		arg1 = [Lav, betst, Inc, Ombn, alphDop, n0, 1.33*Rde, pp, thetTst, JJ1, aeff, nu0, nne]
+		arg2 = [Lav, betst, Inc, Ombn, alphDop, n0, 1.33*Rde, pp, thetTst, JJ2, aeff, nu0, nne]
+		arg3 = [Lav, betst, Inc, Ombn, alphDop, n0, 1.33*Rde, pp, thetTst, JJ3, aeff, nu0, nne]
+		arg4 = [Lav, betst, Inc, Ombn, alphDop, n0, 1.33*Rde, pp, thetTst, JJ4, aeff, nu0, nne]
 
 		FI1 = np.zeros(Nt)
 		FI2 = np.zeros(Nt)
@@ -547,10 +570,10 @@ if (FDOP):
 		n03 = 100.*n10
 		n04 = 1000.*n10
 
-		arg1 = [Lav, betst, Inc, Ombn, alph, n01, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
-		arg2 = [Lav, betst, Inc, Ombn, alph, n02, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
-		arg3 = [Lav, betst, Inc, Ombn, alph, n03, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
-		arg4 = [Lav, betst, Inc, Ombn, alph, n04, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		arg1 = [Lav, betst, Inc, Ombn, alphDop, n01, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		arg2 = [Lav, betst, Inc, Ombn, alphDop, n02, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		arg3 = [Lav, betst, Inc, Ombn, alphDop, n03, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
+		arg4 = [Lav, betst, Inc, Ombn, alphDop, n04, 1.33*Rde, pp, thetTst, JJt, aeff, nu0, nne]
 
 		FI1 = np.zeros(Nt)
 		FI2 = np.zeros(Nt)
