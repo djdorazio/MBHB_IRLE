@@ -15,7 +15,7 @@ import scipy.signal as sgn
 
 #### INTEGRATION ERROR TOLS
 myrel = 1.e-8
-myabs = 1.e-14#1.e-60
+myabs = 1.e-100
 reclim = 200#100
 limlst = 200#50
 maxp1 = 200#50

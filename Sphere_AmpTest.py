@@ -1887,7 +1887,7 @@ if (PG1302_ISO_Jth_Conts):
 
 
 
-	Nfrc = 12
+	Nfrc = 20
 	Ngrd = 10
 	
 	
@@ -2114,7 +2114,7 @@ if (PG1302_Dop_Jth_Conts):
 
 
 
-	Nfrc = 12
+	Nfrc = 20
 	Ngrd = 10
 	
 
