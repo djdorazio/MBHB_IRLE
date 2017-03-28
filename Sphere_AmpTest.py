@@ -38,7 +38,7 @@ MCMC = True
 NThread = 8
 
 ##FIG 3
-ISOvDop = False
+ISOvDop = True
 
 ISOvDop_MAX = False
 
