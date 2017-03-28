@@ -54,10 +54,10 @@ ISOvthT = False
 DOPvthT = False
 
 PG1302_ISO = False
-PG1302_ISO_Jth_Conts = True
+PG1302_ISO_Jth_Conts = False
 PG1302_Dop = False
-PG1302_Dop_Jth_Conts = False
-Nfrc = 5 ## how many tries at each bin
+PG1302_Dop_Jth_Conts = True
+Nfrc = 10 ## how many tries at each bin
 Ngrd = 10 ## Ngrd^2 evaluations
 
 
@@ -186,6 +186,7 @@ if (TrapInt):
 # 	T_table = np.linspace(1., 2000., NT)
 # 	for i in range(NT):
 # 		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
+
 
 
 
@@ -2176,8 +2177,8 @@ if (PG1302_Dop_Jth_Conts):
 	# print "Creating look up tables"
 	RHS_table = np.zeros(NT)
 	T_table = np.linspace(Tmin, Tsub, NT)
-	# for i in range(NT):
-	# 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
+	for i in range(NT):
+		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
 
 
