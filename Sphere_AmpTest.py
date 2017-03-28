@@ -2,7 +2,7 @@ import cPickle as pickle
 
 
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
@@ -22,6 +22,9 @@ import scipy.integrate as intgt
 
 from scipy import special as spc
 
+
+##INtegration
+TrapInt = True
 
 #push test
 ###OPTIONS###OPTIONS
@@ -51,9 +54,11 @@ ISOvthT = False
 DOPvthT = False
 
 PG1302_ISO = False
-PG1302_ISO_Jth_Conts = False
+PG1302_ISO_Jth_Conts = True
 PG1302_Dop = False
-PG1302_Dop_Jth_Conts = True
+PG1302_Dop_Jth_Conts = False
+Nfrc = 5 ## how many tries at each bin
+Ngrd = 10 ## Ngrd^2 evaluations
 
 
 W1W2vals = True
@@ -69,10 +74,12 @@ if (Qv_nu0==True and ISOvDop == False and Dop_alphs == False and ISOvthT == Fals
 	Nnumx = 1./4.0 #5.0
 else:
 	Nnumn = 0.0
-	Nnumx = 3.0
+	Nnumx = 5.0
 
 numn = Nnumn*numicron
 numx = Nnumx*numicron
+
+
 
 Qv_k = False
 
@@ -158,6 +165,19 @@ FW1Rel = 3.09540*10**(-21)*8.8560*10**(13)#(W1mn + W1mx)/2
 FW2Rel = 1.71787*10**(-21)*6.4451*10**(13)#(W2mn + W2mx)/2
 
 
+
+# if (PG1302_ISO_Jth_Conts or PG1302_Dop_Jth_Conts):
+# 	numn = W1mn
+# 	numn = W2mx
+# 	Nnumn = numn/numicron
+# 	Nnumx = numx/numicron
+
+
+if (TrapInt):
+	numn = np.log(numn+1.0)
+	numx = np.log(numx)
+
+
 # if (not (Qv_k or Qv_nu0)):
 # 	##TABULATE T's and RHSs
 # 	print "Creating look up tables"
@@ -186,8 +206,8 @@ frc_PG = Rsub/c / (2.*ma.pi/OmPG) ## sublimation radius for L = Lav (10^8.7 is M
 #frc_PG = Rde /ma.sqrt(0.1)  * ma.sqrt( 10**(8.7)/(10**(9.0)) )/c / (2.*ma.pi/OmPG) ## sublimation radisu for L = Lav (10^8.7 is Mass for which epsilon = 1)
 #frc_PGb = frc_PG /ma.sqrt(0.1)
 
-frc_mx = 3.0
-frc_t = np.linspace(0.01, frc_mx, 40.0)
+frc_mx = 4.0
+frc_t = np.linspace(0.01, frc_mx, 20.0)
 frc_a = np.linspace(0.01, frc_mx, 1000.0)
 
 WeinCst = 2.821439
@@ -245,6 +265,19 @@ def ISO_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	
 	return 0.5*(LIR_mx - LIR_mn)/(Lav*Amp) *   Lav/(0.5*(LIR_mx + LIR_mn))
 	#return np.log10(LIR_mx/LIR_mn)/np.log10( (1.+Amp)/(1.-Amp) )
+
+def ISO_AIR_o_AUV_Trap(frc, numn, numx, Dst, arg1, RHS_table, T_table):
+	Lav, Amp, Ombn, t0, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne = arg1
+	Ombn = 2. *ma.pi * c/Rd * frc #don't worry beta isn't set by Ombn
+
+
+	t0 = 0.0
+	arg2 = [Lav, Amp, Ombn, t0, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne]
+	LIR_mx = F_Sphere_Iso_TrapInt(numn, numx, 0.25*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LIR_mn = F_Sphere_Iso_TrapInt(numn, numx, 0.75*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
+
+	
+	return 0.5*(LIR_mx - LIR_mn)/(Lav*Amp) *   Lav/(0.5*(LIR_mx + LIR_mn))
 
 
 
@@ -328,6 +361,41 @@ def DOP_AIR_o_AUV(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	#return np.abs((LIR_mx - LIR_mn)/(LUV_mx - LUV_mn))
 	return (LIR_mx - LIR_mn)/(LUV_mx - LUV_mn) * Lav/(0.5*(LIR_mx + LIR_mn))
 	#return np.log10(LIR_mx/LIR_mn)/np.log10(LUV_mx/LUV_mn)
+
+
+
+
+
+def DOP_AIR_o_AUV_Trap(frc, numn, numx, Dst, arg1, RHS_table, T_table):
+	Lav, betst, Inc, Ombn, alph, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne = arg1
+	Ombn = 2. *ma.pi * c/Rd * frc  #don't worry beta isn't set by Ombn
+
+
+	#Ombn = OmPG
+	#Rd = 2. *ma.pi * c/OmPG * frc
+	
+	#nne = 0.0
+	#thetTst = 
+	arg2 = [Lav, betst, Inc, Ombn, alph, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne]
+	
+	#LUV_mx = Fsrc_Dop(0.5*2*ma.pi/Ombn, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	#LUV_mn = Fsrc_Dop(0.75*2*ma.pi/Ombn, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	
+	LUV_mx = Fsrc_Dop(0.25*2*ma.pi/Ombn, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LUV_mn = Fsrc_Dop(0.5*2*ma.pi/Ombn, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	
+
+	LIR_mx = F_Sphere_Dop_TrapInt(numn, numx, (0.25-0.25)*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LIR_mn = F_Sphere_Dop_TrapInt(numn, numx, (0.5-0.25)*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	
+
+	#LIR_bol = F_Sphere_Dop_QuadInt(0.0, 5.*numicron, 0.5*2*ma.pi/Ombn, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+
+
+	#return np.abs((LIR_mx - LIR_mn)/(LUV_mx - LUV_mn))
+	return (LIR_mx - LIR_mn)/(LUV_mx - LUV_mn) * Lav/(0.5*(LIR_mx + LIR_mn))
+	#return np.log10(LIR_mx/LIR_mn)/np.log10(LUV_mx/LUV_mn)
+
 
 
 
@@ -1135,8 +1203,8 @@ if (ISOvDop):
 	ISO_AIR_over_AUV = np.zeros(len(frc_t))
 	DOP_AIR_over_AUV = np.zeros(len(frc_t))
 	for i in range(len(frc_t)):
-		ISO_AIR_over_AUV[i] = ISO_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
-		DOP_AIR_over_AUV[i] = DOP_AIR_o_AUV(frc_t[i], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		ISO_AIR_over_AUV[i] = ISO_AIR_o_AUV_Trap(frc_t[i], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
+		DOP_AIR_over_AUV[i] = DOP_AIR_o_AUV_Trap(frc_t[i], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
 
 	#Dop_mean = np.mean(DOP_AIR_over_AUV)
 	plt.figure()
@@ -1878,17 +1946,17 @@ if (PG1302_ISO_Jth_Conts):
 	
 
 	# ##TABULATE T's and RHSs
-	# print "Creating look up tables"
+	print "Creating look up tables"
 	RHS_table = np.zeros(NT)
 	T_table = np.linspace(Tmin, Tsub, NT)
-	# for i in range(NT):
-	# 	RHS_table[i] = T_RHS(T_table[i], nu0, nne)
+	for i in range(NT):
+		RHS_table[i] = T_RHS(T_table[i], nu0, nne)
 
 
 
 
-	Nfrc = 20
-	Ngrd = 10
+	#Nfrc = 20
+	#Ngrd = 10
 	
 	
 	CosthTs = np.linspace(fmn, fmx, Ngrd)
@@ -1916,9 +1984,9 @@ if (PG1302_ISO_Jth_Conts):
 				while (k < (Nfrc/2) ):
 					arg1_ISO = [Lav, Amp, Ombn, t0, n0, Rde, pp, thTs[i], JJs[j], aeff, nu0, nne]
 			 		#greater than 0
-			 		AIRoAMax_set1[k] = ISO_AIR_o_AUV(frc_rng1[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
+			 		AIRoAMax_set1[k] = ISO_AIR_o_AUV_Trap(frc_rng1[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
 					# less than zero see if statement below
-					AIRoAMax_set2[k] = ISO_AIR_o_AUV(frc_rng2[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
+					AIRoAMax_set2[k] = ISO_AIR_o_AUV_Trap(frc_rng2[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
 
 					# AIRoAMax_set1[k] = np.abs(ISO_AIR_o_AUV(frc_rand1, numn, numx, Dst, arg1_ISO, RHS_table, T_table))
 					# AIRoAMax_set2[k] = np.abs(ISO_AIR_o_AUV(frc_rand2, numn, numx, Dst, arg1_ISO, RHS_table, T_table))
@@ -1966,10 +2034,10 @@ if (PG1302_ISO_Jth_Conts):
 				k=0
 				while (k < (Nfrc/4) ):
 					arg1_ISO = [Lav, Amp, Ombn, t0, n0, Rde, pp, thTs[i], JJs[j], aeff, nu0, nne]
-			 		AIRoAMax_set1[k] = ISO_AIR_o_AUV(frc_rng1[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
-					AIRoAMax_set2[k] = ISO_AIR_o_AUV(frc_rng2[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
-					AIRoAMax_set3[k] = ISO_AIR_o_AUV(frc_rng3[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
-			 		AIRoAMax_set4[k] = ISO_AIR_o_AUV(frc_rng4[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
+			 		AIRoAMax_set1[k] = ISO_AIR_o_AUV_Trap(frc_rng1[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
+					AIRoAMax_set2[k] = ISO_AIR_o_AUV_Trap(frc_rng2[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
+					AIRoAMax_set3[k] = ISO_AIR_o_AUV_Trap(frc_rng3[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
+			 		AIRoAMax_set4[k] = ISO_AIR_o_AUV_Trap(frc_rng4[k], numn, numx, Dst, arg1_ISO, RHS_table, T_table)
 
 			 	# 	AIRoAMax_set1[k] = np.abs(ISO_AIR_o_AUV(frc_rand1, numn, numx, Dst, arg1_ISO, RHS_table, T_table))
 					# AIRoAMax_set2[k] = np.abs(ISO_AIR_o_AUV(frc_rand2, numn, numx, Dst, arg1_ISO, RHS_table, T_table))
@@ -2037,12 +2105,12 @@ if (PG1302_ISO_Jth_Conts):
 	#plt.show()
 	RdSave = Rde/pc2cm
 	if (W1W2vals):
-		Savename = "plots/Iso_and_Dop/Analytics/PG1302_ISO_W1W2_TAnyl_JcosT_Contours_tdoPSplit_Rd%gpc_Nfrc%g_Ngrd%g_numin%g_numx%g_Reclim%g_Aerr%g_Rerr%g.png" %(RdSave , Nfrc, Ngrd, Nnumn, Nnumx, reclim, myabs, myrel)
+		Savename = "plots/Iso_and_Dop/Analytics/PG1302_ISO_W1W2_TAnyl_JcosT_Contours_tdoPSplit_Rd%gpc_Nfrc%g_Ngrd%g_numin%g_numx%g_Reclim%g_Aerr%g_Rerr%g_NTrap%g.png" %(RdSave , Nfrc, Ngrd, Nnumn, Nnumx, reclim, myabs, myrel, Ntrap_nu)
 		Savename = Savename.replace('.', 'p')
 		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
 	else:
-		Savename = "plots/Iso_and_Dop/Analytics/PG1302_ISO_W1W2W3__TAnyl_JcosT_Contours_tdoPSplit_Rd%gpc_Nfrc%g_Ngrd%g_numin%g_numx%g_Reclim%g_Aerr%g_Rerr%g.png" %(RdSave , Nfrc, Ngrd, Nnumn, Nnumx, reclim, myabs, myrel)
+		Savename = "plots/Iso_and_Dop/Analytics/PG1302_ISO_W1W2W3__TAnyl_JcosT_Contours_tdoPSplit_Rd%gpc_Nfrc%g_Ngrd%g_numin%g_numx%g_Reclim%g_Aerr%g_Rerr%g_NTrap%g.png" %(RdSave , Nfrc, Ngrd, Nnumn, Nnumx, reclim, myabs, myrel, Ntrap_nu)
 		Savename = Savename.replace('.', 'p')
 		Savename = Savename.replace('ppng', '.png')
 		plt.savefig(Savename)
@@ -2114,8 +2182,8 @@ if (PG1302_Dop_Jth_Conts):
 
 
 
-	Nfrc = 20
-	Ngrd = 10
+	#Nfrc = 20
+	#Ngrd = 10
 	
 
 	CosthTs = np.linspace(fmn, fmx, Ngrd)
@@ -2136,7 +2204,7 @@ if (PG1302_Dop_Jth_Conts):
 				k=0
 				while (k < (Nfrc) ):
 					arg1_DOP = [Lav, betst, Inc, Ombn, Dopalph, n0, Rde, pp, thTs[i], JJs[j], aeff, nu0, nne]
-		 		 	AIRoAMax_set1[k] = DOP_AIR_o_AUV(frc_rng1[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		 		 	AIRoAMax_set1[k] = DOP_AIR_o_AUV_Trap(frc_rng1[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
 			 		#AIRoAMax_set1[k] = np.abs(DOP_AIR_o_AUV(frc_rand1, numn, numx, Dst, arg1_DOP, RHS_table, T_table))
 
 					if ( ((AIRoAMax_set1[k] > 0.0)  and  (AIRoAMax_set1[k] >= A_mn) and (AIRoAMax_set1[k] <= A_mx) ) ):
@@ -2170,10 +2238,10 @@ if (PG1302_Dop_Jth_Conts):
 				k=0
 				while (k < (Nfrc/4) ):
 					arg1_DOP = [Lav, betst, Inc, Ombn, Dopalph, n0, Rde, pp, thTs[i], JJs[j], aeff, nu0, nne]
-		 		 	AIRoAMax_set1[k] = DOP_AIR_o_AUV(frc_rng1[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
-		 		 	AIRoAMax_set2[k] = DOP_AIR_o_AUV(frc_rng2[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
-		 		 	AIRoAMax_set3[k] = DOP_AIR_o_AUV(frc_rng3[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
-		 		 	AIRoAMax_set4[k] = DOP_AIR_o_AUV(frc_rng4[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		 		 	AIRoAMax_set1[k] = DOP_AIR_o_AUV_Trap(frc_rng1[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		 		 	AIRoAMax_set2[k] = DOP_AIR_o_AUV_Trap(frc_rng2[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		 		 	AIRoAMax_set3[k] = DOP_AIR_o_AUV_Trap(frc_rng3[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
+		 		 	AIRoAMax_set4[k] = DOP_AIR_o_AUV_Trap(frc_rng4[k], numn, numx, Dst, arg1_DOP, RHS_table, T_table)
 						
 					# AIRoAMax_set1[k] = np.abs(DOP_AIR_o_AUV(frc_rand1, numn, numx, Dst, arg1_DOP, RHS_table, T_table))
 		 		#  	AIRoAMax_set2[k] = np.abs(DOP_AIR_o_AUV(frc_rand2, numn, numx, Dst, arg1_DOP, RHS_table, T_table))
