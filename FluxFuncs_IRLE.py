@@ -1326,77 +1326,35 @@ def F_Sphere_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 #########
 def FThnu_Sphere_Iso_TrapInt(thet, nu, t, Dist, Aargs, RHStable, Ttable):
 	phs = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
-	return 2.*ma.pi/(2.*Ntrap_ph) * (2.0 * np.sum([2.*Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable) for ph in phs]) - Fnuint_Shell_OptThin_Iso(phs[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) - Fnuint_Shell_OptThin_Iso(phs[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable) )
+	return 2.*ma.pi/(2.*Ntrap_ph) * (2.0 * np.sum([Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable) for ph in phs]) - Fnuint_Shell_OptThin_Iso(phs[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) - Fnuint_Shell_OptThin_Iso(phs[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable) )
 
-	# Trap_sub = Fnuint_Shell_OptThin_Iso(phis[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) + Fnuint_Shell_OptThin_Iso(phis[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable)
-	# Trap_int = 0.0
-	# for i in range(Ntrap_ph):
-	# 	Trap_int = Trap_int +  2.*Fnuint_Shell_OptThin_Iso(phis[i],thet, nu, t, Dist, Aargs, RHStable, Ttable)
-
-	# Trap_int = Trap_int - Trap_sub
-
-	# # SumzA = np.array(2.*Fnuint_Shell_OptThin_Iso(phis,thet, nu, t, Dist, Aargs, RHStable, Ttable))
-
-	# # Trap_int = Trap_int +  ma.fsum(SumzA)
-
-	# return 2.*ma.pi/(2.*Ntrap_ph) * (Trap_int)
-
-#FThnu_Sphere_Iso_TrapInt = np.vectorize(FThnu_Sphere_Iso_TrapInt, excluded=[3,4,5,6])
 
 
 def Fnu_Sphere_Iso_TrapInt(nu, t, Dist, Aargs, RHStable, Ttable):
 	ths = np.linspace(0.0, ma.pi, Ntrap_th)
-	return ma.pi/(2.*Ntrap_th) * (2.0 * np.sum([2.*FThnu_Sphere_Iso_TrapInt(th, nu, t, Dist, Aargs, RHStable, Ttable) for th in ths]) - FThnu_Sphere_Iso_TrapInt(ths[0], nu, t, Dist, Aargs, RHStable, Ttable) - FThnu_Sphere_Iso_TrapInt(ths[Ntrap_th-1], nu, t, Dist, Aargs, RHStable, Ttable))
-
-	#Trap_sub = FThnu_Sphere_Iso_TrapInt(ths[0], nu, t, Dist, Aargs, RHStable, Ttable) + FThnu_Sphere_Iso_TrapInt(ths[Ntrap_th-1], nu, t, Dist, Aargs, RHStable, Ttable)
-	#Trap_int = 0.0
-	#for i in range(Ntrap_th):
-	#	Trap_int = Trap_int + 2.*FThnu_Sphere_Iso_TrapInt(ths[i], nu, t, Dist, Aargs, RHStable, Ttable) 
-	##Trap_int = -Trap_sub + ma.fsum(2.*FThnu_Sphere_Iso_TrapInt(ths, nu, t, Dist, Aargs, RHStable, Ttable) )
-	#Trap_int = Trap_int - Trap_sub
-	#return ma.pi/(2.*Ntrap_th) * (Trap_int)
-
-#Fnu_Sphere_Iso_TrapInt = np.vectorize(Fnu_Sphere_Iso_TrapInt, excluded=[2,3,4,5])
+	return ma.pi/(2.*Ntrap_th) * (2.0 * np.sum([FThnu_Sphere_Iso_TrapInt(th, nu, t, Dist, Aargs, RHStable, Ttable) for th in ths]) - FThnu_Sphere_Iso_TrapInt(ths[0], nu, t, Dist, Aargs, RHStable, Ttable) - FThnu_Sphere_Iso_TrapInt(ths[Ntrap_th-1], nu, t, Dist, Aargs, RHStable, Ttable))
 
 
 
 def F_Sphere_Iso_TrapInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	lnnus = np.linspace(numin, numax, Ntrap_nu) #in log if doing Trap
-	return (numax-numin)/(2.*Ntrap_nu) * (2.0 * np.sum([2.*np.exp(lnnu)*Fnu_Sphere_Iso_TrapInt(np.exp(lnnu), t, Dist, Aargs, RHStable, Ttable) for lnnu in lnnus]) - np.exp(lnnus[0]) * Fnu_Sphere_Iso_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) - np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable) )
-
-	#if (type(t) is float or type(t) is np.float64):
-	# Trap_sub = np.exp(lnnus[0]) * Fnu_Sphere_Iso_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) + np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable)
-	# Trap_int = 0.0
-	# for i in range(Ntrap_nu):
-	# 	Trap_int = Trap_int + 2.*np.exp(lnnus[i])*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[i]), t, Dist, Aargs, RHStable, Ttable) 
-	# #Trap_int = -Trap_sub + ma.fsum(2.*np.exp(lnnus)*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus), t, Dist, Aargs, RHStable, Ttable) )
-	# Trap_int = Trap_int - Trap_sub
-	# return (numax-numin)/(2.*Ntrap_nu) * (Trap_int)
-	# else:
-	# 	res = []
-	# 	for i in range(len(t)):
-	# 		Trap_sub = np.exp(lnnus[0])*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[0]), t[i], Dist, Aargs, RHStable, Ttable) + np.exp(lnnus[Ntrap_nu-1])*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t[i], Dist, Aargs, RHStable, Ttable)
-	# 		Trap_int = 0.0
-	# 		for j in range(Ntrap_nu):
-	# 			Trap_int = -Trap_sub + 2.*np.exp(lnnus[j])*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[j]), t[i], Dist, Aargs, RHStable, Ttable)
-
-	# 		#Trap_int = -Trap_sub + ma.fsum(2.*np.exp(lnnus)*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus), t[i], Dist, Aargs, RHStable, Ttable))
-	# 		Trap_int = Trap_int - Trap_sub
-	# 		res.append((numax-numin)/(2.*Ntrap_nu) * (Trap_int))
-	# 	return np.array(res)
+	return (numax-numin)/(2.*Ntrap_nu) * (2.0 * np.sum([np.exp(lnnu)*Fnu_Sphere_Iso_TrapInt(np.exp(lnnu), t, Dist, Aargs, RHStable, Ttable) for lnnu in lnnus]) - np.exp(lnnus[0]) * Fnu_Sphere_Iso_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) - np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable) )
 
 
-# def F_Sphere_Iso_TripTrapInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
+
+###TRIPINT
+# def F_Sphere_Iso_TrapInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
+# 	phs = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
+# 	ths = np.linspace(0.0, ma.pi, Ntrap_th)
 # 	lnnus = np.linspace(numin, numax, Ntrap_nu) #in log if doing Trap
-	
-# 	#if (type(t) is float or type(t) is np.float64):
-# 	Trap_sub = np.exp(lnnus[0]) * Fnu_Sphere_Iso_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) + np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable)
-# 	Trap_int = 0.0
-# 	for i in range(Ntrap_nu):
-# 		Trap_int = Trap_int + 2.*np.exp(lnnus[i])*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[i]), t, Dist, Aargs, RHStable, Ttable) 
-# 	#Trap_int = -Trap_sub + ma.fsum(2.*np.exp(lnnus)*Fnu_Sphere_Iso_TrapInt(np.exp(lnnus), t, Dist, Aargs, RHStable, Ttable) )
-# 	Trap_int = Trap_int - Trap_sub
-# 	return (numax-numin)/(2.*Ntrap_nu) * (Trap_int)
+#  	Tsm = 2.0 * np.sum(Fnuint_Shell_OptThin_Iso(phs, ths, lnnus, t, Dist, Aargs, RHStable, Ttable), axis=0 ) - Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable)
+#  	Tsm = Tsm -
+
+
+# 	return (numax-numin)/(2.*Ntrap_nu) * (2.0 * np.sum([np.exp(lnnu)*Fnu_Sphere_Iso_TrapInt(np.exp(lnnu), t, Dist, Aargs, RHStable, Ttable) for lnnu in lnnus]) - np.exp(lnnus[0]) * Fnu_Sphere_Iso_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) - np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Iso_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable) )
+
+
+
 
 #########
 ### ^TRAP
@@ -1564,7 +1522,7 @@ def F_Sphere_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 #########
 def FThnu_Sphere_Dop_TrapInt(thet, nu, t, Dist, Aargs, RHStable, Ttable):
 	phs = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
-	return 2.*ma.pi/(2.*Ntrap_ph) * (2.0 * np.sum([2.*Fnuint_Shell_OptThin_Dop(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable) for ph in phs]) - Fnuint_Shell_OptThin_Dop(phs[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) - Fnuint_Shell_OptThin_Dop(phs[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable) )
+	return 2.*ma.pi/(2.*Ntrap_ph) * (2.0 * np.sum([Fnuint_Shell_OptThin_Dop(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable) for ph in phs]) - Fnuint_Shell_OptThin_Dop(phs[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) - Fnuint_Shell_OptThin_Dop(phs[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable) )
 
 	# Trap_sub = Fnuint_Shell_OptThin_Dop(phis[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) + Fnuint_Shell_OptThin_Dop(phis[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable)
 	# Trap_int = 0.0
@@ -1578,7 +1536,7 @@ def FThnu_Sphere_Dop_TrapInt(thet, nu, t, Dist, Aargs, RHStable, Ttable):
 		
 def Fnu_Sphere_Dop_TrapInt(nu, t, Dist, Aargs, RHStable, Ttable):
 	ths = np.linspace(0.0, ma.pi, Ntrap_th)
-	return ma.pi/(2.*Ntrap_th) * (2.0 * np.sum([2.*FThnu_Sphere_Dop_TrapInt(th, nu, t, Dist, Aargs, RHStable, Ttable) for th in ths]) - FThnu_Sphere_Dop_TrapInt(ths[0], nu, t, Dist, Aargs, RHStable, Ttable) - FThnu_Sphere_Dop_TrapInt(ths[Ntrap_th-1], nu, t, Dist, Aargs, RHStable, Ttable))
+	return ma.pi/(2.*Ntrap_th) * (2.0 * np.sum([FThnu_Sphere_Dop_TrapInt(th, nu, t, Dist, Aargs, RHStable, Ttable) for th in ths]) - FThnu_Sphere_Dop_TrapInt(ths[0], nu, t, Dist, Aargs, RHStable, Ttable) - FThnu_Sphere_Dop_TrapInt(ths[Ntrap_th-1], nu, t, Dist, Aargs, RHStable, Ttable))
 
 	# Trap_sub = FThnu_Sphere_Dop_TrapInt(ths[0], nu, t, Dist, Aargs, RHStable, Ttable) + FThnu_Sphere_Dop_TrapInt(ths[Ntrap_th-1], nu, t, Dist, Aargs, RHStable, Ttable)
 	# Trap_int = 0.0
@@ -1594,7 +1552,7 @@ def Fnu_Sphere_Dop_TrapInt(nu, t, Dist, Aargs, RHStable, Ttable):
 
 def F_Sphere_Dop_TrapInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	lnnus = np.linspace(numin, numax, Ntrap_nu) #in log if doing Trap
-	return (numax-numin)/(2.*Ntrap_nu) * (2.0 * np.sum([2.*np.exp(lnnu)*Fnu_Sphere_Dop_TrapInt(np.exp(lnnu), t, Dist, Aargs, RHStable, Ttable) for lnnu in lnnus]) - np.exp(lnnus[0]) * Fnu_Sphere_Dop_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) - np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Dop_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable) )
+	return (numax-numin)/(2.*Ntrap_nu) * (2.0 * np.sum([np.exp(lnnu)*Fnu_Sphere_Dop_TrapInt(np.exp(lnnu), t, Dist, Aargs, RHStable, Ttable) for lnnu in lnnus]) - np.exp(lnnus[0]) * Fnu_Sphere_Dop_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) - np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Dop_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable) )
 
 	# #if (type(t) is float or type(t) is np.float64):
 	# Trap_sub = np.exp(lnnus[0]) * Fnu_Sphere_Dop_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) + np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Dop_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable)
