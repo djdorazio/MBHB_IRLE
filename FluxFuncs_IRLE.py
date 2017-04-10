@@ -15,9 +15,9 @@ import scipy.signal as sgn
 
 
 # ###FOR TRAP INT
-Ntrap_ph = 100
-Ntrap_th = 100
-Ntrap_nu = 100
+Ntrap_ph = 120
+Ntrap_th = 120
+Ntrap_nu = 120
 
 #### INTEGRATION ERROR TOLS
 myrel = 1.e-8
@@ -41,6 +41,9 @@ numicron = c/(10**(-4))
 
 yr2sec = 3600.*24.*365.25
 
+##HARDCODE FOR PG1302 FOR NOW
+zPG1302 = 0.2784
+
 
 
 ## Back body specific intensity
@@ -50,7 +53,7 @@ def Bv(nu, T):
 def Qv(nu, nu0, nn):
 	qv = (nu/nu0)**(nn)
 #	if (type(qv) is float):
-	qv = min(qv, 1.0)
+	qv = np.minimum(qv, 1.0)
 #	else:
 #		ii = np.where(qv > 1.0)[0]
 #		qv[ii] = 1.0
@@ -63,7 +66,7 @@ def Qv(nu, nu0, nn):
 def QvBv(nu, T, nu0, nn):
 	qv = (nu/nu0)**(nn)
 	#if (type(qv) is float):
-	qv = min(qv, 1.0)
+	qv = np.minimum(qv, 1.0)
 		#if (qv>1.0):
 		#	qv=1.0
 	# else:
@@ -224,8 +227,6 @@ def Fsrc_Iso_PG(t, r, Lavg, Amp, Ombin, t0):
 
 	return Lavg/(4.*ma.pi*r*r)* ( 1. + Amp*np.sin(Ombn*t - t0)  )
 
-
-
 def TDust_Iso(t,r,thet, ph, args, RHStable, Ttable):
 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 	x = r*np.sin(thet)*np.cos(ph)
@@ -239,36 +240,85 @@ def TDust_Iso(t,r,thet, ph, args, RHStable, Ttable):
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
 	Td = 1.0*r/r  ##T=1 is very small
 
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+
+	Thf_p = 0.5*(np.sign(throt - thetT) + 1.0 ) 
+	Thf_m = 0.5*(np.sign((ma.pi - thetT) - throt) + 1.0 )
+	Rf    = 0.5*(np.sign(r+0.000001 - Rd) + 1.0 ) 
+
+	#if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
 		###-----------------###
 		### COMPUTE Fsrc    ###
 		###-----------------###
 
-		Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
+	Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
 
 
-		###-----------------###
-		### Compute taudust ###
-		###-----------------###
-		Qbar=1. 
-		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
-		LHS = Fsrc * np.exp(-tauDust)
-		# if (type(Fsrc) is np.ndarray):
-		# 	if (len(Fsrc) > len(RHStable)):
-		# 		LHS = sgn.resample(LHS, len(RHStable))
-		# 	elif (len(Fsrc) < len(RHStable)):
-		# 		RHStable = sgn.resample(RHStable, len(Fsrc))
-		RHS_mx = RHStable[len(RHStable)-1]
-		RHS_mn = RHStable[0]
+	###-----------------###
+	### Compute taudust ###
+	###-----------------###
+	Qbar=1. 
+	tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+	### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+	LHS = Fsrc * np.exp(-tauDust)
+	# if (type(Fsrc) is np.ndarray):
+	# 	if (len(Fsrc) > len(RHStable)):
+	# 		LHS = sgn.resample(LHS, len(RHStable))
+	# 	elif (len(Fsrc) < len(RHStable)):
+	# 		RHStable = sgn.resample(RHStable, len(Fsrc))
+	RHS_mx = RHStable[len(RHStable)-1]
+	RHS_mn = RHStable[0]
 
-		if (LHS > RHS_mx or LHS <= RHS_mn):
-			Td = 1.
-		else:
-			istar = np.where( LHS <= RHStable )[0].min()
-			Td = Ttable[istar]
+	if (LHS > RHS_mx or LHS <= RHS_mn):
+		Td = 1.
+	else:
+		istar = np.where( LHS <= RHStable )[0].min()
+		Td = Ttable[istar]
 
-	return Td
+	return Td * Thf_p * Thf_m * Rf 
+
+# def TDust_Iso(t,r,thet, ph, args, RHStable, Ttable):
+# 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+# 	x = r*np.sin(thet)*np.cos(ph)
+# 	y = r*np.sin(thet)*np.sin(ph)
+# 	z = r*np.cos(thet)
+	
+# 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
+# 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+# 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
+
+# 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
+# 	Td = 1.0*r/r  ##T=1 is very small
+
+# 	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+# 		###-----------------###
+# 		### COMPUTE Fsrc    ###
+# 		###-----------------###
+
+# 		Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
+
+
+# 		###-----------------###
+# 		### Compute taudust ###
+# 		###-----------------###
+# 		Qbar=1. 
+# 		tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+# 		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+# 		LHS = Fsrc * np.exp(-tauDust)
+# 		# if (type(Fsrc) is np.ndarray):
+# 		# 	if (len(Fsrc) > len(RHStable)):
+# 		# 		LHS = sgn.resample(LHS, len(RHStable))
+# 		# 	elif (len(Fsrc) < len(RHStable)):
+# 		# 		RHStable = sgn.resample(RHStable, len(Fsrc))
+# 		RHS_mx = RHStable[len(RHStable)-1]
+# 		RHS_mn = RHStable[0]
+
+# 		if (LHS > RHS_mx or LHS <= RHS_mn):
+# 			Td = 1.
+# 		else:
+# 			istar = np.where( LHS <= RHStable )[0].min()
+# 			Td = Ttable[istar]
+
+# 	return Td
 
 #TDust_Iso = np.vectorize(TDust_Iso, excluded=[4,5,6])
 
@@ -290,6 +340,8 @@ def TDust_Ring_Iso(t,r,thet, ph, args, RHStable, Ttable):
 
 	return Td
 
+
+
 def TDust_Iso_Anl(t,r,thet, ph, args):
 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 	x = r*np.sin(thet)*np.cos(ph)
@@ -301,26 +353,66 @@ def TDust_Iso_Anl(t,r,thet, ph, args):
 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
 
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Td = 1.*r/r  ##T=1 is very small
+	
+	#Td = 1.*r/r  ##T=1 is very small
 
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+
+	Thf_p = 0.5*(np.sign(throt - thetT) + 1.0 ) 
+	Thf_m = 0.5*(np.sign((ma.pi - thetT) - throt) + 1.0 )
+	#Rf    = 0.5*(np.sign(r+0.000001 - Rd) + 1.0 ) 
+
+	#if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
 		###-----------------###
 		### COMPUTE Fsrc    ###
 		###-----------------###
 
-		Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
+	Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
 
 
-		###-----------------###
-		### Compute taudust ###
-		###-----------------###
-		#Qbar=1. 
-		#tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
-		LHS = Fsrc #* np.exp(-tauDust)
-		Td = (LHS/(4.*sigSB))**(1./4.)
+	###-----------------###
+	### Compute taudust ###
+	###-----------------###
+	#Qbar=1. 
+	#tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+	### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+	LHS = Fsrc #* np.exp(-tauDust)
+	Td = (LHS/(4.*sigSB))**(1./4.)
 
-	return Td
+	return np.minimum(np.maximum(Td * Thf_p * Thf_m, 1.0 ), 1800.0)
+
+
+
+# def TDust_Iso_Anl(t,r,thet, ph, args):
+# 	Lavg, Amp, Ombin, t0, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+# 	x = r*np.sin(thet)*np.cos(ph)
+# 	y = r*np.sin(thet)*np.sin(ph)
+# 	z = r*np.cos(thet)
+	
+# 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
+# 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+# 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
+
+# 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
+# 	Td = 1.*r/r  ##T=1 is very small
+
+# 	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+# 		###-----------------###
+# 		### COMPUTE Fsrc    ###
+# 		###-----------------###
+
+# 		Fsrc = Fsrc_Iso(t, r, Lavg, Amp, Ombin, t0)
+
+
+# 		###-----------------###
+# 		### Compute taudust ###
+# 		###-----------------###
+# 		#Qbar=1. 
+# 		#tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+# 		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+# 		LHS = Fsrc #* np.exp(-tauDust)
+# 		Td = (LHS/(4.*sigSB))**(1./4.)
+
+# 	return Td
 
 
 #TDust_Iso_Anl = np.vectorize(TDust_Iso_Anl, excluded=[4])
@@ -430,17 +522,17 @@ def Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 
 	# Tdust for ISO source
 	#Tdust = TDust_Iso(tem, Rd, thet, ph,  args, RHStable, Ttable)
-	Tdust = TDust_Iso_Anl(tem, Rd, thet, ph,  args)
+	Tdust = TDust_Iso_Anl(tem, Rd, thet, ph,  args) / (1.+zPG1302)  #redshift for obs - ## Hardcode zPG for now
 
-	if (Tdust==1.0):
-		fint=1.e-16
-	else:
+	#if (Tdust==1.0 / (1.+zPG1302)):
+	#	fint=1.e-16
+	#else:
 		# surface density in optically thick limit
-		Surf_nd = 1./(ma.pi*aeff*aeff)#2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff) # 
+	Surf_nd = 1./(ma.pi*aeff*aeff)#2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff) # 
 		# Rd is the inner edge of the shell
-		fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
 		#fint =  2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
-		fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
+	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
 	
 
 	# pi for uniform emitting dust grain
@@ -459,7 +551,7 @@ def Fnuint_Shell_OptThin_Iso_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	tem = t - Rd/c*(1. - np.sin(thet)*np.cos(ph))
 
 	# Tdust for doppler source
-	Tdust = TDust_Iso_PG(tem, Rd, thet, ph,  args, RHStable, Ttable)
+	Tdust = TDust_Iso_PG(tem, Rd, thet, ph,  args, RHStable, Ttable) / (1.+zPG1302)
 	#Tdust = TDust_Iso_Anl(tem, Rd, thet, ph,  args, RHStable, Ttable)
 
 	# surface density in optically thick limit
@@ -498,7 +590,7 @@ def Fnuint_Shell_OptThick_Iso(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 
 
 	# Tdust for doppler source
-	Tdust = TDust_Iso(tem, Rd, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Iso(tem, Rd, thet, ph, args, RHStable, Ttable) / (1.+zPG1302)
 	# surface density in optically thick limit
 	Surf_nd = 1./ma.pi/aeff/aeff#2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
@@ -538,7 +630,7 @@ def Fnuint_Thick_Iso(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, tauGr
 
 
 	# Tdust for doppler source
-	Tdust = TDust_Iso(tem, r, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Iso(tem, r, thet, ph, args, RHStable, Ttable) / (1.+zPG1302)
 
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
@@ -565,7 +657,7 @@ def Fnuint_Thick_Iso_PG(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, ta
 
 
 	# Tdust for doppler source
-	Tdust = TDust_Iso_PG(tem, r, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Iso_PG(tem, r, thet, ph, args, RHStable, Ttable) / (1.+zPG1302)
 
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
@@ -966,6 +1058,41 @@ def TDust_Dop_PG(t,r,thet,phi, args, RHStable, Ttable):
 
 #TDust_Dop = np.vectorize(TDust_Dop, excluded=(4,5,6), cache=True)#excluded=("args", "RHStable", "Ttable"))
 
+# def TDust_Dop_Anl(t,r,thet,ph, args):
+# 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
+# 	x = r*np.sin(thet)*np.cos(ph)
+# 	y = r*np.sin(thet)*np.sin(ph)
+# 	z = r*np.cos(thet)
+	
+# 	xrot = x*np.cos(JJ) + z*np.sin(JJ)
+# 	zrot = z*np.cos(JJ) - x*np.sin(JJ)
+# 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
+
+# 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
+# 	Td = 1.*r/r  ##T=1 is very small
+
+# 	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+# 		###-----------------###
+# 		### COMPUTE Fsrc    ###
+# 		###-----------------###
+
+# 		Fsrc = Fsrc_Dop(t, r, thet, ph, Lavg, bets, incl, Ombin, alphnu)
+
+
+# 		###-----------------###
+# 		### Compute taudust ###
+# 		###-----------------###
+# 		#Qbar=1. 
+# 		#tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+# 		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+# 		LHS = Fsrc #* np.exp(-tauDust)
+# 		Td = (LHS/(4.*sigSB))**(1./4.)
+
+# 	return Td
+
+
+
+
 def TDust_Dop_Anl(t,r,thet,ph, args):
 	Lavg, bets, incl, Ombin, alphnu, n0, Rd, p, thetT, JJ, aeff, nu0, nn = args
 	x = r*np.sin(thet)*np.cos(ph)
@@ -977,27 +1104,30 @@ def TDust_Dop_Anl(t,r,thet,ph, args):
 	#rofx  = (xrot*xrot + y*y + zrot*zrot)**(0.5) #same as r of course
 
 	throt = np.arctan2((xrot*xrot + y*y)**(0.5), zrot)
-	Td = 1.*r/r  ##T=1 is very small
+	#Td = 1.*r/r  ##T=1 is very small
 
-	if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
+	#if (r>=Rd and throt>=thetT and throt<=(ma.pi - thetT)):
 		###-----------------###
 		### COMPUTE Fsrc    ###
 		###-----------------###
 
-		Fsrc = Fsrc_Dop(t, r, thet, ph, Lavg, bets, incl, Ombin, alphnu)
+	Thf_p = 0.5*(np.sign(throt - thetT) + 1.0 ) 
+	Thf_m = 0.5*(np.sign((ma.pi - thetT) - throt) + 1.0 )
+	#Rf    = 0.5*(np.sign(r+0.00000000000001 - Rd) + 1.0 ) 
+
+	Fsrc = Fsrc_Dop(t, r, thet, ph, Lavg, bets, incl, Ombin, alphnu)
 
 
-		###-----------------###
-		### Compute taudust ###
-		###-----------------###
-		#Qbar=1. 
-		#tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
-		### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
-		LHS = Fsrc #* np.exp(-tauDust)
-		Td = (LHS/(4.*sigSB))**(1./4.)
+	###-----------------###
+	### Compute taudust ###
+	###-----------------###
+	#Qbar=1. 
+	#tauDust = ma.pi*aeff*aeff*Qbar*n0/(p-1.)*  Rd *( 1 -  (Rd/r)**(p-1.))
+	### if flux is greater than RHS max at which T > Tsub~2000K, then dust sublimates
+	LHS = Fsrc #* np.exp(-tauDust)
+	Td = (LHS/(4.*sigSB))**(1./4.)
 
-	return Td
-
+	return np.minimum(np.maximum(Td * Thf_p * Thf_m, 1.0 ), 1800.0)
 #TDust_Dop_Anl = np.vectorize(TDust_Dop_Anl, excluded=[4])
 
 
@@ -1060,15 +1190,15 @@ def Fnuint_Shell_OptThin_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	
 	# Tdust for doppler source
 	#Tdust = TDust_Dop(tem,Rd, thet, ph, args, RHStable, Ttable)
-	Tdust = TDust_Dop_Anl(tem, Rd,thet, ph, args)
+	Tdust = TDust_Dop_Anl(tem, Rd,thet, ph, args) / (1.+zPG1302) 
 	# surface density in optically thick limit
 	Surf_nd = 1./(ma.pi*aeff*aeff)# Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
-	if (Tdust==1.0):
-		fint=1.e-16
-	else:
-		fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
-		fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
+	#if (Tdust==1.0/(1.+zPG1302) ):
+	#	fint=1.e-16
+	#else:
+	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)	
+	fint = fint* Rd*Rd* np.sin(thet) * Surf_nd
 	
 
 	# pi for uniform emitting dust grain
@@ -1094,7 +1224,7 @@ def Fnuint_Shell_OptThin_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 
 	
 	# Tdust for doppler source
-	Tdust = TDust_Dop_PG(tem, Rd, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Dop_PG(tem, Rd, thet, ph, args, RHStable, Ttable) / (1.+zPG1302) 
 	# surface density in optically thick limit
 	Surf_nd = 1./(ma.pi*aeff*aeff)#Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
@@ -1126,7 +1256,7 @@ def Fnuint_Shell_OptThick_Dop(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	#tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	# Tdust for doppler source
-	Tdust = TDust_Dop(tem, Rd, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Dop(tem, Rd, thet, ph, args, RHStable, Ttable) / (1.+zPG1302) 
 	# surface density in optically thick limit
 	Surf_nd = 1./(ma.pi*aeff*aeff)#Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
@@ -1165,7 +1295,7 @@ def Fnuint_Shell_OptThick_Dop_PG(ph, thet, nu, t, Dist, args, RHStable, Ttable):
 	#tauobs = tauObs_Shell(nu, x, y, z, aeff, n0, Rd, p, thetT, JJ, nu0, nn)
 
 	# Tdust for doppler source
-	Tdust = TDust_Dop_PG(tem, Rd, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Dop_PG(tem, Rd, thet, ph, args, RHStable, Ttable) / (1.+zPG1302) 
 	# surface density in optically thick limit
 	Surf_nd = 1./(ma.pi*aeff*aeff)#Surf_nd = 2.*aeff/(4./3. * ma.pi * aeff*aeff*aeff)
 	# Rd is the inner edge of the shell
@@ -1207,7 +1337,7 @@ def Fnuint_Thick_Dop(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, tauGr
 
 
 	# Tdust for doppler source
-	Tdust = TDust_Dop(tem, r, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Dop(tem, r, thet, ph, args, RHStable, Ttable) / (1.+zPG1302) 
 
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
@@ -1238,7 +1368,7 @@ def Fnuint_Thick_Dop_PG(ph, thet, r, nu, t, Dist, args, RHStable, Ttable): #, ta
 
 
 	# Tdust for doppler source
-	Tdust = TDust_Dop_PG(tem, r, thet, ph, args, RHStable, Ttable)
+	Tdust = TDust_Dop_PG(tem, r, thet, ph, args, RHStable, Ttable) / (1.+zPG1302) 
 
 	fint = Qv(nu, nu0, nn) * 2.*h*nu*nu*nu/(c*c)*1./(np.exp(  h*nu/(kb*Tdust)  ) - 1.)
 	fint = fint* r*r* np.sin(thet) * nDust(x,y,z, n0, Rd, p, thetT, JJ)
@@ -1324,6 +1454,12 @@ def F_Sphere_Iso_QuadInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 #########
 ### TRAP
 #########
+###DO TRIP INT
+def F_Sphere_Iso_TrapInt_Trip(numin, numax, t, Dist, Aargs, RHStable, Ttable, nus):
+	return np.trapz(np.trapz( np.trapz(Fnuint_Shell_OptThin_Iso(nus[0], nus[1], nus[2], t, Dist, Aargs, RHStable, Ttable), dx=2.*ma.pi/(Ntrap_ph), axis=0), dx=ma.pi/(Ntrap_th), axis=0), nus[2][0][0], axis=0)
+
+
+
 def FThnu_Sphere_Iso_TrapInt(thet, nu, t, Dist, Aargs, RHStable, Ttable):
 	phs = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
 	return 2.*ma.pi/(2.*Ntrap_ph) * (2.0 * np.sum([Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable) for ph in phs]) - Fnuint_Shell_OptThin_Iso(phs[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) - Fnuint_Shell_OptThin_Iso(phs[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable) )
@@ -1347,7 +1483,8 @@ def F_Sphere_Iso_TrapInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 # 	phs = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
 # 	ths = np.linspace(0.0, ma.pi, Ntrap_th)
 # 	lnnus = np.linspace(numin, numax, Ntrap_nu) #in log if doing Trap
-#  	Tsm = 2.0 * np.sum(Fnuint_Shell_OptThin_Iso(phs, ths, lnnus, t, Dist, Aargs, RHStable, Ttable), axis=0 ) - Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable)
+# 	ptn = np.meshgrid(phs, ths, lnnus)
+#  	Tsm = 2.0 * np.sum(Fnuint_Shell_OptThin_Iso(ptn[0], ptn[], ptn[], t, Dist, Aargs, RHStable, Ttable), axis=1 ) - Fnuint_Shell_OptThin_Iso(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable)
 #  	Tsm = Tsm -
 
 
@@ -1520,6 +1657,12 @@ def F_Sphere_Dop_QuadInt_PG(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 #########
 ### TRAP
 #########
+##JUST DO TRIP INT WITH TRAPZ
+def F_Sphere_Dop_TrapInt_Trip(numin, numax, t, Dist, Aargs, RHStable, Ttable, nus):
+	return np.trapz(np.trapz( np.trapz(Fnuint_Shell_OptThin_Dop(nus[0], nus[1], nus[2], t, Dist, Aargs, RHStable, Ttable), dx=2.*ma.pi/(Ntrap_ph), axis=0), dx=ma.pi/(Ntrap_th), axis=0), nus[2][0][0], axis=0)
+
+
+
 def FThnu_Sphere_Dop_TrapInt(thet, nu, t, Dist, Aargs, RHStable, Ttable):
 	phs = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
 	return 2.*ma.pi/(2.*Ntrap_ph) * (2.0 * np.sum([Fnuint_Shell_OptThin_Dop(ph, thet, nu, t, Dist, Aargs, RHStable, Ttable) for ph in phs]) - Fnuint_Shell_OptThin_Dop(phs[0],thet, nu, t, Dist, Aargs, RHStable, Ttable) - Fnuint_Shell_OptThin_Dop(phs[Ntrap_ph-1],thet, nu, t, Dist, Aargs, RHStable, Ttable) )
@@ -1548,11 +1691,16 @@ def Fnu_Sphere_Dop_TrapInt(nu, t, Dist, Aargs, RHStable, Ttable):
 
 	# return ma.pi/(2.*Ntrap_th) * (Trap_int)
 
-	
+
 
 def F_Sphere_Dop_TrapInt(numin, numax, t, Dist, Aargs, RHStable, Ttable):
 	lnnus = np.linspace(numin, numax, Ntrap_nu) #in log if doing Trap
 	return (numax-numin)/(2.*Ntrap_nu) * (2.0 * np.sum([np.exp(lnnu)*Fnu_Sphere_Dop_TrapInt(np.exp(lnnu), t, Dist, Aargs, RHStable, Ttable) for lnnu in lnnus]) - np.exp(lnnus[0]) * Fnu_Sphere_Dop_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) - np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Dop_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable) )
+
+
+
+
+
 
 	# #if (type(t) is float or type(t) is np.float64):
 	# Trap_sub = np.exp(lnnus[0]) * Fnu_Sphere_Dop_TrapInt( np.exp(lnnus[0]), t, Dist, Aargs, RHStable, Ttable) + np.exp(lnnus[Ntrap_nu-1]) * Fnu_Sphere_Dop_TrapInt(np.exp(lnnus[Ntrap_nu-1]), t, Dist, Aargs, RHStable, Ttable)

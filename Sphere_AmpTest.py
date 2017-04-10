@@ -38,7 +38,7 @@ MCMC = True
 NThread = 8
 
 ##FIG 3
-ISOvDop = True
+ISOvDop = False
 
 ISOvDop_MAX = False
 
@@ -57,11 +57,11 @@ PG1302_ISO = False
 PG1302_ISO_Jth_Conts = False
 PG1302_Dop = False
 PG1302_Dop_Jth_Conts = True
-Nfrc = 10 ## how many tries at each bin
-Ngrd = 10 ## Ngrd^2 evaluations
+Nfrc = 20 ## how many tries at each bin
+Ngrd = 20 ## Ngrd^2 evaluations
 
 
-W1W2vals = True
+W1W2vals = False
 numRing = True
 
 
@@ -76,6 +76,9 @@ else:
 	Nnumn = 0.0
 	Nnumx = 5.0
 
+
+#Nnumn = 1./2.8 
+#Nnumx = 1./4.0 
 numn = Nnumn*numicron
 numx = Nnumx*numicron
 
@@ -271,11 +274,19 @@ def ISO_AIR_o_AUV_Trap(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	Lav, Amp, Ombn, t0, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne = arg1
 	Ombn = 2. *ma.pi * c/Rd * frc #don't worry beta isn't set by Ombn
 
+	phiss = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
+	thss = np.linspace(0.0, ma.pi, Ntrap_th)
+	nuss = np.linspace(np.exp(numn), np.exp(numx), Ntrap_nu)
+	#nuss = np.linspace(numn, numx, Ntrap_nu)
+
+
+	nus = np.meshgrid(phiss, thss, nuss) 
+
 
 	t0 = 0.0
 	arg2 = [Lav, Amp, Ombn, t0, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne]
-	LIR_mx = F_Sphere_Iso_TrapInt(numn, numx, 0.25*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
-	LIR_mn = F_Sphere_Iso_TrapInt(numn, numx, 0.75*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
+	LIR_mx = F_Sphere_Iso_TrapInt_Trip(numn, numx, 0.25*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table, nus)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LIR_mn = F_Sphere_Iso_TrapInt_Trip(numn, numx, 0.75*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table, nus)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff
 
 	
 	return 0.5*(LIR_mx - LIR_mn)/(Lav*Amp) *   Lav/(0.5*(LIR_mx + LIR_mn))
@@ -371,7 +382,13 @@ def DOP_AIR_o_AUV_Trap(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	Lav, betst, Inc, Ombn, alph, n0, Rd, pp, thetTst, JJt, aeff, nu0, nne = arg1
 	Ombn = 2. *ma.pi * c/Rd * frc  #don't worry beta isn't set by Ombn
 
+	phiss = np.linspace(0.0,2.*ma.pi, Ntrap_ph)
+	thss = np.linspace(0.0, ma.pi, Ntrap_th)
+	nuss = np.linspace(np.exp(numn), np.exp(numx), Ntrap_nu)
+	#nuss = np.linspace(numn, numx, Ntrap_nu)
 
+
+	nus = np.meshgrid(phiss, thss, nuss) 
 	#Ombn = OmPG
 	#Rd = 2. *ma.pi * c/OmPG * frc
 	
@@ -386,8 +403,8 @@ def DOP_AIR_o_AUV_Trap(frc, numn, numx, Dst, arg1, RHS_table, T_table):
 	LUV_mn = Fsrc_Dop(0.5*2*ma.pi/Ombn, Dst, ma.pi/2., 0.0, Lav, betst, Inc, Ombn, alph)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
 	
 
-	LIR_mx = F_Sphere_Dop_TrapInt(numn, numx, (0.25-0.25)*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
-	LIR_mn = F_Sphere_Dop_TrapInt(numn, numx, (0.5-0.25)*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LIR_mx = F_Sphere_Dop_TrapInt_Trip(numn, numx, (0.25-0.25)*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table, nus)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
+	LIR_mn = F_Sphere_Dop_TrapInt_Trip(numn, numx, (0.5-0.25)*2*ma.pi/Ombn + Rd/c, Dst, arg2, RHS_table, T_table, nus)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
 	
 
 	#LIR_bol = F_Sphere_Dop_QuadInt(0.0, 5.*numicron, 0.5*2*ma.pi/Ombn, Dst, arg2, RHS_table, T_table)*(Dst/aeff)**2 * 4.* ma.pi * aeff*aeff 
